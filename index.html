@@ -1,31 +1,80 @@
 <!doctype html>
 <html lang = "en-US">
 	<head>
-		<title>Gwent 4.0</title>
+		<title>Gwent 4.5</title>
 		<meta charset = "utf-8" />
-		<meta name = "author" content = "Arun Sundaram & Reynolds Costa" />
+		<meta name = "author" content = "Arun Sundaram, Reynolds Costa & Iván Mtz" />
 		<meta name = "description" content = "Play the original Gwent minigame from The Witcher 3 in your browser! Includes cards from Hearts of Stone and Blood & Wine!" />
 		<meta name = "keywords" content = "arun, sundaram, reynolds, costa, randompianist, programmer, gwent, tw3, witcher, card, game, gamedev, play" />
-		<meta name = "viewport" content = "width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+		<link rel = "icon" type = "image/x-icon" href = "img/favicon.ico" />
 		<link rel = "stylesheet" type = "text/css" href = "style.css" />
-	</head>
+<script type="text/javascript">
+    (function() {
+        if (window.PhoneGap || window.cordova || navigator.userAgent.indexOf('Android') > -1) {
+            document.addEventListener('deviceready', function() {
+                if (navigator.app && navigator.app.overrideButton) {
+                    navigator.app.overrideButton("volumeup", true);
+                }
+            }, false);
+        }
+        window.addEventListener('DOMContentLoaded', function() {
+            let chasisEstilo = document.createElement('style');
+            chasisEstilo.innerHTML = '* { -webkit-text-size-adjust: none !important; text-size-adjust: none !important; }';
+            document.head.appendChild(chasisEstilo);
+        });
+    })();
+</script>	
+<style type = "text/css">        
+@font-face {
+            font-family: 'GwentCustom';          
+            src: url('fonts/gwent.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .gwent-title {
+            font-family: 'GwentCustom', serif;
+            font-size: 6rem;                 
+            letter-spacing: -8px;             
+            display: block;                  
+            text-align: center;              
+        
+      background: linear-gradient(to bottom, 
+        #b58f00 0%,   
+        #e0b400 35%,  
+        #8a6000 65%,  
+        #9c7a00 100%  
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 1px #000000;
+
+    filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.95)) 
+            drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.75)) brightness(1.0) contrast(1.2);
+}
+.letra-grande {
+        font-size: 140%; 
+        vertical-align: middle; 
+    }
+    </style>
+
+</head>
 	<body>
 		<div class = "abs" id = "very_start_bg1"></div>
 		<div class = "abs" id = "very_start_bg2">
 			<div id = "very_start" class = "abs" style = "padding-top:55%">
-				UP FOR
-				<br />
-				A FEW ROUNDS
-				<br />
-				OF GWENT?
-				<br /><br />
-				<font id = "load_text">Loading...</font>
-				<button class = "start-game_class" id = "button_start" style = "display:none">Click here to begin</button>
+				<span class="gwent-title">
+                <span class="letra-grande">G</span>WEN<span class="letra-grande">T</span>
+            </span>
+<br />
+				<font id = "load_text">Loading v4.5...</font>
+				<button class = "start-game_class" id = "button_start" style = "display:none">LET'S PLAY</button>
+<div id = "version_text" style = "font-family: 'GwentCustom', serif; font-size: 1.2rem; color: maroon; text-align: center; margin-top: 10px;">v4.5</div>
 			</div>
 		</div>
 		<div id = "dimensions" style = "position:fixed;width:100vw;height:calc(100vw * 1080 / 1920);"></div>
-		<div id = "youtube"></div>
-		<main style = "display:none">
+			<main style = "display:none">
 			<section id = "click-background" class = "noclick"></section>
 			<section id = "panel-left" class = "panel">
 				<div id = "leader-op" class = "leader-box">
@@ -85,7 +134,8 @@
 						<div></div>
 					</div>
 				</div>
-				<div id = "pass-button" class = "center">Pass</div>
+				<div id = "pass-button" class = "center pulse">Pass</div>
+<div id = "giveup-button" class = "center pulse">Give up</div>
 			</section>
 			<section id = "panel-mid" class = "panel">
 				<section id = "field-op" class = "field">
@@ -164,8 +214,7 @@
 					<p></p>
 				</div>
 				<div id = "carousel_label"></div>
-        <div id = "carousel_submit">✓</div>
-			</section>
+       			</section>
       <section id="deck-sorter" class="hide">
           <div class="drop-container">
               <div id="deck-sorter-title">Reorder cards in deck</div>
@@ -287,12 +336,85 @@
             <button id="start-ai-game" class="start-game_class">Start AI game</button>
             <button id="start-pvp-game" class="start-game_class">Start PvP game</button>
         </section>
-		<div id = "toggle-music" class = "center music-customization" style = "display:none">♫</div>
+		<div id="toggle-music" class="center music-customization" style="display flex; gap: 8px; align-items: center;">
+    <span id="btn-play" style="cursor:pointer; font-size: 0.8em;">♫</span>
+    <span id="btn-skip" style="cursor:pointer; font-size: 0.6em;">⏭</span>
+</div>
 		<script type = "text/javascript" src = "cards.js"></script>
 		<script type = "text/javascript" src = "decks.js"></script>
 		<script type = "text/javascript" src = "abilities.js"></script>
 		<script type = "text/javascript" src = "factions.js"></script>
-		<script src = "https://www.youtube.com/iframe_api"></script>
 		<script type = "text/javascript" src = "gwent.js"></script>
-	</body>
+	
+<audio id="bgMusicLocal"></audio>
+
+<script>
+    var playlist = [
+        "audio/track1.mp3", "audio/track2.mp3", "audio/track3.mp3", "audio/track4.mp3",
+        "audio/track5.mp3", "audio/track6.mp3", "audio/track7.mp3", "audio/track8.mp3",
+        "audio/track9.mp3", "audio/track10.mp3", "audio/track11.mp3", "audio/track12.mp3", "audio/track13.mp3"
+    ];
+    var audio = document.getElementById('bgMusicLocal');
+
+    var currentTrackIndex = -1;
+
+    function saltar() {
+        if (playlist.length <= 1) {
+            if (playlist.length === 1) {
+                audio.src = playlist[0];
+                audio.play().catch(e => console.log("Esperando toque..."));
+            }
+            return;
+        }
+
+        var nuevoIndex = currentTrackIndex;
+
+
+        while (nuevoIndex === currentTrackIndex) {
+            nuevoIndex = Math.floor(Math.random() * playlist.length);
+        }
+
+        currentTrackIndex = nuevoIndex;
+        var track = playlist[currentTrackIndex];
+        
+        audio.src = track;
+        audio.play().catch(e => console.log("Esperando toque..."));
+    }
+
+    document.getElementById('btn-play').onclick = function(e) {
+        e.stopPropagation();
+        if (!audio.src || audio.src === "") { saltar(); } 
+        else { (audio.paused) ? audio.play() : audio.pause(); }
+    };
+
+    document.getElementById('btn-skip').onclick = function(e) {
+        e.stopPropagation();
+        saltar();
+    };
+
+    audio.onended = function() { saltar(); };
+
+    function iniciarAlTocar() {
+        if (!audio.src || audio.src === "") { saltar(); }
+        window.removeEventListener('click', iniciarAlTocar);
+        window.removeEventListener('touchstart', iniciarAlTocar);
+    }
+    window.addEventListener('click', iniciarAlTocar);
+    window.addEventListener('touchstart', iniciarAlTocar);
+ document.addEventListener("visibilitychange", function() {
+        if (audio && audio.src && audio.src !== "") {
+            if (document.hidden) {
+                audio._fuePausadoPorSistema = !audio.paused;
+                audio.pause();
+            } else {
+                if (audio._fuePausadoPorSistema) {
+                    audio.play().catch(function(e) { console.log("Bloqueo de hardware evitado"); });
+                }
+            }
+        }
+    });
+</script>
+
+
+</body>
 </html>

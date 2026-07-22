@@ -268,60 +268,60 @@ var factions = {
         },
         unavailableSpecials: ["spe_scorch"]
     },
-    velen: {
+        velen: {
         name: "Velen",
         factionAbilityAction: async player => {
+            if (!player || !player.deck || player.deck.cards.length === 0) return;
+            
+            if (player.velenLockAction) return;
+            player.velenLockAction = true;
+            
             await ui.notification("velen", 1000);
-            let cardsToDraw = Math.min(player.velenCardDraw + player.getAllRowCards().filter(c => c.abilities.includes("soothsayer")).length, player.deck.cards.length);
-            let cards = { cards: player.deck.cards.slice(0, cardsToDraw) };
-            let targetCard = null;
-            ui.helper.showMessage(String(player.destroyedCards)+" card(s) were destroyed last round.",3);
-            if (player.controller instanceof ControllerAI) {
-                targetCard = player.controller.getHighestWeightCard(cards.cards);
-            } else {
-                await ui.queueCarousel(cards, 1, (c, i) => targetCard = c.cards[i], c => true, true, true, "Choose up to one card to draw and play immediatly");
+            
+            let targetCard = player.deck.cards[0];
+            
+            if (targetCard) {
+                if (player.controller instanceof ControllerAI) {
+                    player.deck.removeCard(targetCard);
+                    targetCard.holder = player;
+                    player.hand.addCard(targetCard);
+tocar("game_buy", false);                    
+                    if (typeof player.updateHandCount === "function") {
+                        player.updateHandCount();
+                    } else if (board && typeof board.updateLeader === "function") {
+                        board.updateLeader();
+                    }
+                } else {
+tocar("game_buy", false);
+                    if (typeof board !== "undefined" && typeof board.toHand === "function") {
+                        targetCard.holder = player;
+                        await board.toHand(targetCard, player.deck);
+                    } else if (typeof player.deck.draw === "function") {
+                        await player.deck.draw(player.hand);
+                    } else {
+                        player.deck.removeCard(targetCard);
+                        targetCard.holder = player;
+                        player.hand.addCard(targetCard);
+                        if (targetCard.elem) targetCard.elem.remove();
+                    }
+                }
+                
+               
             }
-            if (player.destroyedCards > 1) {
-                player.destroyedCards = 1;
-            } else {
-                player.destroyedCards = 0;
+            
+            if (player.destroyedCards > 0) {
+                player.destroyedCards -= 1;
             }
-            cards.cards.forEach(c => {
-                if (c !== targetCard) {
-                    // Remove to shuffle back at a random place (default behaviour on addCard in deck)
-                    player.deck.removeCard(c);
-                    player.deck.addCard(c);
-                }
-            });
-            // Game can get stuck if the player selects a Decoy but there is no decoyable card
-            if (targetCard.key === "spe_decoy") {
-                let units = player.getAllRowCards().filter(c => c.isUnit());
-                if (units.length == 0) {
-                    await board.toHand(targetCard, player.deck);
-                    targetCard = null;
-                }
+            
+            player.velenLockAction = false;
+            
+            if (player.destroyedCards > 0 && typeof factions["velen"] !== "undefined") {
+                await sleep(500);
+                await factions["velen"].factionAbilityAction(player);
             }
-            if (player.controller instanceof ControllerAI) {
-                if(targetCard)
-                    player.controller.playCardDefault(targetCard, player.deck);
-                // If more than 1 card was destroyed, we trigger the faction ability once more
-                if (player.destroyedCards > 0) {
-                    await factions["velen"].factionAbilityAction(player);
-                }
-            } else {
-                if (targetCard) {
-                    // let player select where to play the card
-                    let choiceDone = false;
-                    player.selectCardDestination(targetCard, player.deck, async () => {
-                        choiceDone = true;
-                    });
-                    // We sleep until the choice is made, otherwise the round starts as normal
-                    await sleepUntil(() => choiceDone, 100);
-                }
-                // If more than 1 card was destroyed, we trigger the faction ability once more
-                if (player.destroyedCards > 0) {
-                    await factions["velen"].factionAbilityAction(player);
-                }
+            
+            if (typeof board !== "undefined") {
+                if (board.updateScores) board.updateScores(); else if (board.updateScore) board.updateScore();
             }
         },
         factionAbility: player => {
@@ -330,28 +330,37 @@ var factions = {
                 player.velenCardDraw = 1;
                 return false;
             });
-            game.unitDestroyed.push(async c => {
-                if (c.isUnit())
-                    player.destroyedCards += 1;
-            });
-            game.turnStart.push(async () => {
-                if (player.destroyedCards > 0) {
-                    await factions["velen"].factionAbilityAction(player);
-                }
+        
+            game.roundStart.push(async () => {
+                player.destroyedCards = 0;
+                player.velenLockAction = false;
                 return false;
             });
+            game.unitDestroyed.push(async c => {
+                if (c && typeof c.isUnit === "function" && c.isUnit()) {
+                    let allMyCards = player.getAllRowCards ? player.getAllRowCards() : [];
+                    let soothsayerCount = allMyCards.filter(unit => unit && unit.abilities && unit.abilities.includes("soothsayer")).length;
+                    
+                    player.destroyedCards += (1 + soothsayerCount);
+                }
+            });
+            game.turnEnd.push(async () => {
+                if (game.currPlayer === player && player.destroyedCards > 0) {
+                    await factions["velen"].factionAbilityAction(player);
+                }
+            });
         },
-        description: "Every time when a unit card of any player dies, draw one card from your deck and play it immediatly. If several unit cards die at the same time, repeat this action once. If you don't want to play a drawn card, shuffle it back into the deck.",
+        description: "Whenever a unit card of any player is destroyed during a round, draw a card from your deck into your hand at the end of the turn. Each active Soothsayer on your board grants one additional draw per destroyed unit.",
         activeAbility: false,
         abilityUses: 0,
         weight: (player) => {
             return 0;
         },
         unavailableSpecials: []
-    },
-    wild_hunt: {
+    },             
+wild_hunt: {
         name: "Wild Hunt",
-        factionAbilityAction: async player => {
+                factionAbilityAction: async player => {
             if (player.deck.cards.length == 0)
                 return;
             let openedDoors = player.getAllRows().map(r => r.special).reduce((a, c) => a.concat(c.cards.filter(c => c.key === "spe_dimensional_door" && c.faceUp)), []);
@@ -359,7 +368,7 @@ var factions = {
                 for (var i = 0; i < openedDoors.length; i++) {
                     if (player.deck.cards.length > 0) {
                         let door = openedDoors[i];
-                        let card = player.deck.cards.slice(0, 1)[0];
+                        let card = player.deck.cards.shift();
                         ui.showPreviewVisuals(card);
                         await sleep(2000);
                         let play = false;
@@ -373,7 +382,7 @@ var factions = {
                             if (!(player.controller instanceof ControllerAI)) {
                                 play = await ui.popup("Play [E]", (p) => p.choice = true, "Discard [Q]", (p) => p.choice = false, "Play the card?", "Do you want to play this special card or put it back in the deck?");
                             } else {
-                                if (player.controller.getWeights([card])[0].weight > 0)
+                                if (player.controller.getWeights([card]).weight > 0)
                                     play = true;
                             }
                         }
@@ -381,25 +390,73 @@ var factions = {
                         ui.previewCard = null;
                         if (play) {
                             if (!(player.controller instanceof ControllerAI)) {
-                                // let player select where to play the card
                                 let choiceDone = false;
                                 player.selectCardDestination(card, player.deck, async () => {
                                     choiceDone = true;
                                     ui.enablePlayer(true);
                                 });
-                                // We sleep until the choice is made, otherwise the turn continues as normal
                                 await sleepUntil(() => choiceDone, 100);
                             } else {
-                                player.getAIController().playCardDefault(card, player.deck);
+                                let filaDestino = player.getAllRows().find(r => r.special.cards.includes(door));
+                                if (card.name === "Decoy" || !filaDestino) {
+                                    player.deck.removeCard(card);
+                                    player.deck.addCard(card);
+                                } else if (card.key === "spe_scorch" || card.name === "Scorch") {
+                                    player.deck.removeCard(card);
+                                    await player.getAIController().playCardDefault(card, player.deck);
+                                    await sleep(600);
+                                    board.updateScores();
+                                } else {
+                                    player.deck.removeCard(card);
+                                    if (card.row === "weather") {
+                                        let contenedorClima = (typeof weather !== "undefined") ? weather : filaDestino.special;
+                                        contenedorClima.addCard(card);
+                                        card.currentLocation = contenedorClima;
+                                        if (typeof game.addCardElement === "function") {
+                                            game.addCardElement(card);
+                                        } else if (typeof contenedorClima.addCardElement === "function") {
+                                            contenedorClima.addCardElement(card);
+                                        }
+                                        if (typeof card.placed === "object" && card.placed.length > 0) {
+                                            for (let x of card.placed) {
+                                                await x(card, contenedorClima);
+                                            }
+                                        } else if (typeof board.updateWeather === "function") {
+                                            await board.updateWeather();
+                                        }
+                                    } else if (!card.isUnit() && !card.hero) {
+                                        if (typeof player.playCard === "function") {
+                                            await player.playCard(card, filaDestino);
+                                        } else {
+                                            await player.getAIController().playCardDefault(card, player.deck);
+                                        }
+                                    } else {
+                                        filaDestino.addCard(card);
+                                        card.currentLocation = filaDestino;
+                                        if (typeof game.addCardElement === "function") {
+                                            game.addCardElement(card);
+                                        } else if (typeof filaDestino.addCardElement === "function") {
+                                            filaDestino.addCardElement(card);
+                                        }
+                                        if (typeof card.placed === "object" && card.placed.length > 0) {
+                                            for (let x of card.placed) {
+                                                await x(card, filaDestino);
+                                            }
+                                        }
+                                    }
+                                    await sleep(400);
+                                    board.updateScores();
+                                    if (typeof game.resize === "function") game.resize();
+                                }
                             }
                         } else {
-                            player.deck.removeCard(card);
-                            player.deck.addCard(card);
+                            player.deck.cards.push(card);
                         }
                     }
                 }
             }
         },
+
         factionAbility: player => {
             game.gameStart.push(async () => {
                 player.getAllRows().forEach(r => {

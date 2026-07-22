@@ -51,22 +51,30 @@ div.abs {
 }
 
 #very_start_bg2 {
-	top: 3%;
-	left: 2%;
-	width: 32%;
-	height: 94%;
-	border: solid 4px white;
+	top:0%;
+	width:100%;
+	height:100%;
+	border:none;
 }
 
+
 #very_start {
-	position:absolute;
-	height:auto;
-	font-size: 20px;
+	width: 100%;
+    height: 100%;
+	font-size: 30px;
 	color: #FFF;
 	z-index: 3000;
-	text-align: center;
-	font-weight: bold;
+	display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: bold;
+    border: none; 
+    
+    transform: translate(-10px, 90px);
 }
+
 
 ::selection {
 	background: transparent;
@@ -115,14 +123,6 @@ html {
 	position: absolute;
 }
 
-#youtube {
-	position: fixed;
-	height: 10px;
-	width: 10px;
-	display: hidden;
-	z-index: -100;
-}
-
 #toggle-music {
 	position: absolute;
 	top: 45.6vw;
@@ -130,8 +130,9 @@ html {
 	width: 2vw;
 	height: 3vw;
 	font-size: 3vw;
-	color: goldenrod;
-	text-shadow: 0 0 2vw #000;
+	color: #FFB800;
+ -webkit-text-stroke: 0.1px black;
+	text-shadow: 2px 2px 5px #4c390a;
 	z-index: 86;
 }
 
@@ -422,6 +423,7 @@ html {
 	pointer-events: none;
 	border: .1vw solid #ffffff57;
 	border-width: .1vw 0;
+border-radius: 0.5vw;
 }
 
 .card-description>* {
@@ -560,42 +562,6 @@ html {
 	box-shadow: 0 0 1vw #ffffff54;
 }
 
-/* Carousel Submit Button */
-#carousel > #carousel_submit {
-    position: absolute;
-    top: 13.5%;
-    right: 5%;
-    width: 5%;
-    height: 5%;
-    text-align: center;
-    color: tan;
-    font-weight: bold;
-    font-size: 1.6vw;
-}
-
-#carousel > #carousel_submit:hover {
-    color: green;
-    border: 1px green solid;
-    border-radius: 5px;
-    background-color: #86d986;
-}
-    /*
-
-    #arrangementWindow-button {
-    bottom: 35%;
-    right: -88%;
-    width: 5%;
-    height: 5%;
-    text-align: center;
-    color: tan;
-    font-weight: bold;
-    font-size: 1.6vw;
-}
-
-#arrangementWindow-button:hover {
-    color: green;
-}
-*/
     /* Modal helpers */
 
     #helper-box {
@@ -788,7 +754,7 @@ html {
 }
 
 #pass-button:hover, #toggle-music:hover {
-	text-shadow: 0 0 1vw #6d5210;
+	text-shadow:0 0 1.5vw #FFD700;
 }
 
 #end-screen button:hover {
@@ -1162,16 +1128,29 @@ html {
 	top: -3%
 }
 
-#pass-button {
-	top: 82%;
-	left: 63%;
+.pulse {
+	left: 59%;
 	width: 20%;
 	height: 4%;
-	font-size: 2vw;
-	font-weight: 700;
+	font-size: 1.3vw;
+	font-weight: 700; 
 	border: .1vw solid goldenrod;
 	border-radius: .5vw;
 	background-color: rgba(20, 20, 20, .9);
+	position: absolute; 
+}
+
+#pass-button {
+	top: 79%;
+}
+
+#giveup-button {
+	top: 84%;
+}
+
+.pulse:hover {
+	text-shadow: 0 0 1.5vw #FFD700;
+	background-color: rgba(40, 40, 40, .9);
 }
 
 .field {
@@ -1417,7 +1396,7 @@ html {
 	position: absolute;
 	font-size: 1.14vw;
 	color: #ab977c;
-	top: 9.45%;
+	top: 8.1%;
 	left: 20.2%;
 	width: 60%;
 	text-align: center;
@@ -1548,7 +1527,7 @@ html {
 	left: 0%;
 	width: 100%;
 	height: 5vw;
-	font-size: 1vw;
+	font-size: 0.84vw;
 	background-position: left;
 	background-repeat: no-repeat;
 	background-size: contain;
@@ -1561,7 +1540,7 @@ html {
 	justify-content: center;
 	text-align: center;
 	position: absolute;
-	top: 83%;
+	top: 82%;
 	left: 0%;
 	width: 98%;
 	height: 5vw;
@@ -1693,7 +1672,7 @@ html {
 	left: 0%;
 	width: 96%;
 	height: 5vw;
-	font-size: 0.9vw;
+	font-size: 0.8vw;
 	background-position: left;
 	background-repeat: no-repeat;
 	background-size: contain;
@@ -2261,8 +2240,8 @@ html {
 }
 
 .fade {
-	opacity: .2;
-	filter: alpha(opacity=20);
+	opacity: .5;
+	filter: alpha(opacity=50);
 }
 
 .noclick {
@@ -2497,3 +2476,113 @@ html {
 #drop-submit:disabled {
     background-color: #8e8c6b;
 }
+
+/* Esto forzará el tamaño del botón de inicio */
+#button_start {
+    font-size: 18px !important; 
+    padding: 6px 15px !important;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    margin-top: -10px !important;
+}
+
+/* --- EFECTO DE RESPLANDOR (GLOW) AJUSTADO --- */
+
+/* 1. Resplandor y Agrandado SOLO para las Cartas (Colección y Mazo) */
+.card-lg:hover {
+    cursor: pointer;
+    box-shadow: 0 0 8px 2px rgba(255, 200, 0, 0.8), 0 0 12px 4px rgba(255, 150, 0, 0.4) !important;
+    transform: scale(1.04); 
+    transition: all 0.10s ease-out;
+    z-index: 100;
+    position: relative;
+}
+
+/* 2. Resplandor Dorado INTENSO para botones de música (Nota y Avanzar) */
+#btn-play:hover, #btn-skip:hover {
+    cursor: pointer;
+    color: #FFB800 !important; 
+    
+    /* 1. Contorno negro fino alrededor de cada letra */
+    -webkit-text-stroke: 0.5px black;
+    
+    /* 2. Filtros de resplandor dorado */
+    filter: contrast(1.5) 
+            drop-shadow(0 0 5px #FF8A00) 
+            drop-shadow(0 0 12px #FFD700) !important;
+    
+    /* 3. Sombras: La primera capa es NEGRA para dar contraste */
+    /* La segunda y tercera son el brillo dorado */
+    text-shadow: 2px 2px 2px #000, 
+                 0 0 10px #FFD700, 
+                 0 0 20px #B8860B;
+
+    transform: scale(1.3); 
+    transition: all 0.1s ease-in-out;
+}
+
+
+/* --- ANIMACIÓN CINEMÁTICA: CLEAR WEATHER (RAYOS DE SOL) --- */
+
+/* Contenedor principal para el efecto del clima */
+.sunlight-overlay-cinema {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    pointer-events: none !important;
+    z-index: 99999 !important;
+    overflow: hidden !important;
+}
+
+/* El Sol rayos difuminados */
+.sunlight-beam-wave {
+    position: absolute !important;
+    top: -80px !important;
+    left: -80px !important;
+    
+    
+    width: 90vw !important;
+    height: 60vh !important;
+    
+   
+    filter: blur(25px) !important;
+    
+   
+    background: 
+        radial-gradient(circle at 60px 60px, rgba(255, 204, 0, 0.65) 0%, rgba(255, 174, 0, 0.3) 25%, rgba(255, 223, 0, 0) 75%),
+        conic-gradient(from 125deg at 60px 60px, 
+            transparent 0%, 
+            rgba(255, 220, 100, 0.22) 8%,   
+            transparent 16%, 
+            transparent 30%,
+            rgba(255, 195, 0, 0.25) 38%,    
+            transparent 48%, 
+            transparent 60%,
+            rgba(255, 255, 255, 0.35) 68%,  
+            transparent 76%,
+            rgba(255, 215, 0, 0.20) 86%,    
+            transparent 95%) !important;
+            
+    opacity: 0;
+    transform-origin: 60px 60px !important;
+    animation: sunDiagonalFlash 2.2s ease-in-out forwards !important;
+}
+
+/* @keyframes: Destello del amanecer con rotación suave para dar vida a los rayos */
+@keyframes sunDiagonalFlash {
+    0% {
+        opacity: 0;
+        transform: scale(0.6) rotate(0deg);
+    }
+    25% {
+        opacity: 0.9; 
+        transform: scale(1.05) rotate(4deg); 
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.25) rotate(9deg);
+    }
+}
+

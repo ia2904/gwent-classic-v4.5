@@ -1308,18 +1308,23 @@ class Player {
         if (this.leaderAvailable) {
             this.endTurnAfterAbilityUse = endTurn;
             let res = await this.leader.activated[0](this.leader, this);
-            // If the leader activity signaled it couldn't be actually used, we stop right here
+            
             if (res == false) {
                 ui.enablePlayer(true);
                 return false;
             }
             if (disableLeader)
                 this.disableLeader();
-            // Some abilities require further actions before ending the turn, such as selecting a card
+           
+            if (this.id === 0 && this.deck && this.deck.faction === "wild_hunt" && this.hand && this.hand.cards.length === 0) {
+                if (typeof sleep === "function") {
+                    await sleep(1000);
+                }
+            }
+
             if (this.endTurnAfterAbilityUse)
                 await this.endTurn();
             else {
-                // Make selections for AI player
                 if (this.controller instanceof ControllerAI) {
                     if (this.leader.key === "wu_alzur_maker") {
                         let worse_unit = this.getAllRowCards().filter(c => c.isUnit()).sort((a, b) => a.power - b.power)[0];
@@ -1331,8 +1336,7 @@ class Player {
                     } else if (this.leader.key === "lr_meve_princess" || this.leader.key === "sy_carlo_varese") {
                         let max = this.controller.getMaximums();
                         let rows = [this.controller.weightScorchRow(this.leader, max, "close"), this.controller.weightScorchRow(this.leader, max, "ranged"), this.controller.weightScorchRow(this.leader, max, "siege")];
-                        let maxv = 0,
-                            max_row;
+                        let maxv = 0, max_row;
                         let offset = 3;
                         if (this === player_me) {
                             offset = 0;
@@ -1347,7 +1351,6 @@ class Player {
                         if (max_row)
                             ui.selectRow(max_row);
                     } else if (this.leader.key === "sy_cyrus_hemmelfart") {
-                        // We select a random row to put shackles on
                         let offset = 3;
                         if (this === player_me)
                             offset = 0;
@@ -1420,14 +1423,35 @@ class Player {
         await ui.viewCard(player_me.leader, async () => await player_me.activateLeader());
     }
 
-    replaceLeader(newLeader) {
+        replaceLeader(newLeader) {
         this.leader = newLeader;
-        this.elem_leader.children[0].children[0].replaceWith(this.leader.elem);
+        
+        if (this.elem_leader && this.elem_leader.children && this.elem_leader.children[0]) {
+            let contenedorFisico = this.elem_leader.children[0];
+            
+           
+            contenedorFisico.innerHTML = "";
+            
+            if (this.leader && this.leader.elem) {
+                contenedorFisico.appendChild(this.leader.elem);
+            }
+        } else {
+            try {
+                this.elem_leader.children[0].children[0].replaceWith(this.leader.elem);
+            } catch(err) { }
+        }
+
         this.enableLeader();
+        
+        if (this.leader && typeof this.leader.update === "function") {
+            this.leader.update();
+        }
+
         let ab = this.leader.abilities[0];
         if (ability_dict[ab].placed)
             ability_dict[ab].placed(this.leader);
     }
+
 
     async activateFactionAbility() {
         let factionData = factions[this.deck.faction];
@@ -1631,11 +1655,19 @@ class CardContainer {
         return index;
     }
 
-    // Removes the HTML element associated with the card from this CardContainer
+   
     removeCardElement(card, index) {
-        if (this.elem)
-            this.elem.removeChild(card.elem);
+        if (this.elem && card && card.elem) {
+            if (this.elem.contains(card.elem)) {
+                this.elem.removeChild(card.elem);
+            } else if (card.elem.parentNode) {
+                card.elem.parentNode.removeChild(card.elem);
+            } else {
+                card.elem.remove();
+            }
+        }
     }
+
 
     // Adds the HTML element associated with the card to this CardContainer
     addCardElement(card, index) {
@@ -1850,7 +1882,6 @@ class Deck extends CardContainer {
         this.elem.appendChild(this.counter);
     }
 }
-
 // Hand used by computer AI. Has an offscreen HTML element for card transitions.
 class HandAI extends CardContainer {
     constructor(tag) {
@@ -1867,6 +1898,28 @@ class HandAI extends CardContainer {
     }
     resize() {
         this.counter.innerHTML = this.cards.length;
+    }
+
+ 
+    draw(dest = null) {
+        if (!this.cards || this.cards.length === 0) {
+            console.warn("Se interceptó y previno un colapso en HandAI vacía durante la simulación.");
+            return null;
+        }
+        
+        let card = this.cards.pop();
+        this.resize();
+        
+        if (dest && card) {
+            card.currentLocation = dest;
+            if (typeof dest.addCard === "function") {
+                dest.addCard(card);
+            } else if (dest.cards && Array.isArray(dest.cards)) {
+                dest.cards.push(card);
+            }
+        }
+        
+        return card;
     }
 }
 
@@ -2102,6 +2155,8 @@ class Row extends CardContainer {
         this.effects.weather_type = overlay;
         this.elem_parent.getElementsByClassName("row-weather")[0].classList.add(overlay);
         this.updateScore();
+const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+if (canVibrate) navigator.vibrate([250, 100, 50]);
     }
 
     // Deactivates weather effect and visuals
@@ -2322,7 +2377,7 @@ class Weather extends CardContainer {
         this.elem.addEventListener("click", () => ui.selectRow(this), false);
     }
 
-    // Adds a card if unique and clears all weather if 'clear weather' card added
+        // Adds a card if unique and clears all weather if 'clear weather' card added
     async addCard(card, withEffects = true) {
         super.addCard(card);
         card.elem.classList.add("noclick");
@@ -2334,7 +2389,19 @@ class Weather extends CardContainer {
                 await x(card, this);
         }
         if (card.key === "spe_clear") {
-            // TODO Sunlight animation
+            let cineOverlay = document.createElement("div");
+            cineOverlay.className = "sunlight-overlay-cinema";
+
+            let solarBeam = document.createElement("div");
+            solarBeam.className = "sunlight-beam-wave";
+
+            cineOverlay.appendChild(solarBeam);
+            document.body.appendChild(cineOverlay);
+
+            setTimeout(() => {
+                if (cineOverlay) cineOverlay.remove();
+            }, 2000);
+
             tocar("clear", false);
             await sleep(500);
             this.clearWeather();
@@ -2350,6 +2417,7 @@ class Weather extends CardContainer {
         }
         await sleep(750);
     }
+
 
     // Override
     removeCard(card, withEffects = true) {
@@ -2381,6 +2449,8 @@ class Weather extends CardContainer {
     // Removes all weather effects and cards
     async clearWeather() {
         await Promise.all(this.cards.map((c, i) => this.cards[this.cards.length - i - 1]).map(c => board.toGrave(c, this)));
+const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+if (canVibrate) navigator.vibrate(80);
     }
 
     // Override
@@ -2418,7 +2488,7 @@ class Board {
         await this.moveTo(card, "deck", source);
     }
 
-    // Sends and translates a card from the source to the Grave of the card's holder
+        // Sends and translates a card from the source to the Grave of the card's holder
     async toGrave(card, source, turnEnd=false) {
         let destroy = true;
         let protectors = null;
@@ -2448,7 +2518,13 @@ class Board {
                 destroy = false;
             }
         }
-        if (destroy) {
+        if (destroy) {            
+            if (card && typeof card.resetPower === "function") {
+                card.resetPower();
+            } else if (card && card.basePower !== undefined) {
+                card.power = card.basePower;
+            }
+
             await this.moveTo(card, "grave", source);
             if (game.unitDestroyed && game.unitDestroyed.length > 0 && !turnEnd) {
                 for (var i = 0; i < game.unitDestroyed.length; i++) {
@@ -2463,6 +2539,7 @@ class Board {
                 await protectors[0].animate("comrade");
         }
     }
+
 
     // Sends and translates a card from the source to the Hand of the card's holder
     // Possible to specify a different destination
@@ -2488,6 +2565,7 @@ class Board {
             cartaNaLinha(dest.elem.id, card);
         } catch (err) { }
         await translateTo(card, source ? source : null, dest);
+
         if (dest instanceof Row || dest instanceof Weather)
             await dest.addCard(source ? source.removeCard(card) : card); //Only the override in the Row/Weather classes are asynchronous
         else
@@ -2669,7 +2747,13 @@ class Game {
 
     // Sets initializes player abilities, player hands and redraw
     async startGame() {
+if (typeof window !== "undefined" && window.Website2APK && typeof window.Website2APK.vibrate === "function") {
+			window.Website2APK.vibrate(150); 
+		} else if (navigator.vibrate) {
+			navigator.vibrate(150);
+		}
         ui.toggleMusic_elem.classList.remove("music-customization");
+actualizarPosicionMusicaMovel();
         var special_abilities = this.initPlayers(player_me, player_op);
         await Promise.all([...Array(10).keys()].map(async () => {
             await player_me.deck.draw(player_me.hand);
@@ -2794,7 +2878,11 @@ class Game {
         if (this.currPlayer === player_me)
             ui.enablePlayer(false);
 
-        if (!noEffects)
+   if (this.currPlayer && this.currPlayer.passed) {
+            noEffects = true;
+        }     
+
+if (!noEffects)
             await this.runEffects(this.turnEnd);
         // Player might have "end turn" events which delay the actual end of the turn
         if (this.currPlayer.endturn_action) {
@@ -2853,18 +2941,23 @@ class Game {
                 c.power = c.basePower;
             });
         });
+// Validación de seguridad para la API de vibración
+		const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
 
         if (dif > 0) {
+if (canVibrate) navigator.vibrate([100, 50, 100]);
             await ui.notification("win-round", 1200);
         } else if (dif < 0) {
             if (nilfgaard_wins_draws) {
                 nilfgaard_wins_draws = false;
                 await ui.notification("nilfgaard-wins-draws", 1200);
             }
+if (canVibrate) navigator.vibrate(400);
             await ui.notification("lose-round", 1200);
-        } else
+        } else {
+if (canVibrate) navigator.vibrate(200);
             await ui.notification("draw-round", 1200);
-
+}
         if (player_me.health === 0 || player_op.health === 0)
             this.endGame();
         else
@@ -2887,17 +2980,20 @@ class Game {
             rows[2].children[i].innerHTML = round ? round.score_op : 0;
             rows[2].children[i].style.color = round && round.winner === player_op ? "goldenrod" : "";
         }
-
+const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
         endScreen.children[0].className = "";
         if (player_op.health <= 0 && player_me.health <= 0) {
             tocar("");
+if (canVibrate) navigator.vibrate([200, 100, 200]);  
             endScreen.getElementsByTagName("p")[0].classList.remove("hide");
             endScreen.children[0].classList.add("end-draw");
         } else if (player_op.health === 0) {
             tocar("game_win", true);
+if (canVibrate) navigator.vibrate([150, 100, 150, 100, 300]); 
             endScreen.children[0].classList.add("end-win");
         } else {
             tocar("game_lose", true);
+if (canVibrate) navigator.vibrate(1000); 
             endScreen.children[0].classList.add("end-lose");
         }
 
@@ -2912,6 +3008,7 @@ class Game {
         player_me.reset();
         player_op.reset();
         ui.toggleMusic_elem.classList.add("music-customization");
+actualizarPosicionMusicaMovel();
         this.endScreen.classList.add("hide");
         document.getElementById("deck-customization").classList.remove("hide");
     }
@@ -3087,12 +3184,17 @@ class Card {
     setPower(n) {
         if (this.key === "spe_decoy")
             return;
+ if (!this.elem || !this.elem.children[0] || !this.elem.children[0].children[0]) {
+           this.power = n; 
+            return;
+        }
+
         let elem = this.elem.children[0].children[0];
         if (n !== this.power) {
             this.power = n;
             elem.innerHTML = this.power;
         }
-        elem.style.color = (n > this.basePower) ? "goldenrod" : (n < this.basePower) ? "red" : "";
+       elem.style.color = (n > this.basePower) ? "goldenrod" : (n < this.basePower) ? "red" : "";
         if (this.temporaryPower)
             elem.style.color = "green";
     }
@@ -3125,6 +3227,9 @@ class Card {
         if (name === "scorch") {
             return await this.scorch(name);
         }
+if (name === "hero") {
+			return await this.animateHeroEffect(name);
+		}
         let anim = this.elem.children[this.elem.children.length - 1];
         anim.style.backgroundImage = iconURL("anim_" + name);
         await sleep(50);
@@ -3159,6 +3264,22 @@ class Card {
         anim.style.backgroundSize = "";
         anim.style.backgroundImage = "";
     }
+
+// Animates the hero spawn effect 
+	async animateHeroEffect(name) {
+		let anim = this.elem.children[this.elem.children.length-1];
+		anim.style.backgroundSize = "cover"; 
+		anim.style.backgroundImage = iconURL("anim_" + name); 
+		await sleep(20);
+
+		fadeIn(anim, 250);   
+		await sleep(200);  
+		fadeOut(anim, 200);  
+		await sleep(150);
+
+		anim.style.backgroundSize = "";
+		anim.style.backgroundImage = "";
+	}
 
     // Returns true if this is a combat card that is not a Hero
     isUnit() {
@@ -3202,8 +3323,7 @@ class Card {
         return [board.getRow(this, this.row, this.holder)];
     }
 
-    // Creates an HTML element based on the card's properties
-    createCardElem(card) {
+            createCardElem(card) {
         let elem = document.createElement("div");
         elem.style.backgroundImage = smallURL(card.faction + "_" + card.filename);
         elem.classList.add("card");
@@ -3238,13 +3358,29 @@ class Card {
             num.appendChild(document.createTextNode(card.basePower));
             num.classList.add("center");
             power.appendChild(num);
-            row.style.backgroundImage = iconURL("card_row_" + card.row);
+            
+            // --- TRADUCTOR DE ABREVIATURAS PARA TUS IMÁGENES PNG ---
+            let rowName = card.row;
+            if (card.row.includes("agile")) {
+                if (card.row === "agile_close_ranged" || card.row === "agile_cr") {
+                    rowName = "agile_cr";
+                } else if (card.row === "agile_close_ranged_siege" || card.row === "agile_crs") {
+                    rowName = "agile_crs";
+                } else if (card.row === "agile_close_siege" || card.row === "agile_cs") {
+                    rowName = "agile_cs";
+                } else if (card.row === "agile_ranged_siege" || card.row === "agile_rs") {
+                    rowName = "agile_rs";
+                } else {
+                    rowName = "agile";
+                }
+            }
+            row.style.backgroundImage = iconURL("card_row_" + rowName);
         } else if (card.faction === "weather" && card.targetRows.length > 0) {
-            // Some weather cards can target different rows for a same weather type (such as White Frost)
             row.style.backgroundImage = iconURL("card_row_" + card.targetRows);
         }
 
         let abi = document.createElement("div");
+        abi.classList.add("card-ability");
         elem.appendChild(abi);
         if (card.faction !== "special" && card.faction !== "weather" && card.abilities.length > 0) {
             let str = card.abilities[card.abilities.length - 1];
@@ -3256,11 +3392,15 @@ class Card {
                 str = "scorch_combat";
             if (str === "shield_c" || str == "shield_r" || str === "shield_s")
                 str = "shield";
-            abi.style.backgroundImage = iconURL("card_ability_" + str);
-        } else if (card.row.includes("agile"))
-            abi.style.backgroundImage = iconURL("card_ability_" + card.row);
 
-        // For cards with 2 abilities
+            
+if (str && card.faction !== "faction") {
+                abi.style.backgroundImage = iconURL("card_ability_" + str);
+            }
+        } else if (card.row && card.row.includes("agile")) {
+            abi.style.backgroundImage = iconURL("card_ability_agile");
+        }
+        
         if (card.abilities.length > 1) {
             let abi2 = document.createElement("div");
             abi2.classList.add("card-ability-2");
@@ -3277,9 +3417,11 @@ class Card {
             abi2.style.backgroundImage = iconURL("card_ability_" + str);
         }
 
-        elem.appendChild(document.createElement("div")); // animation overlay
+        elem.appendChild(document.createElement("div"));
         return elem;
     }
+
+
 
     createCardBackElem() {
         let elem = document.createElement("div");
@@ -3375,6 +3517,22 @@ class UI {
             document.getElementById("pass-button").addEventListener("mouseout", () => {
                 if (may_pass2 == "mouse") passBreak();
             }, false);
+
+let giveupBtn = document.getElementById("giveup-button");
+            if (giveupBtn) {
+                giveupBtn.onclick = async () => {
+                    if (typeof ui !== "undefined" && ui.isBlocked && ui.isBlocked()) return;
+                    tocar("pass", false);
+                    if (typeof player_me !== "undefined") player_me.health = 0;
+                    if (typeof game !== "undefined" && game.roundHistory) {
+                        var verdict = { winner: null, score_me: player_me.total, score_op: player_op.total };
+                        game.roundHistory.push(verdict);
+                    }
+                    if (typeof game !== "undefined" && typeof game.endGame === "function") await game.endGame();
+                    else if (typeof ui !== "undefined" && typeof ui.showEndScreen === "function") await ui.showEndScreen(player_op);
+                };
+            }
+
             window.addEventListener("keydown", function (e) {
                 switch (e.keyCode) {
                     case 81:
@@ -3394,19 +3552,34 @@ class UI {
                     if (may_pass2 == "keyboard") passBreak();
                 }
             });
-        } else document.getElementById("pass-button").addEventListener("click", function (e) {
+        } else {
+document.getElementById("pass-button").addEventListener("click", function (e) {
             if (game.isPvP()) {
                 game.currPlayer.passRound();
             } else {
                 player_me.passRound();
             }
         });
+
+let giveupBtnMobile = document.getElementById("giveup-button");
+            if (giveupBtnMobile) {
+                giveupBtnMobile.addEventListener("click", async function (e) {
+                    tocar("pass", false);
+                    if (typeof player_me !== "undefined") player_me.health = 0;
+                    if (typeof game !== "undefined" && game.roundHistory) {
+                        var verdict = { winner: null, score_me: player_me.total, score_op: player_op.total };
+                        game.roundHistory.push(verdict);
+                    }
+                    if (typeof game !== "undefined" && typeof game.endGame === "function") await game.endGame();
+else if (typeof ui !== "undefined" && typeof ui.showEndScreen === "function") await ui.showEndScreen(player_op);
+                });
+            }
+        }
+
         document.getElementById("click-background").addEventListener("click", () => ui.cancel(), false);
-        this.youtube;
-        this.ytActive;
         this.toggleMusic_elem = document.getElementById("toggle-music");
         this.toggleMusic_elem.classList.add("fade");
-        this.toggleMusic_elem.addEventListener("click", () => this.toggleMusic(), false);
+
         document.getElementById("arrangementWindow-button").addEventListener("click", () => {
             this.updateArrangementCounter(0);
             this.underRearrangement = false;
@@ -3415,6 +3588,210 @@ class UI {
         }, false);
 
         this.helper = new HelperBox();
+	if (isMobile && typeof isMobile === "function" && isMobile()) {
+
+
+			let deckCustomElement = document.getElementById("deck-customization");
+			if (deckCustomElement && deckCustomElement.style) {
+				deckCustomElement.style.transform = "translateY(-2.4vw)"; 
+
+
+let cardArrays = document.querySelectorAll(".card-array");
+				cardArrays.forEach(arrayBox => {
+					if (arrayBox) {
+						arrayBox.style.transform = "translateY(-1.8vw)";
+					}
+				});
+
+let cardLeaderMenu = document.getElementById("card-leader");
+				if (cardLeaderMenu) {
+					cardLeaderMenu.style.transform = "translateY(-1.0vw)";
+				}
+
+				let deckStatsBox = document.getElementById("deck-stats");
+				if (deckStatsBox) {
+					deckStatsBox.style.transform = "translateY(-2.9vw)";
+				}
+
+				let startGameBtn = document.getElementById("start-game");
+				if (startGameBtn) {
+					startGameBtn.style.transform = "translateY(-5.9vw)";
+				}
+
+				let startAIGameBtn = document.getElementById("start-ai-game");
+				if (startAIGameBtn) {
+					startAIGameBtn.style.display = "none";
+				}
+let startPvPGameBtn = document.getElementById("start-pvp-game");
+				if (startPvPGameBtn) {
+					startPvPGameBtn.style.display = "none";
+				}
+
+
+			}
+						
+			if (typeof actualizarPosicionMusicaMovel === "function") {
+				actualizarPosicionMusicaMovel();
+			}
+			
+			let leaderMe = document.getElementById("leader-me");
+			if (leaderMe) {
+				leaderMe.style.transform = "translateY(-4.5vw)"; 
+				leaderMe.style.transformOrigin = "bottom center";
+			}
+			
+			let statsMe = document.getElementById("stats-me");
+			if (statsMe) {
+				statsMe.style.transform = "translateY(-3.5vw)"; 
+			}
+			
+			let scoreTotalMe = document.getElementById("score-total-me");
+			if (scoreTotalMe) {
+				scoreTotalMe.style.transform = "translateY(3.5vw)"; 
+			}
+			
+			let passBtn = document.getElementById("pass-button");
+			if (passBtn) {
+				passBtn.style.transform = "translateY(-5.0vw)"; 
+			}
+			
+			let giveupBtn = document.getElementById("giveup-button");
+			if (giveupBtn) {
+				giveupBtn.style.transform = "translateY(-5.5vw)"; 
+			}
+
+			let weatherContainer = document.getElementById("weather");
+			if (weatherContainer) {
+				weatherContainer.style.transform = "translateY(-1.2vw)";
+			}
+
+			let fieldHand = document.getElementById("field-hand");
+			if (fieldHand) {
+				fieldHand.style.transform = "translateY(-2.7vw)"; 
+				fieldHand.style.zIndex = "80"; 
+			}
+			
+			let handRow = document.getElementById("hand-row");
+			if (handRow) {
+				handRow.style.transform = "scale(0.92) translateY(-1.5vw)";
+				handRow.style.transformOrigin = "bottom center";
+			}
+
+			let deckMe = document.getElementById("deck-me");
+			if (deckMe) {
+				deckMe.style.transform = "translateY(-4.2vw)"; 
+			}
+			
+			let graveMe = document.getElementById("grave-me");
+			if (graveMe) {
+				graveMe.style.transform = "translateY(-4.2vw)"; 
+			}
+
+			let boardElement = document.getElementById("board");
+			if (!boardElement) {
+				let mainTags = document.getElementsByTagName("main");
+				if (mainTags && mainTags.length > 0) {
+					boardElement = mainTags[0];
+				}
+			}
+			
+			if (boardElement) {
+				 
+				boardElement.style.backgroundImage = "url('img/board-mobile.jpg')";
+				boardElement.style.backgroundSize = "100% 100%";
+				boardElement.style.backgroundRepeat = "no-repeat";
+			}
+			let estiloQuotesMovel = document.createElement("style");
+			estiloQuotesMovel.innerHTML = `
+				.card-array .card-large-quote {
+					top: 82% !important;
+					font-size: 11px !important;
+					line-height: 0.9 !important;
+					transform: scale(0.53) !important;
+					transform-origin: top center !important;
+					width: 180% !important;
+					left: -40% !important;
+				}
+				.card-array .card-large-name {
+					top: 73.9% !important;
+					font-size: 13px !important;
+					line-height: 0.9 !important;
+					transform: scale(0.52) !important;
+					transform-origin: top center !important;
+					width: 180% !important;
+					left: -40% !important;
+				}
+				#card-leader .card-large-name {                                
+					top: 74.2% !important;				
+					font-size: 13px !important;
+					line-height: 1 !important;
+					transform: scale(0.52) !important;
+					transform-origin: top center !important;
+					width: 180% !important;
+					left: -40% !important;
+				}
+                               #carousel .card-large-name {
+					top: 74.2% !important;
+					font-size: 15px !important;
+					line-height: 0.9 !important;
+					transform: scale(0.58) !important;
+					transform-origin: top center !important;
+					width: 170% !important;
+					left: -35% !important;
+				}
+                                #carousel .card-large-quote {
+					top: 82% !important;
+				}
+				.card-preview .card-lg {
+					top: 4.5vw !important;
+				}
+				.card-preview .card-description {
+					top: 34.5vw !important;
+				}
+				#carousel .card-description {
+					top: 71% !important;
+font-size: 11px !important;
+					line-height: 0.9 !important;
+					transform: scale(0.88) !important;
+					transform-origin: top center !important;
+					}
+#button_start {
+       margin-top: -43px !important;
+}
+#end-screen button {
+    margin: -6.5% -1% 0;
+    }
+              
+html, body, #click-background {
+	overflow: hidden !important;
+ }
+
+#field-me {
+	top: -3.3% !important;
+}
+
+#field-op {
+	top: -1.5% !important;
+	transform: none !important;
+}
+
+#f5 {
+	transform: translateY(-0.25vw) !important;
+}
+
+
+#f6 {
+	transform: translateY(-0.5vw) !important;
+}
+
+			`;
+			document.head.appendChild(estiloQuotesMovel);
+			
+			if (typeof actualizarPosicionMusicaMovel === "function") {
+				actualizarPosicionMusicaMovel();
+			}         
+		}
+
     }
 
     passLoad() {
@@ -3443,60 +3820,7 @@ class UI {
         }
     }
 
-    // Initializes the youtube background music object
-    initYouTube() {
-        this.youtube = new YT.Player('youtube', {
-            videoId: "UE9fPWy1_o4",
-            playerVars: {
-                "autoplay": 1,
-                "controls": 0,
-                "loop": 1,
-                "playlist": "UE9fPWy1_o4",
-                "rel": 0,
-                "version": 3,
-                "modestbranding": 1
-            },
-            events: {
-                'onStateChange': initButton
-            }
-        });
-
-        function initButton() {
-            if (ui.ytActive !== undefined)
-                return;
-            ui.ytActive = true;
-            ui.youtube.playVideo();
-            let initbtntimer = setInterval(() => {
-                if (ui.youtube.getPlayerState() !== YT.PlayerState.PLAYING)
-                    ui.youtube.playVideo();
-                else {
-                    clearInterval(initbtntimer);
-                    ui.toggleMusic_elem.classList.remove("fade");
-                }
-            }, 500);
-        }
-    }
-
-    // Called when client toggles the music
-    toggleMusic() {
-        if (this.youtube.getPlayerState() !== YT.PlayerState.PLAYING) iniciarMusica();
-        else {
-            this.youtube.pauseVideo();
-            this.toggleMusic_elem.classList.add("fade");
-        }
-    }
-
-    // Enables or disables backgorund music 
-    setYouTubeEnabled(enable) {
-        if (this.ytActive === enable)
-            return;
-        if (enable && !this.mute)
-            ui.youtube.playVideo();
-        else
-            ui.youtube.pauseVideo();
-        this.ytActive = enable;
-    }
-
+   
     // Called when the player selects a selectable card
     async selectCard(card) {
         let row = this.lastRow;
@@ -3676,11 +4000,11 @@ class UI {
         this.lastRow = null;
     }
 
-    // Sets up description window for a card
+      // Sets up description window for a card
     setDescription(card, desc) {
-        if (card.hero || card.row.includes("agile") || card.abilities.length > 0 || card.faction === "faction") {
+        if (card.hero || (card.row && card.row.includes("agile")) || card.abilities.length > 0 || card.faction === "faction") {
             desc.classList.remove("hide");
-            let str = card.row.includes("agile") ? card.row : "";
+            let str = (card.row && card.row.includes("agile")) ? card.row : "";
             if (card.abilities.length)
                 str = card.abilities[card.abilities.length - 1];
             if (str === "cerys")
@@ -3692,12 +4016,18 @@ class UI {
             if (str === "shield_c" || str == "shield_r" || str === "shield_s")
                 str = "shield";
 
-            if (card.faction === "faction" || card.abilities.length === 0 && card.row !== "agile")
+            if (card.faction === "faction" || (card.abilities.length === 0 && card.row !== "agile"))
                 desc.children[0].style.backgroundImage = "";
             else if (card.row === "leader")
                 desc.children[0].style.backgroundImage = iconURL("deck_shield_" + card.faction);
-            else
+            // CORRECCIÓN: Si la habilidad coincide con el nombre de un clima, dejamos el contenedor de imagen limpio
+            else if (str === "white_frost" || str === "biting_frost" || str === "impenetrable_fog" || str === "torrential_rain" || str === "skellige_storm" || str === "clear_weather")
+                desc.children[0].style.backgroundImage = "";
+            else if (str && str !== "")
                 desc.children[0].style.backgroundImage = iconURL("card_ability_" + str);
+            else
+                desc.children[0].style.backgroundImage = "";
+
             desc.children[1].innerHTML = card.desc_name;
             desc.children[2].innerHTML = card.desc;
         } else {
@@ -3705,8 +4035,25 @@ class UI {
         }
     }
 
+
     // Displayed a timed notification to the client
     async notification(name, duration) {
+const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+
+if (canVibrate) {
+
+if (name === "op-leader" || name === "op-white-flame" || name === "toussaint-decoy-cancelled" || name === "meve_white_queen" || name === "north-scorch-cancelled") {
+navigator.vibrate([200, 100, 200]); // Dos vibraciones fuertes de advertencia militar
+			}
+
+else if (name === "monsters" || name === "skellige-me" || name === "skellige-op" || name === "north" || name === "scoiatael" || name === "toussaint" || name === "lyria_rivia" || name === "zerrikania" || name === "witcher_universe" || name === "redania" || name === "velen") {
+navigator.vibrate([150, 80, 150]); 
+			}
+			
+else if (name === "me-turn") {
+navigator.vibrate(50); 
+ }
+}
         var guia1 = {
             "notif-nilfgaard-wins-draws": "Nilfgaard wins draws",
             "notif-op-white-flame": "The opponent's leader cancel your opponent's Leader Ability",
@@ -3752,11 +4099,15 @@ class UI {
         for (var x in guia2) temSom[temSom.length] = x;
         var som = temSom.indexOf(name) > -1 ? guia2[name] : name == "round-start" && game.roundHistory.length == 0 ? "round1_start" : "";
         if (som != "") tocar(som, false);
+ var textoNotif = guia1["notif-" + name];
+        if (!textoNotif) return;
         this.notif_elem.children[0].id = "notif-" + name;
         this.notif_elem.children[0].style.backgroundImage = name == "op-leader" ? "url(img/icons/notif_" + player_op.deck.faction + ".png)" : "";
-        var caracteres = guia1[this.notif_elem.children[0].id].length;
-        var palavras = guia1[this.notif_elem.children[0].id].split(" ").length;
+                var textoNotif = guia1[this.notif_elem.children[0].id] || "Action not allowed";
+        var caracteres = textoNotif.length;
+        var palavras = textoNotif.split(" ").length;
         duration = parseInt(0.7454878 * Math.max(parseInt((1e3 / 17) * caracteres), parseInt((6e4 / 300) * palavras)) + 211.653152) + 1;
+
         const fadeSpeed = 150;
         fadeIn(this.notif_elem, fadeSpeed);
         var ch = playingOnline && duration < 1000 & cache_notif.indexOf(name) == -1 ? 800 : 0;
@@ -3904,7 +4255,7 @@ class UI {
             if (game.isPvP() && card.holder.tag === player_op.tag) {
                 rows = [3, 4];
             }
-            for (i of rows) {
+            for (let i of rows) { 
                 let r = board.row[i];
                 if (!r.isShielded()) {
                     r.elem.classList.add("row-selectable");
@@ -4202,8 +4553,9 @@ class Carousel {
 
         if (!Carousel.elem) {
             Carousel.elem = document.getElementById("carousel");
-            Carousel.submitBtn = document.getElementById("carousel_submit");
-            Carousel.elem.children[0].addEventListener("click", () => Carousel.curr.cancel(), false);
+if (Carousel.elem && Carousel.elem.children.length > 0) {
+				Carousel.elem.children[0].addEventListener("click", () => Carousel.curr.cancel(), false);
+			}
             window.addEventListener("keydown", function (e) {
                 if (e.keyCode == 81) {
                     e.preventDefault();
@@ -4212,21 +4564,14 @@ class Carousel {
                     } catch (err) { }
                 }
             });
-            Carousel.submitBtn.addEventListener("click", function (e) {
-                Carousel.curr.selection.map(async s => await Carousel.curr.action(Carousel.curr.container, s));
-                Carousel.curr.selection = [];
-                Carousel.curr.exit();
-            });
-        }
+          }
         this.elem = Carousel.elem;
         document.getElementsByTagName("main")[0].classList.remove("noclick");
 
         this.elem.children[0].classList.remove("noclick");
         this.previews = this.elem.getElementsByClassName("card-lg");
         this.desc = this.elem.getElementsByClassName("card-description")[0];
-        this.title_elem = document.getElementById("carousel_label");
-        this.submitBtn = Carousel.submitBtn;
-        
+        this.title_elem = document.getElementById("carousel_label");      
     }
 
     // Initializes the current Carousel
@@ -4250,13 +4595,7 @@ class Carousel {
             this.title_elem.classList.add("hide");
         }
 
-        if (this.bExit) {
-            this.submitBtn.classList.remove("hide");
-        } else {
-            this.submitBtn.classList.add("hide");
-        }
-
-        this.elem.classList.remove("hide");
+       this.elem.classList.remove("hide");
         ui.enablePlayer(true);
         tocar("explaining", false);
         fimC = false;
@@ -4576,9 +4915,24 @@ class DeckMaker {
         document.getElementById("select-op-deck").addEventListener("click", () => this.selectOPDeck(), false);
         document.getElementById("download-deck").addEventListener("click", () => this.downloadDeck(), false);
         document.getElementById("add-file").addEventListener("change", () => this.uploadDeck(), false);
-        document.getElementById("start-game").addEventListener("click", () => this.startNewGame(1), false);
-        document.getElementById("start-ai-game").addEventListener("click", () => this.startNewGame(2), false);
-        document.getElementById("start-pvp-game").addEventListener("click", () => this.startNewGame(3), false);
+
+           const actualizartituloporid = () => {
+            let elemTituloFaccion = document.getElementById("faction-title");
+            if (elemTituloFaccion) {
+                this.me_deck_title = elemTituloFaccion.innerText || elemTituloFaccion.textContent || "Northern Realms";
+            } else {
+                this.me_deck_title = "Northern Realms";
+            }
+                  
+            if (ui && ui.player1Deck) { ui.player1Deck.title = this.me_deck_title; }
+            ui.player1DeckTitle = this.me_deck_title;
+        };
+
+        document.getElementById("start-game").addEventListener("click", () => { actualizartituloporid(); this.startNewGame(1); }, false);
+        document.getElementById("start-ai-game").addEventListener("click", () => { actualizartituloporid(); this.startNewGame(2); }, false);
+        document.getElementById("start-pvp-game").addEventListener("click", () => { actualizartituloporid(); this.startNewGame(3); }, false);
+
+
         window.addEventListener("keydown", function (e) {
             if (document.getElementById("deck-customization").className.indexOf("hide") == -1) {
                 switch (e.keyCode) {
@@ -4598,6 +4952,7 @@ class DeckMaker {
 
         this.update();
     }
+
 
     // Called when client selects a deck faction. Clears previous cards and makes valid cards available.
     async setFaction(faction_name, silent) {
@@ -4789,7 +5144,7 @@ class DeckMaker {
         Carousel.curr.update();
     }
 
-    // Opens a Carousel to allow the client to select a faction for their deck
+       // Opens a Carousel to allow the client to select a faction for their deck
     selectFaction() {
         let container = new CardContainer();
         container.cards = Object.keys(factions).map(f => {
@@ -4809,9 +5164,18 @@ class DeckMaker {
             this.makeBank(c.cards[i].filename);
             this.update();
         }, () => true, false, true);
-        Carousel.curr.index = index;
-        Carousel.curr.update();
+
+        // CORRECCIÓN DEFINITIVA: Validamos de forma segura si Carousel.curr existe
+        if (Carousel.curr) {
+            Carousel.curr.index = index;
+            Carousel.curr.update();
+        } else {
+            // Si el carrusel está en cola y no se ha activado, dejamos que el sistema 
+            // del juego maneje su propio inicio de manera interna sin colapsar.
+            console.log("El carrusel está en cola esperando activación.");
+        }
     }
+
 
     // Called when client selects s a preview card. Moves it from bank to deck or vice-versa then updates;
     select(index, isBank) {
@@ -5191,47 +5555,70 @@ class DeckSorter {
         submitBtn.addEventListener('click', submitDeckSorter);
         box.appendChild(submitBtn);
 
-        function dragStart(e) {
-            //e.dataTransfer.setData('text/plain', e.target.id);
+               function dragStart(e) {
             if (e.target) {
                 DeckSorter.curr.target_id = e.target.id;
+                DeckSorter.curr.selectedCard = e.target; // Guardamos para el modo táctil
                 setTimeout(() => {
-                    e.target.classList.add('hide');
+                    
+                    e.target.style.opacity = "0.4";
                 }, 0);
             }
         }
 
         function dragEnd(e) {
-            // get the draggable element
-            //let id = e.dataTransfer.getData('text/plain');
             let id = DeckSorter.curr.target_id;
             let draggable = document.getElementById(id);
-
-            // display the draggable element - by default
             if (draggable) {
-                draggable.classList.remove('hide');
+                draggable.style.opacity = "1"; 
             }
         }
 
         /* drop targets */
         let boxes = document.querySelectorAll('.drop-box');
         boxes.forEach(box => {
-            box.addEventListener('dragenter', dragEnter)
+            box.addEventListener('dragenter', dragEnter);
             box.addEventListener('dragover', dragOver);
             box.addEventListener('dragleave', dragLeave);
             box.addEventListener('drop', drop);
+
+            box.addEventListener('click', function(e) {
+                let targetBox = e.currentTarget;
+                if (DeckSorter.curr.selectedCard && targetBox.querySelectorAll('.drop-item').length == 0 && targetBox.classList.contains("drop-box")) {
+                    let draggable = DeckSorter.curr.selectedCard;
+                    
+                    targetBox.appendChild(draggable);
+                    draggable.style.opacity = "1"; 
+                    
+                    DeckSorter.curr.selectedCard = null;
+
+                    var bank = document.getElementById("drop-bank").querySelectorAll('.drop-item');
+                    document.getElementById("drop-submit").disabled = (bank.length > 0);
+                }
+            });
+        });
+
+        window.addEventListener('click', function(e) {
+            let targetCard = e.target.closest('.drop-item');
+            if (targetCard) {
+                DeckSorter.curr.target_id = targetCard.id;
+                DeckSorter.curr.selectedCard = targetCard;
+                
+                document.querySelectorAll('.drop-item').forEach(el => el.style.opacity = "1");
+                targetCard.style.opacity = "0.5";
+            }
         });
 
         function dragEnter(e) {
             e.preventDefault();
-            if (e.target) {
+            if (e.target && e.target.classList.contains("drop-box")) {
                 e.target.classList.add('drag-over');
             }
         }
 
         function dragOver(e) {
             e.preventDefault();
-            if (e.target) {
+            if (e.target && e.target.classList.contains("drop-box")) {
                 e.target.classList.add('drag-over');
             }
         }
@@ -5245,24 +5632,20 @@ class DeckSorter {
         function drop(e) {
             if (e.target) {
                 e.target.classList.remove('drag-over');
-                /*let children = e.target.querySelectorAll('*');
-                children.forEach(n => { n.setAttribute("draggable", "false") });*/
-                //let id = e.dataTransfer.getData('text/plain');
                 let id = DeckSorter.curr.target_id;
                 let draggable = document.getElementById(id);
 
-                // get the draggable element
-                if (e.target.querySelectorAll('.drop-item').length == 0 && e.target.classList.contains("drop-box")) {
-                    // add it to the drop target
-                    e.target.appendChild(draggable);
+                let targetBox = e.target.closest('.drop-box');
+                if (targetBox && targetBox.querySelectorAll('.drop-item').length == 0) {
+                    targetBox.appendChild(draggable);
                 }
 
-                // display the draggable element
                 if (draggable) {
-                    draggable.classList.remove('hide');
+                    draggable.style.opacity = "1";
                 }
 
-                //Enable/disable submit button if all cards have been sorted
+                DeckSorter.curr.selectedCard = null;
+
                 var bank = document.getElementById("drop-bank").querySelectorAll('.drop-item');
                 document.getElementById("drop-submit").disabled = (bank.length > 0);
             }
@@ -5273,7 +5656,6 @@ class DeckSorter {
             var deckTop = document.getElementById("drop-deck-top").querySelectorAll('.drop-item');
             var deckBottom = document.getElementById("drop-deck-bottom").querySelectorAll('.drop-item');
 
-            // If bank has been sorted, ready to go
             if (bank.length == 0 && (deckTop.length + deckBottom.length) == DeckSorter.curr.cards.length) {
                 DeckSorter.curr.applyChanges();
                 DeckSorter.curr.exit();
@@ -5363,6 +5745,10 @@ async function translateTo(card, container_source, container_dest) {
     let elem = card.elem;
     let source = !container_source ? card.elem : getSourceElem(card, container_source, container_dest);
     let dest = getDestinationElem(card, container_source, container_dest);
+ if (!source) {
+        console.warn("¡Aviso! Se interceptó un contenedor de origen inválido en la animación.");
+        return; 
+    }
     if (!isInDocument(elem))
         source.appendChild(elem);
     let x = trueOffsetLeft(dest) - trueOffsetLeft(elem) + dest.offsetWidth / 2 - elem.offsetWidth;
@@ -5485,7 +5871,11 @@ async function fade(fadeIn, elem, dur, delay) {
 
 // Get Image paths   
 function iconURL(name, ext = "png") {
-    return imgURL("icons/" + name, ext);
+if (!name || name === "card_ability_" || name === "card_ability_undefined") {
+        return "";    }
+if (name === "card_ability_agile_cr") {
+        return imgURL("icons/card_ability_agile", ext); }    
+return imgURL("icons/" + name, ext);
 }
 
 function largeURL(name, ext = "jpg") {
@@ -5608,12 +5998,12 @@ function getPreviewElem(elem, card, nb = 0) {
         row.style.backgroundImage = iconURL("card_row_" + card.targetRows);
     }
 
-    if (c_abilities.length > 0) {
+    if (c_abilities.length > 0 || (card.row && card.row.includes("agile"))) {
         let abi = document.createElement("div");
         abi.classList.add("card-large-ability");
         elem.appendChild(abi);
 
-        if (!faction.startsWith("special") && !faction.startsWith("weather") && c_abilities.length > 0 && c_abilities[c_abilities.length - 1] != "hero") {
+        if (c_abilities.length > 0 && !faction.startsWith("special") && !faction.startsWith("weather") && c_abilities[c_abilities.length - 1] != "hero") {
             let str = c_abilities[c_abilities.length - 1];
             if (str === "cerys")
                 str = "muster";
@@ -5624,28 +6014,33 @@ function getPreviewElem(elem, card, nb = 0) {
             if (str === "shield_c" || str == "shield_r" || str === "shield_s")
                 str = "shield";
             abi.style.backgroundImage = iconURL("card_ability_" + str);
-        } else if (card.row.includes("agile") && !faction.startsWith("weather")) {
-            abi.style.backgroundImage = iconURL("card_ability_" + "agile");
+        } 
+        if ((c_abilities.length === 0 || !abi.style.backgroundImage) && card.row && card.row.includes("agile") && !faction.startsWith("weather")) {
+            abi.style.backgroundImage = iconURL("card_ability_agile");
         }
 
-        // In case of double abilities
-        if ((c_abilities.length > 1 && !(c_abilities[0] === "hero")) || (c_abilities.length > 2 && c_abilities[0] === "hero")) {
-            let abi2 = document.createElement("div");
-            abi2.classList.add("card-large-ability-2");
-            elem.appendChild(abi2);
-
+               // In case of double abilities
+        if (c_abilities.length > 1) {
             let str = c_abilities[c_abilities.length - 2];
-            if (str === "cerys")
-                str = "muster";
-            if (str.startsWith("avenger"))
-                str = "avenger";
-            if (str === "scorch_c" || str == "scorch_r" || str === "scorch_s")
-                str = "scorch_combat";
-            if (str === "shield_c" || str == "shield_r" || str === "shield_s")
-                str = "shield";
-            abi2.style.backgroundImage = iconURL("card_ability_" + str);
+            
+            if (str && str !== "hero") {
+                let abi2 = document.createElement("div");
+                abi2.classList.add("card-large-ability-2");
+                elem.appendChild(abi2);
+
+                if (str === "cerys")
+                    str = "muster";
+                if (str.startsWith("avenger"))
+                    str = "avenger";
+                if (str === "scorch_c" || str == "scorch_r" || str === "scorch_s")
+                    str = "scorch_combat";
+                if (str === "shield_c" || str == "shield_r" || str === "shield_s")
+                    str = "shield";
+                    
+                abi2.style.backgroundImage = iconURL("card_ability_" + str);
+            }
         }
-    }
+  }
 
     return elem;
 }
@@ -5682,10 +6077,6 @@ function sleepUntil(predicate, ms) {
     });
 }
 
-// Initializes the interractive YouTube object
-function onYouTubeIframeAPIReady() {
-    ui.initYouTube();
-}
 
 /*----------------------------------------------------*/
 
@@ -5743,10 +6134,38 @@ var lastSound = "";
 function tocar(arquivo, pararMusica) {
     if (arquivo != lastSound && arquivo != "") {
         var s = new Audio("sfx/" + arquivo + ".mp3");
-        if (pararMusica && ui.youtube && ui.youtube.getPlayerState() === YT.PlayerState.PLAYING) {
-            ui.youtube.pauseVideo();
-            ui.toggleMusic_elem.classList.add("fade");
-        }
+const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+			if (canVibrate) {
+			if (arquivo === "scorch" || arquivo === "fire" || arquivo === "burn") { navigator.vibrate([40, 30, 40, 30, 40]);			}
+			
+			else if (arquivo === "horn" || arquivo === "war_horn" || arquivo === "commander_horn") {
+				navigator.vibrate([250, 100, 250]); 
+			}
+			
+			else if (arquivo === "med") {
+				navigator.vibrate(250); 
+			}
+			
+			else if (arquivo === "spy" || arquivo === "draw") {
+				navigator.vibrate([60, 50, 60]); 
+			}
+
+			else if (arquivo === "ally") {
+				navigator.vibrate([40, 30, 40, 30, 40]); 
+			}
+
+			else if (arquivo === "hero") {
+				navigator.vibrate([150, 80, 150, 80, 250]); 
+			}
+
+			else if (arquivo === "moral") {
+			navigator.vibrate(120); 			}
+
+			else if (arquivo === "shield") {
+				navigator.vibrate([80, 60, 150]); 
+			}
+		}
+
         lastSound = arquivo;
         if (iniciou) s.play();
         setTimeout(function () {
@@ -5787,17 +6206,25 @@ function somCarta() {
     });
 }
 
-function cartaNaLinha(id, carta) {
-    if (id.charAt(0) == "f") {
-        if (!carta.hero) {
-            if (carta.name != "Decoy") {
-                var linha = parseInt(id.charAt(1));
-                if (linha == 1 || linha == 6) tocar("common3", false);
-                else if (linha == 2 || linha == 5) tocar("common2", false);
-                else if (linha == 3 || linha == 4) tocar("common1", false);
-            } else tocar("menu_buy", false);
-        } else tocar("hero", false);
-    }
+async function cartaNaLinha(id, carta) {
+	if (id.charAt(0) == "f") {
+		if (!carta.hero) {
+			if (carta.name != "Decoy") {
+				var linha = parseInt(id.charAt(1));
+				if (linha == 1 || linha == 6) tocar("common3", false);
+				else if (linha == 2 || linha == 5) tocar("common2", false);
+				else if (linha == 3 || linha == 4) tocar("common1", false);
+			} else tocar("menu_buy", false);
+		} else {
+			
+			tocar("hero", false);
+			
+			
+			if (carta && typeof carta.animate === "function") {
+				await carta.animate("hero");
+			}
+		}
+	}
 }
 
 function inicio() {
@@ -5810,13 +6237,7 @@ function inicio() {
 }
 
 function iniciarMusica() {
-    try {
-        if (ui.youtube.getPlayerState() !== YT.PlayerState.PLAYING) {
-            ui.youtube.playVideo();
-            ui.toggleMusic_elem.classList.remove("fade");
-        }
-    } catch (err) { }
-}
+    }
 
 function cancelaClima() {
     if (carta_c) {
@@ -5842,6 +6263,11 @@ window.onload = function () {
     document.getElementById("toggle-music").style.display = "";
     document.getElementsByTagName("main")[0].style.display = "";
     document.getElementById("button_start").addEventListener("click", function () {
+if (typeof window !== "undefined" && window.Website2APK && typeof window.Website2APK.vibrate === "function") {
+window.Website2APK.vibrate(60); 
+		} else if (navigator.vibrate) {
+			navigator.vibrate(60);
+		}
         inicio();
     });
     isLoaded = true;
@@ -5868,3 +6294,38 @@ function isMobile() {
         return navigator.userAgentData.mobile;
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
+
+function actualizarPosicionMusicaMovel() {
+    if (isMobile && typeof isMobile === "function" && isMobile()) {
+        let musicToggle = document.getElementById("toggle-music");
+        if (musicToggle) {
+            if (musicToggle.classList.contains("music-customization")) {
+                musicToggle.style.transform = "translate(22.6vw, -3.5vw)";
+musicToggle.style.gap = "30px";
+                musicToggle.style.fontSize = "4.0vw";
+            } else {
+                musicToggle.style.transform = "translate(-23.5vw, -4.5vw)";
+musicToggle.style.gap = "15px";
+                musicToggle.style.fontSize = "4.1vw";
+            }
+        }
+    }
+}
+
+(function() {
+    if (typeof window !== "undefined") {       
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.postMessage({ type: "SET_TEXT_ZOOM", value: 100 });
+        }
+     
+        let estiloBlindaje = document.createElement("style");
+        estiloBlindaje.innerHTML = `
+            * {
+                -webkit-text-size-adjust: 100% !important;
+                -moz-text-size-adjust: 100% !important;
+                text-size-adjust: 100% !important;
+            }
+        `;
+        document.head.appendChild(estiloBlindaje);
+    }
+})();

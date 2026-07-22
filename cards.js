@@ -22,7 +22,6 @@ var default_cards = {
         "count": "2",
         "quote": "Best part about frost - bodies of the fallen don't rot so quickly."
     },
-
     "spe_clear": {
         "name": "Clear Weather",
         "deck": "weather",
@@ -42,6 +41,76 @@ var default_cards = {
         "filename": "horn",
         "count": "3",
         "quote": "Plus one to morale, minus three to hearing."
+    },
+ "ntr_geralt": {
+        "name": "Geralt of Rivia",
+        "deck": "neutral",
+        "row": "close",
+        "strength": "15",
+        "ability": "hero",
+        "filename": "geralt",
+        "count": "1",
+        "quote": "If that's what it takes to save the world, it's better to let that world die."
+    },
+  "ntr_ciri": {
+        "name": "Cirilla Fiona Elen Riannon",
+        "deck": "neutral",
+        "row": "close",
+        "strength": "15",
+        "ability": "hero",
+        "filename": "ciri",
+        "count": "1",
+        "quote": "Know when fairy tales cease to be tales? When people start believing in them."
+    },
+"ntr_mysterious_elf": {
+        "name": "Avallach'h",
+        "deck": "neutral",
+        "row": "close",
+        "strength": "0",
+        "ability": "hero spy",
+        "filename": "mysterious_elf",
+        "count": "1",
+        "quote": "You humans have... unusual tastes."
+    },
+    "ntr_dandelion": {
+        "name": "Dandelion",
+        "deck": "neutral",
+        "row": "close",
+        "strength": "2",
+        "ability": "horn",
+        "filename": "dandelion",
+        "count": "1",
+        "quote": "Dandelion, you're a cynic, a lecher, a whoremonger, a liar - and my best friend."
+    },
+"ntr_triss": {
+        "name": "Triss Merigold",
+        "deck": "neutral",
+        "row": "close",
+        "strength": "7",
+        "ability": "hero",
+        "filename": "triss",
+        "count": "1",
+        "quote": "I can take care of myself. Trust me."
+    },
+    "ntr_vesemir": {
+        "name": "Vesemir",
+        "deck": "neutral",
+        "row": "close",
+        "strength": "6",
+        "ability": "",
+        "filename": "vesemir",
+        "count": "1",
+        "quote": "If you're to be hanged, ask for water. Anything can happen before they fetch it."
+    },
+"ntr_yennefer": {
+        "name": "Yennefer of Vengerberg",
+        "deck": "neutral",
+        "row": "ranged",
+        "strength": "7",
+        "ability": "hero medic",
+        "filename": "yennefer",
+        "count": "1",
+        "quote": "Magic is Chaos, Art and Science. It is a curse, a blessing and a progression."
     },
     "spe_fog": {
         "name": "Impenetrable Fog",
@@ -81,47 +150,7 @@ var default_cards = {
 
 
 var ext_nr_cards = {
-    "nr_dandelion": {
-        "name": "Dandelion",
-        "deck": "realms",
-        "row": "close",
-        "strength": "2",
-        "ability": "horn",
-        "filename": "dandelion",
-        "count": "1",
-        "quote": "Dandelion, you're a cynic, a lecher, a whoremonger, a liar - and my best friend."
-    },
-    "nr_geralt": {
-        "name": "Geralt of Rivia",
-        "deck": "realms",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "geralt",
-        "count": "1",
-        "quote": "If that's what it takes to save the world, it's better to let that world die."
-    },
-    "nr_ciri": {
-        "name": "Cirilla Fiona Elen Riannon",
-        "deck": "realms",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "ciri",
-        "count": "1",
-        "quote": "Know when fairy tales cease to be tales? When people start believing in them."
-    },
-    "nr_triss": {
-        "name": "Triss Merigold",
-        "deck": "realms",
-        "row": "close",
-        "strength": "7",
-        "ability": "hero medic",
-        "filename": "triss",
-        "count": "1",
-        "quote": "I can take care of myself. Trust me."
-    },
-    "nr_villen": {
+     "nr_villen": {
         "name": "Villentretenmerth",
         "deck": "realms",
         "row": "close",
@@ -131,17 +160,7 @@ var ext_nr_cards = {
         "count": "1",
         "quote": "Also calls himself Borkh Three Jackdaws... he's not the best at names."
     },
-    "nr_yennefer": {
-        "name": "Yennefer of Vengerberg",
-        "deck": "realms",
-        "row": "ranged",
-        "strength": "7",
-        "ability": "hero medic",
-        "filename": "yennefer",
-        "count": "1",
-        "quote": "Magic is Chaos, Art and Science. It is a curse, a blessing and a progression."
-    },
-    "nr_zoltan": {
+      "nr_zoltan": {
         "name": "Zoltan Chivay",
         "deck": "realms",
         "row": "close",
@@ -150,16 +169,6 @@ var ext_nr_cards = {
         "filename": "zoltan",
         "count": "1",
         "quote": "Life without old mates and booze is like a woman without a rump."
-    },
-    "nr_olgierd": {
-        "name": "Olgierd von Everec",
-        "deck": "realms",
-        "row": "agile_cr",
-        "strength": "6",
-        "ability": "morale",
-        "filename": "olgierd",
-        "count": "1",
-        "quote": "At least you now know I don't easily lose my head."
     },
     "nr_foltest_king": {
         "name": "Foltest - King of Temeria",
@@ -246,6 +255,16 @@ var ext_nr_cards = {
         "count": "1",
         "target": "nr_blue_stripes",
         "quote": "I'd do anything for Temeria. Mostly, though, I kill for her."
+    },
+       "nr_olgierd": {
+        "name": "Olgierd von Everec",
+        "deck": "realms",
+        "row": "agile_cr",
+        "strength": "6",
+        "ability": "morale",
+        "filename": "olgierd",
+        "count": "1",
+        "quote": "At least you now know I don't easily lose my head."
     },
     "nr_catapult_1": {
         "name": "Catapult",
@@ -512,7 +531,7 @@ var ext_nr_cards = {
         "deck": "realms",
         "row": "close",
         "strength": "7",
-        "ability": "agile_cr",
+        "ability": "",
         "filename": "ves",
         "count": "1",
         "quote": "Better to live one day as a king than a whole life as a beggar."
@@ -755,37 +774,7 @@ var ext_ne_cards = {
         "count": "1",
         "quote": "There's never been a problem a well-planned assassination couldn't solve."
     },
-    "ne_geralt": {
-        "name": "Geralt of Rivia",
-        "deck": "nilfgaard",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "geralt",
-        "count": "1",
-        "quote": "If that's what it takes to save the world, it's better to let that world die."
-    },
-    "ne_ciri": {
-        "name": "Cirilla Fiona Elen Riannon",
-        "deck": "nilfgaard",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "ciri",
-        "count": "1",
-        "quote": "Know when fairy tales cease to be tales? When people start believing in them."
-    },
-    "ne_yennefer": {
-        "name": "Yennefer of Vengerberg",
-        "deck": "nilfgaard",
-        "row": "ranged",
-        "strength": "7",
-        "ability": "hero medic",
-        "filename": "yennefer",
-        "count": "1",
-        "quote": "Magic is Chaos, Art and Science. It is a curse, a blessing and a progression."
-    },
-    "ne_tibor": {
+        "ne_tibor": {
         "name": "Tibor Eggebracht",
         "deck": "nilfgaard",
         "row": "ranged",
@@ -1485,37 +1474,7 @@ var ext_st_cards = {
         "count": "1",
         "quote": "Our mead smells like piss, do it? Easy to fix - I'll break your fuckin' nose!"
     },
-    "sc_geralt": {
-        "name": "Geralt of Rivia",
-        "deck": "scoiatael",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "geralt",
-        "count": "1",
-        "quote": "If that's what it takes to save the world, it's better to let that world die."
-    },
-    "sc_ciri": {
-        "name": "Cirilla Fiona Elen Riannon",
-        "deck": "scoiatael",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "ciri",
-        "count": "1",
-        "quote": "Know when fairy tales cease to be tales? When people start believing in them."
-    },
-    "sc_mysterious_elf": {
-        "name": "Avallach'h",
-        "deck": "scoiatael",
-        "row": "close",
-        "strength": "6",
-        "ability": "hero spy",
-        "filename": "mysterious_elf",
-        "count": "1",
-        "quote": "You humans have... unusual tastes."
-    },
-    "sc_isengrim": {
+        "sc_isengrim": {
         "name": "Isengrim Faoiltiarna",
         "deck": "scoiatael",
         "row": "close",
@@ -1662,16 +1621,6 @@ var ext_st_cards = {
         "filename": "milva",
         "count": "1",
         "quote": "With each arrow I loose, I think of my da. He'd be proud. I think."
-    },
-    "sc_yennefer": {
-        "name": "Yennefer of Vengerberg",
-        "deck": "scoiatael",
-        "row": "ranged",
-        "strength": "7",
-        "ability": "hero medic",
-        "filename": "yennefer",
-        "count": "1",
-        "quote": "Magic is Chaos, Art and Science. It is a curse, a blessing and a progression."
     },
     "sc_iorveth": {
         "name": "Iorveth",
@@ -1927,26 +1876,6 @@ var ext_sk_cards = {
         "target": "sk_craite_warrior",
         "quote": "I'll bring the an Craites such glory, bards'll go hoarse singin' me praises!"
     },
-    "sk_ciri": {
-        "name": "Cirilla Fiona Elen Riannon",
-        "deck": "skellige",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "ciri",
-        "count": "1",
-        "quote": "Know when fairy tales cease to be tales? When people start believing in them."
-    },
-    "sk_geralt": {
-        "name": "Geralt of Rivia",
-        "deck": "skellige",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "geralt",
-        "count": "1",
-        "quote": "If that's what it takes to save the world, it's better to let that world die."
-    },
     "sk_cerys": {
         "name": "Cerys",
         "id": 4,
@@ -2108,16 +2037,6 @@ var ext_sk_cards = {
         "filename": "ermion",
         "count": "1",
         "quote": "Only the ignorant dismiss the importance of myths."
-    },
-    "sk_yennefer": {
-        "name": "Yennefer of Vengerberg",
-        "deck": "skellige",
-        "row": "ranged",
-        "strength": "7",
-        "ability": "hero medic",
-        "filename": "yennefer",
-        "count": "1",
-        "quote": "Magic is Chaos, Art and Science. It is a curse, a blessing and a progression."
     },
     "sk_longship_1": {
         "name": "Longship: Black Helga",
@@ -2347,16 +2266,6 @@ var ext_re_cards = {
         "filename": "carlo_varese",
         "count": "1",
         "quote": "Me hogs willnae go hungry th' day thanks to ye."
-    },
-    "re_geralt": {
-        "name": "Geralt of Rivia",
-        "deck": "redania",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "geralt",
-        "count": "1",
-        "quote": "If that's what it takes to save the world, it's better to let that world die."
     },
     "re_trollololo": {
         "name": "Trollololo",
@@ -2719,16 +2628,6 @@ var ext_to_cards = {
         "filename": "damien_tour",
         "count": "1",
         "quote": "I served Beauclair well. At least... I hope I did."
-    },
-    "to_geralt": {
-        "name": "Geralt of Rivia",
-        "deck": "toussaint",
-        "row": "close",
-        "strength": "12",
-        "ability": "hero",
-        "filename": "geralt",
-        "count": "1",
-        "quote": "If that's what it takes to save the world, it's better to let that world die."
     },
     "to_dettlaff": {
         "name": "Dettlaff",
@@ -3112,37 +3011,7 @@ var ext_ve_cards = {
         "count": "1",
         "quote": "I've not been a good father. But I've certainly been a good warrior!"
     },
-    "ve_ciri": {
-        "name": "Cirilla",
-        "deck": "velen",
-        "row": "close",
-        "strength": "10",
-        "ability": "hero",
-        "filename": "ciri",
-        "count": "1",
-        "quote": "Where am I? What is this dreadful place?"
-    },
-    "ve_geralt": {
-        "name": "Geralt of Rivia",
-        "deck": "velen",
-        "row": "close",
-        "strength": "6",
-        "ability": "hero scorch",
-        "filename": "geralt",
-        "count": "1",
-        "quote": "Whom should I kill this time?"
-    },
-    "ve_vesemir": {
-        "name": "Vesemir",
-        "deck": "velen",
-        "row": "close",
-        "strength": "6",
-        "ability": "hero scorch",
-        "filename": "vesemir",
-        "count": "1",
-        "quote": "If you're to be hanged, ask for water. Anything can happen before they fetch it."
-    },
-    "ve_water_hag": {
+        "ve_water_hag": {
         "name": "Water Hag",
         "deck": "velen",
         "row": "agile_cr",
@@ -3482,16 +3351,6 @@ var ext_wh_cards = {
         "count": "1",
         "quote": "He boasted that no weapon would ever pierce his armor. And he was right — even in death."
     },
-    "wh_geralt": {
-        "name": "Geralt of Rivia",
-        "deck": "wild_hunt",
-        "row": "close",
-        "strength": "8",
-        "ability": "hero",
-        "filename": "geralt",
-        "count": "1",
-        "quote": "I'm only here for Yen."
-    },
     "wh_cirilla": {
         "name": "Cirilla",
         "deck": "wild_hunt",
@@ -3594,16 +3453,6 @@ var ext_wh_cards = {
         "filename": "wild_hunt_hound_2",
         "count": "1",
         "quote": "Who's a good boy? Well, surely not him."
-    },
-    "wh_yennefer_captive": {
-        "name": "Yennefer: Eredin's Captive",
-        "deck": "wild_hunt",
-        "row": "ranged",
-        "strength": "5",
-        "ability": "hero medic",
-        "filename": "yennefer_captive",
-        "count": "1",
-        "quote": "I'll exchange her for your sould, witcher!"
     },
     "wh_nithral": {
         "name": "Nithral",
@@ -3998,7 +3847,7 @@ var ext_wu_cards = {
         "count": "1",
         "quote": "The Feline witchers did not stay in Stygga Castle for long. Nor anywhere else, actually."
     },
-    "wu_vesemir": {
+"wu_vesemir": {
         "name": "Vesemir",
         "deck": "witcher_universe",
         "row": "close",
@@ -4098,7 +3947,7 @@ var ext_wu_cards = {
         "count": "1",
         "quote": "Take a contract from Aen Seidhe over a dh'oine any day, as you’re far less likely to receive a knife between the ribs in place of coin."
     },
-    "wu_geralt_1": {
+"wu_geralt_1": {
         "name": "Geralt of Rivia",
         "deck": "witcher_universe",
         "row": "close",

@@ -138,12 +138,12 @@ var ability_dict = {
             await row.addCard(new Card(card.target, card_dict[card.target], card.holder));
         }
     },
-    scorch: {
+       scorch: {
         name: "Scorch",
         description: "Discard after playing. Kills the strongest card(s) on the battlefield. ",
         activated: async card => {
             await ability_dict["scorch"].placed(card);
-            await board.toGrave(card, card.holder.hand);
+            await board.toGrave(card, card.currentLocation || card.holder.hand);
         },
         placed: async (card, row) => {
             if (card.isLocked() || game.scorchCancelled)
@@ -157,10 +157,23 @@ var ability_dict = {
             let scorched = maxUnits.filter(p => p[1][0].power === maxPower);
             let cards = scorched.reduce((a, p) => a.concat(p[1].map(u => [p[0], u])), []);
 
-            await Promise.all(cards.map(async u => await u[1].animate("scorch", true, false)));
-            await Promise.all(cards.map(async u => await board.toGrave(u[1], u[0])));
+            await Promise.all(cards.map(async u => {
+                if (u[1] && typeof u[1].animate === "function") {
+                    await u[1].animate("scorch", true, false);
+                }
+            }));
+            
+            for (let i = 0; i < cards.length; i++) {
+                let pair = cards[i];
+                if (pair[1] && pair[0]) {
+                    await board.toGrave(pair[1], pair[0]);
+                }
+            }
+            await sleep(400);
+            board.updateScores();
         }
     },
+
     scorch_c: {
         name: "Scorch - Close Combat",
         description: "Destroy your enemy's strongest Close Combat unit(s) if the combined strength of all his or her Close Combat units is 10 or more. ",
@@ -412,67 +425,40 @@ var ability_dict = {
         },
         weight: (card, ai) => Math.max(ai.weightWeatherFromDeck(card, "fog"), ai.weightWeatherFromDeck(card, "rain"))
     },
-    foltest_steelforged: {
+        foltest_steelforged: {
         description: "Clear any weather effects (resulting from Biting Frost, Torrential Rain or Impenetrable Fog cards) in play.",
         activated: async () => {
+          
+            let cineOverlay = document.createElement("div");
+            cineOverlay.className = "sunlight-overlay-cinema";
+
+            let solarBeam = document.createElement("div");
+            solarBeam.className = "sunlight-beam-wave";
+
+            cineOverlay.appendChild(solarBeam);
+            document.body.appendChild(cineOverlay);
+
+            setTimeout(() => {
+                if (cineOverlay) cineOverlay.remove();
+            }, 2000);
+
             tocar("clear", false);
+            await sleep(500);
             await weather.clearWeather()
         },
         weight: (card, ai) => ai.weightCard(card_dict["spe_clear"])
     },
+
     foltest_siegemaster: {
         description: "Doubles the strength of all your Siege units (unless a Commander's Horn is also present on that row).",
         activated: async card => await board.getRow(card, "siege", card.holder).leaderHorn(card),
         weight: (card, ai) => ai.weightHornRow(card, board.getRow(card, "siege", card.holder))
     },
     foltest_lord: {
-        description: "Choose one unit card that lies on your battlefield and draw from your deck or grave one unit card with the same name and play it.",
-        activated: async card => {
-            // Get all cards on the board for the player
-            let cards = {
-                cards: card.holder.getAllRowCards().filter(c => c.isUnit())
-            };
-            // If AI, look for the most beneficial card to copy
-            if (card.holder.controller instanceof ControllerAI) {
-                let candidates = card.holder.controller.bestSimilarCards(card);
-                if (candidates.length > 0) {
-                    await card.holder.playCardAction(candidates[0][1], async () => await board.moveTo(candidates[0][1], candidates[0][2], null));
-                }
-                return true;
-            }
-            let srcCard;
-            try {
-                Carousel.curr.cancel();
-            } catch (err) { }
-            // Let the player choose which card on the board to try to copy  
-            await ui.queueCarousel(cards, 1, (c, i) => srcCard = c.cards[i], c => c.isUnit(), true, false, "Which unit to copy?");
-            if (srcCard) {
-                // Look for other similar card than the selected one and let the player choose one
-                let copycards = {
-                    cards: srcCard.holder.grave.cards.concat(srcCard.holder.deck.cards).filter((c => c.name === srcCard.name || ("target" in srcCard && c.target === srcCard.target)))
-                };
-                if (copycards.length == 0) {
-                    return false;
-                }
-                let newCard = null;
-                try {
-                    Carousel.curr.cancel();
-                } catch (err) { }
-                await ui.queueCarousel(copycards, 1, (c, i) => newCard = c.cards[i], c => c.isUnit(), true, false, "Which unit to summon?");
-                if (newCard) {
-                    await newCard.autoplay();
-                }
-            }
-
-        },
-        weight: (card, ai, max) => {
-            let candidates = ai.bestSimilarCards(card);
-            if (candidates.length > 0) {
-                return candidates[0][3];
-            }
-            return 0;
-        }
-    },
+		description: "Destroy your enemy's strongest Siege unit(s) if the combined strength of all his or her Siege units is 10 or more.",
+		activated: async card => await ability_dict["scorch_s"].placed(card),
+		weight: (card, ai, max) => ai.weightScorchRow(card, max, "siege")
+	},
     foltest_son: {
         description: "Destroy your enemy's strongest Ranged Combat unit(s) if the combined strength of all his or her Ranged Combat units is 10 or more.",
         activated: async card => await ability_dict["scorch_r"].placed(card),
@@ -685,7 +671,14 @@ var ability_dict = {
         activated: async (card) => {
             let hand = board.getRow(card, "hand", card.holder);
             let deck = board.getRow(card, "deck", card.holder);
-            if (card.holder.controller instanceof ControllerAI) {
+            if (!(card.holder.controller instanceof ControllerAI)) {
+				if (!hand || hand.cards.length < 2) {
+					tocar("menu_buy", false); 
+					ui.enablePlayer(true);    					return;                   
+				}
+			}
+
+if (card.holder.controller instanceof ControllerAI) {
                 let cards = card.holder.controller.discardOrder(card, card.holder.hand, true).splice(0, 2).filter(c => c.basePower < 7);
                 await Promise.all(cards.map(async c => await board.toGrave(c, card.holder.hand)));
                 card.holder.deck.draw(card.holder.hand);
@@ -1024,43 +1017,109 @@ var ability_dict = {
             return 0;
         }
     },
-    radovid_king_redania: {
-        description: "Draw three cards from your deck. Play one of them immediatly, shuffle the other two back into the deck.",
-        activated: async card => {
-            let cards = { cards: card.holder.deck.cards.slice(0, 3) };
-            let targetCard = null;
-            if (card.holder.controller instanceof ControllerAI) {
-                targetCard = card.holder.controller.getHighestWeightCard(cards.cards);
-            } else {
-                try {
-                    Carousel.curr.cancel();
-                } catch (err) { }
-                await ui.queueCarousel(cards, 1, (c, i) => targetCard = c.cards[i], c => true, true, false, "Choose the card to draw and play immediatly");
-            }
-            cards.cards.forEach(c => {
-                if (c === targetCard) {
-                    if (card.holder.controller instanceof ControllerAI) {
-                        targetCard.autoplay(card.holder.deck);
-                    } else {
-                        // let player select where to play the card
-                        card.holder.selectCardDestination(targetCard, card.holder.deck);
-                    }
-                } else {
-                    // Remove to shuffle back at a random place (default behaviour on addCard in deck)
-                    card.holder.deck.removeCard(c);
-                    card.holder.deck.addCard(c);
+            radovid_king_redania: {
+        description: "Draw three cards from your deck (excluding special cards, spies, and envoys). Play one of them immediately, shuffle the other two back into the deck.",
+        activated: async (card) => {
+            if (!card || !card.holder) return;
+            const player = card.holder;
+            
+            if (!player.deck || !player.deck.cards || player.deck.cards.length === 0) return;
+
+            let validUnitsInDeck = player.deck.cards.filter(c => {
+                if (!c || typeof c.isUnit !== "function" || !c.isUnit()) return false;
+                
+                let isSpyOrEnvoy = false;
+                if (c.ability === "spy" || c.ability === "ofiri_envoy") isSpyOrEnvoy = true;
+                if (c.abilities && (c.abilities.includes("spy") || c.abilities.includes("ofiri_envoy"))) isSpyOrEnvoy = true;
+                
+                return !isSpyOrEnvoy;
+            });
+            
+            if (validUnitsInDeck.length === 0) return;
+
+            let maxCards = Math.min(3, validUnitsInDeck.length);
+            let drawnCards = validUnitsInDeck.slice(0, maxCards);
+            
+            const tempContainer = new CardContainer();
+            drawnCards.forEach(c => {
+                if (c) {
+                    player.deck.removeCard(c);
+                    c.currentLocation = tempContainer;
+                    tempContainer.cards.push(c);
                 }
             });
+            
+            let targetCard = null;
+            if (player.controller instanceof ControllerAI) {
+                if (typeof player.controller.getHighestWeightCard === "function") {
+                    targetCard = player.controller.getHighestWeightCard(tempContainer.cards);
+                }
+                if (!targetCard) targetCard = tempContainer.cards[0]; 
+            } else {
+                try { Carousel.curr.cancel(); } catch (err) {}
+                await ui.queueCarousel(tempContainer, 1, async (container, index) => {
+                    targetCard = container.cards[index];
+                }, c => true, false, true, "Choose a unit to play immediately");
+            }
+            
+            if (targetCard) {
+                tempContainer.removeCard(targetCard);
+                targetCard.holder = player;
+                
+                if (player.controller instanceof ControllerAI) {
+                   
+                    let targetRowName = targetCard.row || "close";
+                    
+                    if (typeof board !== "undefined" && typeof board.addCardToRow === "function") {
+                        await board.addCardToRow(targetCard, targetRowName, player);
+                    } else if (typeof board !== "undefined" && typeof board.toRow === "function") {
+                        let allRows = player.getAllRows ? player.getAllRows() : [];
+                        let filaDestino = Array.isArray(allRows) ? allRows.find(r => r && r.row === targetRowName) : null;
+                        if (!filaDestino && board.row) filaDestino = board.row;
+                        if (filaDestino) await board.toRow(targetCard, filaDestino);
+                    } else {
+                        let allRows = player.getAllRows ? player.getAllRows() : [];
+                        let filaDestino = Array.isArray(allRows) ? allRows.find(r => r && r.row === targetRowName) : null;
+                        if (!filaDestino && board.row) filaDestino = board.row;
+                        if (filaDestino) {
+                            filaDestino.addCard(targetCard);
+                            if (typeof game.addCardElement === "function") game.addCardElement(targetCard);
+                            if (typeof targetCard.placed === "function") await targetCard.placed(targetCard, filaDestino);
+                        }
+                    }
+                } else {
+                    await player.selectCardDestination(targetCard, player.deck);
+                }
+                await sleep(400);
+            }
+            
+            while (tempContainer.cards.length > 0) {
+                const remainingCard = tempContainer.cards[0];
+                if (remainingCard) {
+                    tempContainer.removeCard(remainingCard);
+                    player.deck.addCard(remainingCard);
+                }
+            }
+            
+            if (typeof player.deck.shuffle === "function") {
+                player.deck.shuffle();
+            }
+            
+            if (typeof board !== "undefined" && (board.updateScores || board.updateScore)) {
+                if (board.updateScores) board.updateScores(); else board.updateScore();
+            }
         },
         weight: (card, ai) => {
-            let musters = card.holder.hand.cards.filter(c => c.abilities.includes("muster"));
-            // It's not as beneficial to draw when we have muster cards in hand (since we might draw one of the related muster card)
-            if (musters && musters.length > 0) {
-                return 5;
-            }
-            return 15;
+            if (!ai || !ai.player || !ai.player.deck || !ai.player.deck.cards) return 0;
+            let validUnits = ai.player.deck.cards.filter(c => {
+                if (!c || typeof c.isUnit !== "function" || !c.isUnit()) return false;
+                return c.ability !== "spy" && c.ability !== "ofiri_envoy" && (!c.abilities || (!c.abilities.includes("spy") && !c.abilities.includes("ofiri_envoy")));
+            });
+            if (validUnits.length === 0) return 0;
+            return validUnits.length >= 3 ? 15 : 5;
         }
     },
+
     radovid_mad_king: {
         description: "Destroy the strongest card on the battlefield (it must be a unit or a hero). If there are several strongest cards, choose and destroy only one of them.",
         activated: async card => {
@@ -1326,25 +1385,81 @@ var ability_dict = {
     },
     auberon_king: {
         description: "Draw from your deck or graveyard any number of Navigator cards. Then choose in your hand the same number of cards and put them back in any place of the deck.",
-        activated: async card => {
+                activated: async card => {
             let navigators = card.holder.deck.cards.filter(c => c.abilities.includes("door_o"))
                 .concat(card.holder.grave.cards.filter(c => c.abilities.includes("door_o")))
                 .sort((a, b) => b.basePower - a.basePower);
             if (navigators.length < 1)
                 return false;
+                
             if (card.holder.controller instanceof ControllerAI) {
-                // AI draws only one, the strongest
-                await board.toHand(navigators[0], card.currentLocation);
-                let targetCard = card.holder.controller.getLowestWeightCard(card.holder.hand.cards);
-                if (targetCard)
-                    await board.toDeck(targetCard, card.holder.hand);
+                let aiTarget = navigators[0];
+                if (aiTarget) {
+                    if (card.holder.grave.cards.includes(aiTarget)) {
+                        await board.toHand(aiTarget, card.holder.grave);
+                    } else {
+                        await board.toHand(aiTarget, card.holder.deck);
+                    }
+                    
+                    let targetCard = card.holder.controller.getLowestWeightCard(card.holder.hand.cards);
+                    if (targetCard)
+                        await board.toDeck(targetCard, card.holder.hand);
+                }
             } else {
                 let targetCards = [];
-                await ui.queueCarousel({ cards: navigators }, navigators.length, (c, i) => targetCards.push(c.cards[i]), c => true, true, true, "Choose any number of cards to draw, but you'll have to put back into the deck an equal amount.");
-                await targetCards.forEach(async c => board.toHand(c, card.currentLocation));
-                await ui.queueCarousel(card.holder.hand, targetCards.length, async (c, i) => await board.toDeck(c.cards[i], card.holder.hand), c => true, true, false, "Choose " + String(targetCards.length) +" cards to put back into your deck.");
+                
+                let limiteManoMax = Math.min(card.holder.hand.cards.length, navigators.length);
+
+                if (limiteManoMax === 0) {
+                    await ui.notification("You have no cards in hand to exchange!", 2000);
+                    return false;
+                }
+
+                await ui.queueCarousel(
+                    { cards: navigators }, 
+                    limiteManoMax, 
+                    (c, i) => targetCards.push(c.cards[i]), 
+                    c => true, 
+                    true, 
+                    true, 
+                    "Choose up to " + String(limiteManoMax) + " cards to draw. You must put back an equal amount from your hand."
+                );
+                
+                if (targetCards.length === 0) return true;
+
+                let cartasParaDevolver = [];
+                
+                await ui.queueCarousel(
+                    card.holder.hand, 
+                    targetCards.length, 
+                    (c, i) => cartasParaDevolver.push(c.cards[i]), 
+                    c => true, 
+                    true, 
+                    false, 
+                    "Choose " + String(targetCards.length) + " cards from your hand to put back into your deck."
+                );
+
+                for (let i = 0; i < cartasParaDevolver.length; i++) {
+                    if (cartasParaDevolver[i]) {
+                        await board.toDeck(cartasParaDevolver[i], card.holder.hand);
+                    }
+                }
+
+                for (let i = 0; i < targetCards.length; i++) {
+                    let cartaActual = targetCards[i];
+                    if (cartaActual) {
+                        if (card.holder.grave.cards.includes(cartaActual)) {
+
+                            await board.toHand(cartaActual, card.holder.grave);
+                        } else {
+                            await board.toHand(cartaActual, card.holder.deck);
+                        }
+                    }
+                }
             }
+            return true;
         },
+
         weight: card => {
             let navigators = card.holder.deck.cards.filter(c => c.abilities.includes("door_o")).concat(card.holder.grave.cards.filter(c => c.abilities.includes("door_o")));
             if (navigators.length < 1 || card.holder.deck.cards.length < 4)
@@ -1361,7 +1476,7 @@ var ability_dict = {
             return 0;
         }
     },
-    winter_queen: {
+       winter_queen: {
         description: "Draw any special card from your deck and play it immediatly.",
         activated: async card => {
             let specials = card.holder.deck.cards.filter(c => !(c.hero || c.isUnit()));
@@ -1369,19 +1484,26 @@ var ability_dict = {
                 return false;
             let targetCard = null;
             if (card.holder.controller instanceof ControllerAI) {
-                targetCard = card.holder.controller.getHighestWeightCard(specials)[0];
-                if (targetCard)
-                    card.holder.getAIController().playCardDefault(targetCard, card.holder.deck);
+                let highestCardResult = card.holder.controller.getHighestWeightCard(specials);
+                if (highestCardResult) {
+                    targetCard = Array.isArray(highestCardResult) ? highestCardResult[0] : highestCardResult;
+                }
+                if (!targetCard && specials.length > 0) {
+                    targetCard = specials;
+                }
+                if (targetCard) {
+                    await targetCard.autoplay(card.holder.deck);
+                    await sleep(400);
+                    board.updateScores();
+                }
             } else {
                 await ui.queueCarousel({ cards: specials }, 1, (c, i) => targetCard = c.cards[i], c => true, true, false, "Choose a special card to play immediatly.");
                 if (targetCard) {
-                    // let player select where to play the card
                     let choiceDone = false;
                     card.holder.selectCardDestination(targetCard, card.holder.deck, async () => {
                         choiceDone = true;
                         ui.enablePlayer(true);
                     });
-                    // We sleep until the choice is made, otherwise the turn continues as normal
                     await sleepUntil(() => choiceDone, 100);
                 }
             }
@@ -1390,7 +1512,8 @@ var ability_dict = {
             let specials = card.holder.deck.cards.filter(c => !(c.hero || c.isUnit()));
             if (specials.length < 1)
                 return 0;
-            return card.holder.controller.getWeights(specials).sort((a, b) => b.weight - a.weight)[0].weight;
+            let sortedWeights = card.holder.controller.getWeights(specials).sort((a, b) => b.weight - a.weight);
+            return sortedWeights.length > 0 ? sortedWeights[0].weight : 0;
         }
     },
     caranthir_navigator: {
@@ -1459,30 +1582,39 @@ var ability_dict = {
         }
     },
     radovid_stern: {
-        description: "Discard 2 cards and draw 1 card of your choice from your deck.",
-        activated: async (card) => {
-            let hand = board.getRow(card, "hand", card.holder);
-            let deck = board.getRow(card, "deck", card.holder);
-            if (card.holder.controller instanceof ControllerAI) {
-                let cards = card.holder.controller.discardOrder(card, card.holder.hand, true).splice(0, 2).filter(c => c.basePower < 7);
-                await Promise.all(cards.map(async c => await board.toGrave(c, card.holder.hand)));
-                card.holder.deck.draw(card.holder.hand);
-                return;
-            } else {
-                try {
-                    Carousel.curr.exit();
-                } catch (err) { }
-            }
-            await ui.queueCarousel(hand, 2, (c, i) => board.toGrave(c.cards[i], c), () => true);
-            await ui.queueCarousel(deck, 1, (c, i) => board.toHand(c.cards[i], deck), () => true, true);
-        },
-        weight: (card, ai) => {
-            let cards = ai.discardOrder(card, card.holder.hand, true).splice(0, 2).filter(c => c.basePower < 7);
-            if (cards.length < 2)
-                return 0;
-            return cards[0].abilities.includes("muster") ? 50 : 25;
-        }
-    },
+		description: "Discard 2 cards and draw 1 card of your choice from your deck.",
+		activated: async (card) => {
+			let hand = board.getRow(card, "hand", card.holder);
+			let deck = board.getRow(card, "deck", card.holder);
+			
+			if (!(card.holder.controller instanceof ControllerAI)) {
+				if (!hand || hand.cards.length < 2) {
+					tocar("menu_buy", false); 
+					ui.enablePlayer(true);    
+					return;                 
+				}
+			}
+
+			if (card.holder.controller instanceof ControllerAI) {
+				let cards = card.holder.controller.discardOrder(card).splice(0, 2).filter(c => c.basePower < 7);
+				await Promise.all(cards.map(async c => await board.toGrave(c, card.holder.hand)));
+				card.holder.deck.draw(card.holder.hand);
+				return;
+			} else {
+				try {
+					Carousel.curr.exit();
+				} catch (err) { }
+			}
+			await ui.queueCarousel(hand, 2, (c, i) => board.toGrave(c.cards[i], c), () => true);
+			await ui.queueCarousel(deck, 1, (c, i) => board.toHand(c.cards[i], deck), () => true, true);
+		},
+		weight: (card, ai) => {
+			let cards = ai.discardOrder(card).splice(0, 2).filter(c => c.basePower < 7);
+			if (cards.length < 2)
+				return 0;
+			return cards[0].abilities.includes("muster") ? 50 : 25;
+		}
+	},
     radovid_ruthless: {
         description: "Cancel the scorch ability for one round",
         activated: async card => {
@@ -1630,7 +1762,7 @@ var ability_dict = {
         description: "Lock/cancels the ability of the next unit played in that row (ignores units without abilities and heroes).",
         weight: (card) => 20
     },
-    knockback: {
+       knockback: {
         name: "Knockback",
         description: "Pushes all units of the selected row (Melee or Ranged) or row back towards the Siege row, ignores shields.",
         activated: async (card, row) => {
@@ -1645,15 +1777,20 @@ var ability_dict = {
                             targetRow = board.row[Math.min(5, i + 1)];
                     }
                 }
+                
                 await Promise.all(units.map(async c => await c.animate("knockback")));
-                units.map(async c => {
-                    if (c.abilities.includes("bond") || c.abilities.includes("morale") || c.abilities.includes("horn")) // Exception for bond cards, these abilities should continue to work after
-                        await board.moveTo(c, targetRow, row);
-                    else
-                        await board.moveToNoEffects(c, targetRow, row);
-                });
-
-
+                
+                
+                for (let i = 0; i < units.length; i++) {
+                    let c = units[i];
+                    if (c) {
+                        if (c.abilities.includes("bond") || c.abilities.includes("morale") || c.abilities.includes("horn")) {
+                            await board.moveTo(c, targetRow, row);
+                        } else {
+                            await board.moveToNoEffects(c, targetRow, row);
+                        }
+                    }
+                }
             }
             await board.toGrave(card, card.holder.hand);
         },
@@ -1668,6 +1805,7 @@ var ability_dict = {
             return Math.max(1, score);
         }
     },
+
     alzur_maker: {
         description: "Destroy one of your units on the board and summon a Koshchey.",
         activated: (card, player) => {
@@ -1685,13 +1823,28 @@ var ability_dict = {
         }
     },
     vilgefortz_sorcerer: {
-        description: "Clear all weather effects in play.",
-        activated: async () => {
-            tocar("clear", false);
-            await weather.clearWeather()
-        },
-        weight: (card, ai) => ai.weightCard(card_dict["spe_clear"])
-    },
+		description: "Clear all weather effects in play.",
+		activated: async () => {
+let cineOverlay = document.createElement("div");
+			cineOverlay.className = "sunlight-overlay-cinema";
+
+			let solarBeam = document.createElement("div");
+			solarBeam.className = "sunlight-beam-wave";
+
+			// Armamos el árbol visual y lo pegamos a pantalla completa en el HTML (body)
+			cineOverlay.appendChild(solarBeam);
+			document.body.appendChild(cineOverlay);
+
+			// Destrucción automática a los 2 segundos para liberar memoria inmediatamente
+			setTimeout(() => {
+				if (cineOverlay) cineOverlay.remove();
+			}, 2000);
+
+			tocar("clear", false);
+			await weather.clearWeather()
+		},
+		weight: (card, ai) => ai.weightCard(card_dict["spe_clear"])
+	},
     toussaint_wine: {
         name: "Toussaint Wine",
         description: "Placed on Melee or Ranged row, boosts all units of the selected row by two. Limited to one per row.",
@@ -2307,68 +2460,148 @@ var ability_dict = {
             }
         }
     },
-    zirael: {
+                zirael: {
         name: "Zirael",
-        description: "Place on your battlefield and draw 2 cards from your deck. Play them immediatly or put them back at the top or bottom of the deck in the order of your choice.",
+        description: "Place on your battlefield. Reveal 5 cards from your deck and choose up to 2 to add to your hand. Shuffle the rest back into the deck.",
         weight: (card) => 20,
-        placed: async card => {
-            if (card.isLocked())
-                return;
-            let cards = card.holder.deck.cards.slice(0, Math.min(2, card.holder.deck.cards.length));
-            if (cards.length == 0)
-                return;
-            let targetCards = [];
-            if (card.holder.controller instanceof ControllerAI) {
-                targetCards = card.holder.controller.getWeights(cards).filter(c => c.weight > 0).map(c => c.card);
+        placed: async (card) => {
+            if (!card || !card.holder || card.isLocked()) return;
+            
+            
+            if (card.ziraelTriggered) return;
+            card.ziraelTriggered = true;
+
+            tocar("game_buy", false);
+            const player = card.holder;
+
+            if (player.controller instanceof ControllerAI) {
+                for (let i = 0; i < 2; i++) {
+                    if (player.deck && player.deck.cards && player.deck.cards.length > 0) {
+                        if (typeof player.deck.draw === "function") {
+                            await player.deck.draw(player.hand);
+                        } else {
+                            let aiCard = player.deck.cards.shift();
+                            if (aiCard) {
+                                aiCard.holder = player;
+                                player.hand.addCard(aiCard);
+                                if (aiCard.elem) aiCard.elem.remove();
+                            }
+                        }
+                    }
+                }
+
+                if (typeof player.updateHandCount === "function") {
+                    player.updateHandCount();
+                } else if (typeof board !== "undefined" && board.updateLeader) {
+                    board.updateLeader();
+                }
+
+                if (typeof player.deck.shuffle === "function") {
+                    player.deck.shuffle();
+                }
             } else {
-                await ui.queueCarousel({ cards: cards }, Math.min(2, card.holder.deck.cards.length), (c, i) => targetCards.push(c.cards[i]), c => true, true, true, "Choose up to 2 cards to play right away.");
+                if (!player.deck || player.deck.cards.length === 0) return;
+
+                let maxPool = Math.min(5, player.deck.cards.length);
+                let cards = { cards: player.deck.cards.slice(0, maxPool) };
+                let targetCards = [];
+                
+                try { Carousel.curr.cancel(); } catch (err) {}
+                
+                await ui.queueCarousel(cards, 2, (container, index) => {
+                    targetCards.push(container.cards[index]);
+                }, c => true, true, false, "Choose up to 2 cards to draw and keep in your hand");
+
+                for (let i = 0; i < cards.cards.length; i++) {
+                    let c = cards.cards[i];
+                    if (c) {
+                        if (targetCards.includes(c)) {
+                            c.holder = player;
+                            if (typeof board !== "undefined" && typeof board.toHand === "function") {
+                                await board.toHand(c, player.deck);
+                            } else {
+                                player.deck.removeCard(c);
+                                player.hand.addCard(c);
+                                if (c.elem) c.elem.remove();
+                            }
+                            await sleep(400);
+                        } else {
+                            player.deck.removeCard(c);
+                            player.deck.addCard(c);
+                        }
+                    }
+                }
+
+                if (typeof player.deck.shuffle === "function") {
+                    player.deck.shuffle();
+                }
+
+                if (typeof ui.enablePlayer === "function") {
+                    ui.enablePlayer(true);
+                }
             }
-            // Discarding cards left aside
-            cards.forEach(c => {
-                if (!targetCards.includes(c)) {
-                    card.holder.deck.removeCard(c);
-                    card.holder.deck.addCard(c);
-                }
-            });
-            for (var i = 0; i < targetCards.length; i++) {
-                let c = targetCards[i];
-                if (card.holder.controller instanceof ControllerAI) {
-                    await card.holder.getAIController().playCardDefault(c, card.holder.deck);
-                } else {
-                    // let player select where to play the card
-                    let choiceDone = false;
-                    card.holder.selectCardDestination(c, card.holder.deck, async () => {
-                        choiceDone = true;
-                        ui.enablePlayer(true);
-                    });
-                    // We sleep until the choice is made, otherwise the turn continues as normal
-                    await sleepUntil(() => choiceDone, 100);
-                }
+
+            if (typeof board !== "undefined" && board.updateScore) {
+                board.updateScore();
             }
         }
     },
-    naglfar: {
+        naglfar: {
         name: "Naglfar",
         description: "Place on your battlefield and draw 2 cards or less from your deck with the word 'Naglfar' in their name and play them immediatly.",
         weight: (card) => 20,
         placed: async card => {
             if (card.isLocked())
                 return;
-            // Find available Naglfar cards in the deck
+
             let cards = card.holder.deck.cards.filter(c => c.name.toLowerCase().includes("naglfar"));
             if (cards.length == 0)
                 return;
+
             let targetCards = [];
-            // Select up to 2, AI takes highest weights
+
             if (card.holder.controller instanceof ControllerAI) {
                 targetCards = card.holder.controller.getWeights(cards).sort((a, b) => b.weight - a.weight).slice(0, Math.min(2, cards.length)).map(c => c.card);
+                
+                for (var i = 0; i < targetCards.length; i++) {
+                    let c = targetCards[i];
+                    card.holder.deck.removeCard(c);
+                    
+                    let filaDestino = card.currentLocation;
+                    if (filaDestino) {
+                        filaDestino.addCard(c);
+                        c.currentLocation = filaDestino;
+                        
+                        if (typeof game.addCardElement === "function") {
+                            game.addCardElement(c);
+                        } else if (typeof filaDestino.addCardElement === "function") {
+                            filaDestino.addCardElement(c);
+                        }
+                        
+                        if (typeof c.placed === "object" && c.placed.length > 0) {
+                            for (let x of c.placed) {
+                                await x(c, filaDestino);
+                            }
+                        }
+                    }
+                }
+                await sleep(500);
+                board.updateScores();
+                if (typeof game.resize === "function") game.resize();
             } else {
                 await ui.queueCarousel({ cards: cards }, Math.min(2, card.holder.deck.cards.length), (c, i) => targetCards.push(c.cards[i]), c => true, true, true, "Choose up to 2 cards to play right away.");
-            }
-            for (var i = 0; i < targetCards.length; i++) {
-                let c = targetCards[i];
-                await card.holder.getAIController().playCardDefault(c, card.holder.deck); // Should be enought, all these cards play on a single row
+                
+                for (var i = 0; i < targetCards.length; i++) {
+                    let c = targetCards[i];
+                    let choiceDone = false;
+                    card.holder.selectCardDestination(c, card.holder.deck, async () => {
+                        choiceDone = true;
+                        ui.enablePlayer(true);
+                    });
+                    await sleepUntil(() => choiceDone, 100);
+                }
             }
         }
     },
+
 };

@@ -4,11 +4,12 @@ A browser remake of the original Gwent minigame from The Witcher 3: Wild Hunt.<b
 
 Restored some neutral cards and factions that weren't in version 4.0. 
 Number of cards is drastically reduced and abilities have been tweaked (and made more complex).
-This is based on the huge work from [Novigrad Tavern](https://www.ebay.com/usr/novigrad_tavern), this remake is an attempt to implement the cards they have designed (there are some minor differences though).
+Some factions are based on the great work by [Novigrad Tavern](https://www.ebay.com/usr/novigrad_tavern) This remake is an attempt to implement the cards they designed (with some minor differences, though)..
 
 ## Screenshots
-<img width="48%" alt="gameplay 1" src="https://github.com/user-attachments/assets/12f0c5a1-0951-46e6-81cd-d62449389ebe" />
-" /> <img width="48%" alt="gameplay 2" src="https://github.com/user-attachments/assets/8c332df2-d489-4fe8-9142-e4e06a89d931" />
+<img width="48%" alt="gameplay 1" src="https://github.com/user-attachments/assets/a8c2a5ce-da49-4748-9cb4-f9862d8f030b" />
+<img width="48%" alt="gameplay 2" src="https://github.com/user-attachments/assets/eb5d731b-e2c9-496f-b457-2172cf7fcc40" />
+
 
 ## Improvements
 Restored some neutral cards and factions that weren't in version 4.0. 

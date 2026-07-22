@@ -3,7 +3,7 @@
 A browser remake of the original Gwent minigame from The Witcher 3: Wild Hunt.<br/>Click [here](https://ia2904.github.io/gwent-classic-v4.5/) to play.
 
 Restored some neutral cards and factions that weren't in version 4.0.
-Some factions are based on the great work by [Novigrad Tavern](https://www.ebay.com/usr/novigrad_tavern) This remake is an attempt to implement the cards they designed (with some minor differences, though)..
+Some factions are based on the great work by [Novigrad Tavern](https://www.ebay.com/usr/novigrad_tavern). This remake is an attempt to implement the cards they designed (with some minor differences).
 
 ## Screenshots
 <img width="48%" alt="gameplay 1" src="https://github.com/user-attachments/assets/a8c2a5ce-da49-4748-9cb4-f9862d8f030b" />

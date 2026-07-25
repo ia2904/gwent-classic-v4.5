@@ -5298,7 +5298,7 @@ class DeckMaker {
                 row: "leader",
                 filename: card_dict[deck["leader"]]["filename"],
                 desc_name: deck["title"],
-                desc: "<p><b>Faction ability:</b> " + factions[deck["faction"]]["description"] + "</p><p><b>Leader ability:</b> " + ability_dict[card_dict[deck["leader"]]["ability"]].description + "</p><p><b>Deck description:</b> " + deck["description"],
+                desc: "<p><b>Faction ability:</b> " + factions[deck["faction"]]["description"] + "</p><p><b>Leader ability:</b> " + ability_dict[card_dict[deck["leader"]]["ability"]].description + "</p>", /* <p><b>Deck description:</b> " + deck["description"], */
                 faction: deck["faction"]
             };
         });
@@ -5332,7 +5332,7 @@ class DeckMaker {
                 row: "leader",
                 filename: card_dict[deck["leader"]]["filename"],
                 desc_name: deck["title"],
-                desc: "<p><b>Faction ability:</b> " + factions[deck["faction"]]["description"] + "</p><p><b>Leader ability:</b> " + ability_dict[card_dict[deck["leader"]]["ability"]].description + "</p><p><b>Deck description:</b> " + deck["description"],
+                desc: "<p><b>Faction ability:</b> " + factions[deck["faction"]]["description"] + "</p><p><b>Leader ability:</b> " + ability_dict[card_dict[deck["leader"]]["ability"]].description + "</p>", /* <p><b>Deck description:</b> " + deck["description"], */
                 faction: deck["faction"]
             };
         }));

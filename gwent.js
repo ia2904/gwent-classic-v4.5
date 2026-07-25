@@ -3784,6 +3784,36 @@ html, body, #click-background {
 	transform: translateY(-0.5vw) !important;
 }
 
+.drop-container {	
+	display: flex !important;
+	flex-direction: column !important;
+	justify-content: center !important;
+	height: 100vh !important;	
+}
+
+.drop-targets {
+	height: auto !important;
+	max-height: 125px !important;
+	min-height: unset !important;
+	margin-top: 2px !important;
+	margin-bottom: 2px !important;
+}
+
+#drop-bank, #drop-deck-top, #drop-deck-bottom {
+	transform: scale(0.78) !important;
+	transform-origin: center center !important;
+	max-width: 122% !important;
+	margin-left: -11% !important;
+	margin-right: -11% !important;
+	justify-content: space-around !important;
+}
+
+.drop-line-title {
+	line-height: 1 !important;
+	text-align: center !important;
+	margin-bottom: 1px !important;
+}
+
 			`;
 			document.head.appendChild(estiloQuotesMovel);
 			

@@ -3743,10 +3743,10 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 					top: 82% !important;
 				}
 				.card-preview .card-lg {
-					top: 4.5vw !important;
+					top: 2.5vw !important;
 				}
 				.card-preview .card-description {
-					top: 34.5vw !important;
+					top: 32.5vw !important;
 				}
 				#carousel .card-description {
 					top: 71% !important;

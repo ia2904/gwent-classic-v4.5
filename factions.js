@@ -350,7 +350,7 @@ tocar("game_buy", false);
                 }
             });
         },
-        description: "Whenever a unit card of any player is destroyed during a round, draw a card from your deck into your hand at the end of the turn. Each active Soothsayer on your board grants one additional draw per destroyed unit.",
+        description: "When a unit is destroyed, draw a card at the turn's end. Active Soothsayers add +1 draw per destroyed unit.",
         activeAbility: false,
         abilityUses: 0,
         weight: (player) => {

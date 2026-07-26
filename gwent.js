@@ -3707,7 +3707,7 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 					top: 82% !important;
 					font-size: 11px !important;
 					line-height: 0.9 !important;
-					transform: scale(0.53) !important;
+					transform: scale(0.49) !important;
 					transform-origin: top center !important;
 					width: 180% !important;
 					left: -40% !important;
@@ -3716,7 +3716,7 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 					top: 73.9% !important;
 					font-size: 13px !important;
 					line-height: 0.9 !important;
-					transform: scale(0.52) !important;
+					transform: scale(0.50) !important;
 					transform-origin: top center !important;
 					width: 180% !important;
 					left: -40% !important;
@@ -3747,12 +3747,13 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 				}
 				.card-preview .card-description {
 					top: 32.5vw !important;
+transform: scale(0.95) !important;
 				}
 				#carousel .card-description {
 					top: 71% !important;
 font-size: 11px !important;
 					line-height: 0.9 !important;
-					transform: scale(0.88) !important;
+					transform: scale(0.84) !important;
 					transform-origin: top center !important;
 					}
 #button_start {
@@ -5390,14 +5391,56 @@ class DeckMaker {
     }
 
     // Called by the client to downlaod the current deck as a JSON file
-    downloadDeck() {
+   downloadDeck() {
         let json = this.deckToJSON();
-        let str = "data:text/json;charset=utf-8," + encodeURIComponent(json);
-        let hidden_elem = document.getElementById('download-json');
-        hidden_elem.href = str;
-        hidden_elem.download = "MyGwentDeck.json";
-        hidden_elem.click();
+        
+        if (typeof isMobile === "function" && isMobile()) {
+            let elementoTemporalTexto = document.createElement("textarea");
+            elementoTemporalTexto.value = json;
+            elementoTemporalTexto.style.position = "fixed";
+            elementoTemporalTexto.style.top = "0";
+            elementoTemporalTexto.style.left = "0";
+            elementoTemporalTexto.style.opacity = "0";
+            document.body.appendChild(elementoTemporalTexto);
+            elementoTemporalTexto.select();
+            elementoTemporalTexto.setSelectionRange(0, 99999);
+            
+            try {
+                document.execCommand("copy");
+                
+                let alertaTablero = document.createElement("div");
+                alertaTablero.style.position = "fixed";
+                alertaTablero.style.top = "50%";
+                alertaTablero.style.left = "50%";
+                alertaTablero.style.transform = "translate(-50%, -50%)";
+                alertaTablero.style.backgroundColor = "rgba(20, 15, 10, 0.95)";
+                alertaTablero.style.color = "#d9c39a";
+                alertaTablero.style.padding = "12px 20px";
+                alertaTablero.style.border = "2px solid #6d5210";
+                alertaTablero.style.borderRadius = "5px";
+                alertaTablero.style.fontFamily = "sans-serif";
+                alertaTablero.style.fontSize = "13px";
+                alertaTablero.style.textAlign = "center";
+                alertaTablero.style.zIndex = "999999";
+                alertaTablero.style.boxShadow = "0 0 15px #000";
+                alertaTablero.innerHTML = "<b>Deck copied to clipboard!</b><br><br>Paste it into your notepad app to save it.";
+                
+                document.body.appendChild(alertaTablero);
+                setTimeout(() => { alertaTablero.remove(); }, 3000);
+            } catch (err) { }
+            
+            document.body.removeChild(elementoTemporalTexto);
+        } else {
+            let str = "data:text/json;charset=utf-8," + encodeURIComponent(json);
+            let hidden_elem = document.getElementById('download-json');
+            if (hidden_elem) {
+                hidden_elem.href = str;
+                hidden_elem.download = "MyGwentDeck.json";
+                hidden_elem.click();
+            }
+        }
     }
+
 
     // Called by the client to upload a JSON file representing a new deck
     uploadDeck() {

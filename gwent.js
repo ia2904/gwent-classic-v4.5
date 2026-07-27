@@ -3706,8 +3706,8 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 				.card-array .card-large-quote {
 					top: 82% !important;
 					font-size: 11px !important;
-					line-height: 0.9 !important;
-					transform: scale(0.49) !important;
+					line-height: 0.85 !important;
+					transform: scale(0.47) !important;
 					transform-origin: top center !important;
 					width: 180% !important;
 					left: -40% !important;
@@ -3752,8 +3752,8 @@ transform: scale(0.95) !important;
 				#carousel .card-description {
 					top: 71% !important;
 font-size: 11px !important;
-					line-height: 0.9 !important;
-					transform: scale(0.84) !important;
+					line-height: 0.83 !important;
+					transform: scale(0.82) !important;
 					transform-origin: top center !important;
 					}
 #button_start {
@@ -4074,7 +4074,7 @@ const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate 
 if (canVibrate) {
 
 if (name === "op-leader" || name === "op-white-flame" || name === "toussaint-decoy-cancelled" || name === "meve_white_queen" || name === "north-scorch-cancelled") {
-navigator.vibrate([200, 100, 200]); // Dos vibraciones fuertes de advertencia militar
+navigator.vibrate([200, 100, 200]); 
 			}
 
 else if (name === "monsters" || name === "skellige-me" || name === "skellige-op" || name === "north" || name === "scoiatael" || name === "toussaint" || name === "lyria_rivia" || name === "zerrikania" || name === "witcher_universe" || name === "redania" || name === "velen") {
@@ -5423,7 +5423,7 @@ class DeckMaker {
                 alertaTablero.style.textAlign = "center";
                 alertaTablero.style.zIndex = "999999";
                 alertaTablero.style.boxShadow = "0 0 15px #000";
-                alertaTablero.innerHTML = "<b>Deck copied to clipboard!</b><br><br>Paste it into your notepad app to save it.";
+                alertaTablero.innerHTML = "<b>Deck copied to clipboard!</b><br><br>Paste into any notepad app and save as a .json file.";
                 
                 document.body.appendChild(alertaTablero);
                 setTimeout(() => { alertaTablero.remove(); }, 3000);

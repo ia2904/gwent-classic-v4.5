@@ -100,7 +100,7 @@ var factions = {
             await Promise.all(player.grave.findCardsRandom(c => c.isUnit(), 2).map(c => board.toRow(c, player.grave)));
             return true;
         }),
-        description: "2 random cards from the graveyard are placed on the battlefield at the start of the third round.",
+        description: "At the start of round three, randomly play 2 cards from the graveyard onto the battlefield.",
         activeAbility: false,
         abilityUses: 0,
         unavailableSpecials: []
@@ -173,7 +173,7 @@ var factions = {
         },
         activeAbility: true,
         abilityUses: 0,
-        description: "At the beginning of the game, you can change 3 cards instead of 2. During the game, you can turn a Toussaint Monster into its next form instead of playing a card.",
+        description: "Game Start: Redraw 3 cards instead of 2. Your turn: Transform a Toussaint Monster into its next form instead of playing a card.",
         unavailableSpecials: ["spe_frost", "spe_fog","spe_rain"]
     },
     lyria_rivia: {
@@ -350,7 +350,7 @@ tocar("game_buy", false);
                 }
             });
         },
-        description: "When a unit is destroyed, draw a card at the turn's end. Active Soothsayers add +1 draw per destroyed unit.",
+        description: "When a unit is destroyed draw a card at the turn's end. Each active Soothsayer adds +1 draw.",
         activeAbility: false,
         abilityUses: 0,
         weight: (player) => {
@@ -502,7 +502,7 @@ wild_hunt: {
                     await factions["wild_hunt"].factionAbilityAction(player);
             });
         },
-        description: "At the beginning of each round select a different Leader card. You will be able to use its ability in upcoming round before chosing another. Start the game with 11 cards instead of 10",
+        description: "Start the game with an 11-card hand instead of 10. At the start of each round, choose a new Leader card to use its ability.",
         activeAbility: false,
         abilityUses: 0,
         weight: (player) => {

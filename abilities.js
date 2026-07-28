@@ -465,7 +465,7 @@ var ability_dict = {
         weight: (card, ai, max) => ai.weightScorchRow(card, max, "ranged")
     },
     emhyr_imperial: {
-        description: "Draw from opponent's discard pile one unit card (not hero) into your hand. Then choose any one card from your hand and place it at the bottom of your deck.",
+        description: "Draw an opponent's discarded non-hero unit into your hand. Then put any card from your hand on the bottom of your deck.",
         activated: async card => {
             let opcards = { cards: card.holder.opponent().grave.cards.filter(c => c.isUnit()) };
             let owncards = { cards: card.holder.hand.cards };
@@ -528,7 +528,7 @@ var ability_dict = {
         }
     },
     emhyr_whiteflame: {
-        description: "Passive: When you use Spies and Emissaries, you (but don't have to) draw cards from your opponent's deck instead of your own. In this way you can draw no more than three cards for the entire battle.",
+        description: "Passive: When using Spies or Emissaries, you may draw cards from your opponent's deck instead of your own (max 3 cards per battle).",
         placed: card => {
             card.holder.disableLeader();
             card.holder.capabilities["drawOPdeck"] = 3;
@@ -581,7 +581,7 @@ var ability_dict = {
         }
     },
     emhyr_invader: {
-        description: "Draw 1 unit or hero card from your opponent's discard pile and play it immediatly in opponent's favour at your discretion. Then draw one unit or hero card from your own discard pile and play it immediatly in your favour.",
+        description: "Play a unit or hero card from each player's discard pile onto their respective side of the field.",
         activated: async card => {
             let opcards = { cards: card.holder.opponent().grave.cards.filter(c => c.isUnit() || c.hero) };
             let owncards = { cards: card.holder.grave.cards.filter(c => c.isUnit() || c.hero) };
@@ -744,7 +744,7 @@ if (card.holder.controller instanceof ControllerAI) {
         weight: (card, ai) => ai.weightHornRow(card, board.getRow(card, "ranged", card.holder))
     },
     francesca_daisy: {
-        description: "At the beginning of the game, draw from your deck 13 cards instead of 10. Choose 2 of them and shuffle them back into the deck and start the round with these 11 cards.",
+        description: "At the start of the game, draw 13 cards. Choose 2 and shuffle them into your deck to start with an 11-card hand.",
         placed: card => game.gameStart.push(() => {
             card.holder.disableLeader();
             for (var i = 0; i < 3; i++) {
@@ -839,7 +839,7 @@ if (card.holder.controller instanceof ControllerAI) {
         }
     },
     king_bran: {
-        description: "Once per game at the beginning of any round draw a Skellige Storm from your deck. In this round, all your cards will lose only half of their weather.",
+        description: "Once per game, at the start of any round: draw a Skellige Storm from your deck. This round, halve all weather effects on your cards.",
         placed: card => {
             card.holder.disableLeader();
             game.roundStart.push(async () => {
@@ -952,7 +952,7 @@ if (card.holder.controller instanceof ControllerAI) {
         }
     },
     holger_blakhand: {
-        description: "After one of your turn you can select a card and change its strength to any other. Effect will last until the end of round scoring when strength returns to the previous value. This ability can be used twice per battle.",
+        description: "At the end of your turn, you may set a card's strength to any value. It returns to its original value after the round scoring. (Max 2 uses per battle).",
         placed: card => {
             card.holder.disableLeader();
             card.holder.capabilities["cardEdit"] = 2;
@@ -1213,7 +1213,7 @@ if (card.holder.controller instanceof ControllerAI) {
         }
     },
     anna_henrietta_ladyship: {
-        description: "Pick any second form of Monster of Toussaint, which already lies on the battlefield. Remove it from the game then play immediatly its weaker form. Later, you can turn the first form into the second again.",
+        description: "Choose a second form Monster of Toussaint from the battlefield to immediately play its weaker form. You may later transform it back.",
         activated: async card => {
             let l2monsters = card.holder.getAllRowCards().filter(c => c.meta.includes("toussaint_monster_level_2"));
             if (l2monsters.length == 0)
@@ -1270,7 +1270,7 @@ if (card.holder.controller instanceof ControllerAI) {
         }
     },
     lady_wood_brewess: {
-        description: "Each time when your faction ability triggers, draw two cards instead of one. Play one of them, another one shuffle back into your deck.",
+        description: "When your faction ability triggers: draw 2 cards instead of 1. Play one and shuffle the other back into your deck.",
         placed: card => {
             card.holder.disableLeader();
             game.gameStart.push(async () => {

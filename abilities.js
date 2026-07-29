@@ -951,72 +951,112 @@ if (card.holder.controller instanceof ControllerAI) {
             return 12;
         }
     },
-    holger_blakhand: {
-        description: "At the end of your turn, you may set a card's strength to any value. It returns to its original value after the round scoring. (Max 2 uses per battle).",
-        placed: card => {
-            card.holder.disableLeader();
-            card.holder.capabilities["cardEdit"] = 2;
-            
-            game.turnEnd.push(async () => {
-                if (card.holder.passed || game.currPlayer !== card.holder || card.holder.getAllRowCards().length == 0)
-                    return false;
-                if (card.holder.capabilities["cardEdit"] < 1)
-                    return true;
-                let activate = false;
-                if (card.holder.controller instanceof ControllerAI) {
-                    if (card.holder.opponent().passed)
-                        return false;
-                    let targetCard = null;
-                    let targetValue = 0;
-                    let avengers = card.holder.getAllRowCards().filter(c => c.abilities.includes("avenger"));
-                    if (avengers.length > 0) {
-                        targetCard = avengers[0];
-                        targetValue = 40;
-                    }
-                    // If we have a summon avenger, let's try to have it killed
-                    let maxCards = card.holder.getAllRowCards().filter(c => c.isUnit()).reduce((a, c) => (!a.length || a[0].power < c.power) ? [c] : a[0].power === c.power ? a.concat([c]) : a, []);
-                    if (!targetCard && maxCards.length > 0) {
-                        // If several cards with max value and sum higher than 9 => easy target for scorch, protect with another weaker card set to a high value
-                        if (maxCards.length > 1 && maxCards.reduce((a, c) => a += c.power, 0) > 9) {
-                            targetCard = card.holder.getAllRowCards().filter(c => c.isUnit()).sort((a, b) => a.power - b.power)[0];
-                            targetValue = 4 * maxCards[0].power;
-                        // If 1 very strong card, protect with another weaker card set to a high value OR lower the stronger card
-                        } else if (maxCards.length == 1 && maxCards[0].power > 9) {
-                            targetCard = card.holder.getAllRowCards().filter(c => c.isUnit()).sort((a, b) => a.power - b.power)[0];
-                            if (targetCard.power < 6) {
-                                targetValue = 3 * maxCards[0].power;
-                            } else {
-                                targetCard = maxCards[0];
-                                targetValue = 0;
-                            }
-                        }
-                    }
-                    if (targetCard) {
-                        if (!targetCard.originalBasePower)
-                            targetCard.originalBasePower = targetCard.basePower;
-                        targetCard.basePower = targetValue;
-                        targetCard.temporaryPower = true;
-                        card.holder.capabilities["cardEdit"] -= 1;
-                    }
-                    if (card.holder.capabilities["cardEdit"] < 1)
-                        return true;
-                } else {
-                    activate = await ui.popup("Change a card's strength [E]", (p) => p.choice = true, "Maybe later [Q]", (p) => p.choice = false, "Change the strengh of a card?", "Would you like to change the strengh of a card? It will be reset at the end of the rounf before scoring.");
-                }
-                if (activate && !card.holder.controller instanceof ControllerAI) {
-                    ui.enableCardPowerEdit(card.holder);
-                }
-                return false;
-            });
-        },
-        weight: (card, ai) => {
-            let maxCards = card.holder.getAllRowCards().filter(c => c.isUnit()).reduce((a, c) => (!a.length || a[0].power < c.power) ? [c] : a[0].power === c.power ? a.concat([c]) : a, []);
-            let sum = maxCards.reduce((a, c) => a += c.power, 0);
-            if (sum > 9)
-                return sum;
-            return 0;
-        }
-    },
+	holger_blakhand: {
+		description: "At the end of your turn, you may set a card's strength to any value (Max 10). It returns to its original value after the round scoring. (Max 2 uses per battle).",
+		placed: card => {
+			card.holder.disableLeader();
+			card.holder.capabilities["cardEdit"] = 2;
+			
+			game.turnEnd.push(async () => {
+				if (card.holder.passed || game.currPlayer !== card.holder || card.holder.getAllRowCards().length == 0)
+					return false;
+				if (card.holder.capabilities["cardEdit"] < 1)
+					return true;
+				let activate = false;
+				if (card.holder.controller instanceof ControllerAI) {
+					if (card.holder.opponent().passed)
+						return false;
+					let targetCard = null;
+					let targetValue = 0;
+					let avengers = card.holder.getAllRowCards().filter(c => c.abilities.includes("avenger"));
+					if (avengers.length > 0) {
+						targetCard = avengers;
+						targetValue = 10;
+					}
+					
+					let maxCards = card.holder.getAllRowCards().filter(c => c.isUnit()).reduce((a, c) => (!a.length || a.power < c.power) ? [c] : a.power === c.power ? a.concat([c]) : a, []);
+					if (!targetCard && maxCards.length > 0) {
+						if (maxCards.length > 1 && maxCards.reduce((a, c) => a += c.power, 0) > 9) {
+							targetCard = card.holder.getAllRowCards().filter(c => c.isUnit()).sort((a, b) => a.power - b.power);
+							targetValue = 10;
+						} else if (maxCards.length == 1 && maxCards.power > 9) {
+							targetCard = card.holder.getAllRowCards().filter(c => c.isUnit()).sort((a, b) => a.power - b.power);
+							if (targetCard.power < 6) {
+								targetValue = 10;
+							} else {
+								targetCard = maxCards;
+								targetValue = 0;
+							}
+						}
+					}
+					if (targetCard) {
+						if (!targetCard.originalBasePower)
+							targetCard.originalBasePower = targetCard.basePower;
+						targetCard.basePower = targetValue;
+						targetCard.temporaryPower = true;
+						card.holder.capabilities["cardEdit"] -= 1;
+					}
+					if (card.holder.capabilities["cardEdit"] < 1)
+						return true;
+				} else {
+					activate = await ui.popup("Change a card's strength [E]", (p) => p.choice = true, "Maybe later [Q]", (p) => p.choice = false, "Change the strength of a card?", "Would you like to change the strength of a card? It will be reset at the end of the round before scoring. (Max 2 uses per battle. Max strength: 10).");
+				}
+				
+				if (activate && !(card.holder.controller instanceof ControllerAI)) {
+					let inputPopupMovel = document.getElementById("number-popup-value");
+					if (inputPopupMovel) {
+						inputPopupMovel.setAttribute("max", "10");
+					}
+
+					let botonConfirmarMovel = document.querySelector("#number-popup button");
+					if (botonConfirmarMovel) {
+						botonConfirmarMovel.onclick = null;
+						
+						botonConfirmarMovel.onclick = function() {
+							if (inputPopupMovel) {
+								let valorIngresado = parseInt(inputPopupMovel.value, 10);
+								if (!isNaN(valorIngresado) && valorIngresado > 10) {
+									inputPopupMovel.value = "10";
+								}
+								if (!isNaN(valorIngresado) && valorIngresado < 0) {
+									inputPopupMovel.value = "0";
+								}
+							}
+
+							if (typeof NumberValuePopup !== "undefined" && NumberValuePopup.curr) {
+								NumberValuePopup.curr.done();
+								
+								if (inputPopupMovel) inputPopupMovel.setAttribute("max", "999");
+								botonConfirmarMovel.onclick = function() { NumberValuePopup.curr.done(); };
+							}
+						};
+					}
+
+					ui.enableCardPowerEdit(card.holder);
+					
+					setTimeout(() => {
+						let cartasModificadas = card.holder.getAllRowCards().filter(c => c.basePower > 10 && c.temporaryPower);
+						cartasModificadas.forEach(c => {
+							if (c.basePower > 10) {
+								c.basePower = 10;
+								if (typeof c.update === "function") c.update();
+							}
+						});
+						if (typeof ui !== "undefined" && typeof ui.update === "function") ui.update();
+					}, 50);
+				}
+				return false;
+			});
+		},
+		weight: (card, ai) => {
+			let maxCards = card.holder.getAllRowCards().filter(c => c.isUnit()).reduce((a, c) => (!a.length || a.power < c.power) ? [c] : a.power === c.power ? a.concat([c]) : a, []);
+			let sum = maxCards.reduce((a, c) => a += c.power, 0);
+			if (sum > 9)
+				return sum;
+			return 0;
+		}
+	},
+
             radovid_king_redania: {
         description: "Draw three cards from your deck (excluding special cards, spies, and envoys). Play one of them immediately, shuffle the other two back into the deck.",
         activated: async (card) => {

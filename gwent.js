@@ -3739,6 +3739,9 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 					width: 170% !important;
 					left: -35% !important;
 				}
+                                #carousel {
+					top: -30px !important;
+				}
                                 #carousel .card-large-quote {
 					top: 82% !important;
 				}
@@ -3747,11 +3750,11 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 				}
 				.card-preview .card-description {
 					top: 32.5vw !important;
-transform: scale(0.95) !important;
+                                transform: scale(0.95) !important;
 				}
 				#carousel .card-description {
-					top: 71% !important;
-font-size: 11px !important;
+					top: 74% !important;
+                                font-size: 11px !important;
 					line-height: 0.83 !important;
 					transform: scale(0.82) !important;
 					transform-origin: top center !important;

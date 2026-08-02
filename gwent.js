@@ -3645,10 +3645,7 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 				statsMe.style.transform = "translateY(-3.5vw)"; 
 			}
 			
-			let scoreTotalMe = document.getElementById("score-total-me");
-			if (scoreTotalMe) {
-				scoreTotalMe.style.transform = "translateY(3.5vw)"; 
-			}
+			
 			
 			let passBtn = document.getElementById("pass-button");
 			if (passBtn) {

@@ -22,31 +22,48 @@ var factions = {
         abilityUses: 0,
         unavailableSpecials: []
     },
-    monsters: {
+       monsters: {
         name: "Monsters",
         factionAbility: player => { 
             game.gameStart.push(() => { player.capabilities["endTurnRetake"] = 1; return true; });
             game.roundEnd.push(async () => {
                 if (player.capabilities["endTurnRetake"] < 1)
                     return false;
+                
+                let cartasValidas = player.getAllRowCards().filter(c => c && c.isUnit && c.isUnit() && !c.hero);
                 let cards = new CardContainer();
-                cards.cards = player.getAllRowCards();
-                let retakeCard = null;
-                if (cards.cards.length == 0)
+                cards.cards = cartasValidas;
+                
+                if (cards.cards.length == 0) {
                     return false;
+                }
+                
+                let retakeCard = null;
                 if (player.controller instanceof ControllerAI) {
-                    player.capabilities["endTurnRetake"] = 0;
                     retakeCard = player.controller.medic(player.leader, cards);
+                    
+                    if (!retakeCard || typeof retakeCard === "undefined") {
+                        return false;
+                    }
+                    
+                    player.capabilities["endTurnRetake"] = 0;
                     await ui.notification("monsters", 1200);
-                    await board.toHand(retakeCard, retakeCard.currentLocation);
+                    let ubicacionOrigen = (retakeCard && retakeCard.currentLocation) ? retakeCard.currentLocation : player.board;
+                    await board.toHand(retakeCard, ubicacionOrigen);
                     return true;
                 } else {
                     let c = await ui.popup("Retake a card [E]", (p) => p.choice = true, "Not yet [Q]", (p) => p.choice = false, "Would you like to retake one of your cards?", "Once per battle, you may retake any of your cards from the board to your hand.");
                     if (c) {
                         await ui.queueCarousel(cards, 1, (c, i) => retakeCard = c.cards[i], c => true, true, false, "Which card to retake?");
+                        
+                        if (!retakeCard || typeof retakeCard === "undefined") {
+                            return false;
+                        }
+                        
                         player.capabilities["endTurnRetake"] = 0;
                         await ui.notification("monsters", 1200);
-                        await board.toHand(retakeCard, retakeCard.currentLocation);
+                        let ubicacionOrigenHumano = (retakeCard && retakeCard.currentLocation) ? retakeCard.currentLocation : player.board;
+                        await board.toHand(retakeCard, ubicacionOrigenHumano);
                         return true;
                     }
                 }
@@ -59,6 +76,7 @@ var factions = {
         abilityUses: 0,
         unavailableSpecials: []
     },
+
     scoiatael: {
         name: "Scoia'tael",
         factionAbility: player => game.roundStart.push(async () => {

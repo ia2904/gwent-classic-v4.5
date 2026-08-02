@@ -1229,29 +1229,49 @@ if (card.holder.controller instanceof ControllerAI) {
             return 5;
         }
     },
-    anna_henrietta_duchess: {
-        description: "Pick one hero card from your grave and play it immediatly.",
-        activated: async card => {
-            let heros = card.holder.grave.cards.filter(c => c.hero).sort((a,b) => b.power - a.power);
-            if (heros.length == 0)
-                return false;
-            let targetCard = null;
-            if (card.holder.controller instanceof ControllerAI) {
-                targetCard = heros[0]; // Strongest should be first
-                targetCard.autoplay(card.holder.grave);
-            } else {
-                await ui.queueCarousel({ cards: heros }, 1, (c, i) => targetCard = c.cards[i], c => true, true, false, "Choose the hero to play");
-                if (targetCard) {
-                    // let player select where to play the card
-                    card.holder.selectCardDestination(targetCard, card.holder.grave);
-                }
-            }
-            return true;
-        },
-        weight: (card, ai) => {
-            return 10;
-        }
-    },
+   	anna_henrietta_duchess: {
+		description: "Pick one hero card from your grave and play it immediately.",
+		activated: async (card) => {
+			let heros = card.holder.grave.cards.filter(c => c.hero).sort((a, b) => b.power - a.power);
+			
+			if (heros.length == 0) {
+				if (card.holder.controller instanceof ControllerAI) {
+					return true;
+				}
+				return false;
+			}
+			
+			let targetCard = null;
+			if (card.holder.controller instanceof ControllerAI) {
+				targetCard = heros[0];
+				if (targetCard && typeof targetCard.autoplay === "function") {
+					targetCard.autoplay(card.holder.grave);
+				}
+			} else {
+				await ui.queueCarousel({ cards: heros }, 1, (c, i) => targetCard = c.cards[i], c => true, true, false, "Choose the hero to play");
+				if (targetCard) {
+					card.holder.selectCardDestination(targetCard, card.holder.grave);
+				}
+			}
+			return true;
+		},
+		weight: (card, ai) => {
+			if (!ai || !ai.player || !ai.player.grave || !ai.player.grave.cards) {
+				return 0;
+			}
+			
+			let herosDisponibles = ai.player.grave.cards.filter(c => c.hero);
+			if (herosDisponibles.length == 0) {
+				return 0;
+			}
+			
+			let heroeMasFuerte = herosDisponibles.sort((a, b) => b.power - a.power)[0];
+			let puntuacionBase = 12 + (heroeMasFuerte ? heroeMasFuerte.power : 0);
+			
+			return Math.min(puntuacionBase, 30);
+		}
+	},
+
     anna_henrietta_ladyship: {
         description: "Choose a second form Monster of Toussaint from the battlefield to immediately play its weaker form. You may later transform it back.",
         activated: async card => {

@@ -33,6 +33,37 @@ main {
 	background-repeat: no-repeat;
 }
 
+.board-carousel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(0,0,0,0.8);
+    padding: 70px;
+    border-radius: 8px;
+    z-index: 9999;
+}
+
+.board-carousel img {
+    width: 400px;
+    height: 240px;
+    object-fit: cover;
+    border: 5px solid goldenrod;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.board-carousel span {
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+    color: #fff;
+    font-size: 16px;
+}
+
 a:hover, label:hover, .hover_un:hover {
 	text-decoration:underline;
 }
@@ -1407,6 +1438,10 @@ border-radius: 0.5vw;
 	font-size: 1vw;
 	color: #fff;
 	top: 15%;
+}
+
+#select-board {
+    left: 22%;
 }
 
 #select-deck {

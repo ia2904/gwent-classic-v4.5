@@ -4942,6 +4942,75 @@ class DeckMaker {
         this.change_elem = document.getElementById("change-faction");
         this.change_elem.addEventListener("click", () => this.selectFaction(), false);
 
+
+
+const boards = isMobile()
+    ? [
+        { file: "board-mobile.jpg", name: "Classic" },
+        { file: "board-betam.jpg", name: "Beta" },
+        { file: "board-stonem.jpg", name: "Stone" },
+        { file: "board-classremasm.jpg", name: "Remastered" },
+        { file: "board-detlaffm.jpg", name: "Detlaff" },
+        { file: "board-wh1m.jpg", name: "Wild Hunt 1" },
+        { file: "board-wh2m.jpg", name: "Wild Hunt 2" },
+        { file: "board-cirim.jpg", name: "Ciri" },
+        { file: "board-ladiesm.jpg", name: "Crones" },
+        { file: "board-friendsm.jpg", name: "Friends" },
+        { file: "board-gwentm.jpg", name: "Gwent" }
+      ]
+    : [
+        { file: "board.jpg", name: "Classic" },
+        { file: "board-beta.jpg", name: "Beta" },
+        { file: "board-stone.jpg", name: "Stone" },
+        { file: "board-classremas.jpg", name: "Remastered" },
+        { file: "board-detlaff.jpg", name: "Detlaff" },
+        { file: "board-wildhunt1.jpg", name: "Wild Hunt 1" },
+        { file: "board-wildhunt2.jpg", name: "Wild Hunt 2" },
+        { file: "board-ciri.jpg", name: "Ciri" },
+        { file: "board-ladies.jpg", name: "Crones" },
+        { file: "board-friends.jpg", name: "Friends" },
+        { file: "board-gwent.jpg", name: "Gwent" }
+      ];
+
+let currentIndex = 0;
+
+function renderBoardPreview() {
+    const preview = document.getElementById("board-preview");
+    const b = boards[currentIndex];
+    preview.innerHTML = `
+        <div>
+            <img src="img/Boards/${b.file}" alt="${b.name}">
+            <span>${b.name}</span>
+        </div>
+    `;
+}
+
+document.getElementById("select-board").addEventListener("click", () => {
+    const carousel = document.getElementById("board-carousel");
+    carousel.style.display = carousel.style.display === "none" ? "flex" : "none";
+    renderBoardPreview();
+});
+
+document.getElementById("prev-board").addEventListener("click", () => {
+    currentIndex = (currentIndex - 1 + boards.length) % boards.length;
+    renderBoardPreview();
+});
+
+document.getElementById("next-board").addEventListener("click", () => {
+    currentIndex = (currentIndex + 1) % boards.length;
+    renderBoardPreview();
+});
+
+document.getElementById("board-preview").addEventListener("click", () => {
+    const b = boards[currentIndex];
+    document.querySelector("main").style.backgroundImage = `url(img/Boards/${b.file})`;
+
+document.getElementById("board-carousel").style.display = "none";
+});
+
+
+
+
         document.getElementById("select-deck").addEventListener("click", () => this.selectDeck(), false);
         document.getElementById("select-op-deck").addEventListener("click", () => this.selectOPDeck(), false);
         document.getElementById("download-deck").addEventListener("click", () => this.downloadDeck(), false);

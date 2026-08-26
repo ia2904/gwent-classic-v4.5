@@ -1941,12 +1941,10 @@ let cineOverlay = document.createElement("div");
 
 			let solarBeam = document.createElement("div");
 			solarBeam.className = "sunlight-beam-wave";
-
-			// Armamos el árbol visual y lo pegamos a pantalla completa en el HTML (body)
+	
 			cineOverlay.appendChild(solarBeam);
 			document.body.appendChild(cineOverlay);
-
-			// Destrucción automática a los 2 segundos para liberar memoria inmediatamente
+			
 			setTimeout(() => {
 				if (cineOverlay) cineOverlay.remove();
 			}, 2000);

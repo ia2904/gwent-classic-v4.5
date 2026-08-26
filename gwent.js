@@ -2771,6 +2771,7 @@ actualizarPosicionMusicaMovel();
     // Simulated coin toss to determine who starts game
     async coinToss() {
         this.firstPlayer = (Math.random() < 0.5) ? player_me : player_op;
+tocar("coin", false);
         await ui.notification(this.firstPlayer.tag + "-coin", 1200);
         return this.firstPlayer;
     }
@@ -3519,18 +3520,70 @@ class UI {
             }, false);
 
 let giveupBtn = document.getElementById("giveup-button");
-            if (giveupBtn) {
-                giveupBtn.onclick = async () => {
-                    if (typeof ui !== "undefined" && ui.isBlocked && ui.isBlocked()) return;
-                    tocar("pass", false);
-                    if (typeof player_me !== "undefined") player_me.health = 0;
-                    if (typeof game !== "undefined" && game.roundHistory) {
-                        var verdict = { winner: null, score_me: player_me.total, score_op: player_op.total };
-                        game.roundHistory.push(verdict);
-                    }
-                    if (typeof game !== "undefined" && typeof game.endGame === "function") await game.endGame();
-                    else if (typeof ui !== "undefined" && typeof ui.showEndScreen === "function") await ui.showEndScreen(player_op);
-                };
+if (giveupBtn) {
+    giveupBtn.onclick = async () => {
+        if (typeof ui !== "undefined" && ui.isBlocked && ui.isBlocked()) return;
+        tocar("pass", false);
+       
+        limpar();
+        if (typeof game !== "undefined" && typeof game.reset === "function") {
+            game.reset();
+        }
+        if (typeof player_me !== "undefined" && typeof player_me.reset === "function") {
+            player_me.reset();
+        }
+        if (typeof player_op !== "undefined" && typeof player_op.reset === "function") {
+            player_op.reset();
+        }
+
+        if (typeof player_me !== "undefined") {
+            player_me.passed = false;
+            if (typeof player_me.setPassed === "function") {
+                player_me.setPassed(false);
+            }
+            let elMe = document.getElementById("passed-" + player_me.tag);
+            if (elMe) elMe.classList.remove("passed");
+        }
+        if (typeof player_op !== "undefined") {
+            player_op.passed = false;
+            if (typeof player_op.setPassed === "function") {
+                player_op.setPassed(false);
+            }
+            let elOp = document.getElementById("passed-" + player_op.tag);
+            if (elOp) elOp.classList.remove("passed");
+        }
+
+if (typeof player_me !== "undefined") {
+    player_me.winning = false;
+    if (typeof player_me.setWinning === "function") {
+        player_me.setWinning(false);
+    }
+    let elMeScore = document.getElementById("score-total-" + player_me.tag);
+    if (elMeScore) elMeScore.classList.remove("score-leader");
+}
+if (typeof player_op !== "undefined") {
+    player_op.winning = false;
+    if (typeof player_op.setWinning === "function") {
+        player_op.setWinning(false);
+    }
+    let elOpScore = document.getElementById("score-total-" + player_op.tag);
+    if (elOpScore) elOpScore.classList.remove("score-leader");
+}
+
+        if (typeof board !== "undefined" && board.updateLeader) board.updateLeader();
+
+        if (typeof player_me !== "undefined") player_me.health = 0;
+        if (typeof game !== "undefined" && game.roundHistory) {
+            var verdict = { winner: null, score_me: player_me.total, score_op: player_op.total };
+            game.roundHistory.push(verdict);
+        }
+
+        if (typeof game !== "undefined" && typeof game.endGame === "function") {
+            await game.endGame();
+        } else if (typeof ui !== "undefined" && typeof ui.showEndScreen === "function") {
+            await ui.showEndScreen(player_op);
+        }
+    };
             }
 
             window.addEventListener("keydown", function (e) {
@@ -3560,19 +3613,70 @@ document.getElementById("pass-button").addEventListener("click", function (e) {
                 player_me.passRound();
             }
         });
-
 let giveupBtnMobile = document.getElementById("giveup-button");
-            if (giveupBtnMobile) {
-                giveupBtnMobile.addEventListener("click", async function (e) {
-                    tocar("pass", false);
-                    if (typeof player_me !== "undefined") player_me.health = 0;
-                    if (typeof game !== "undefined" && game.roundHistory) {
-                        var verdict = { winner: null, score_me: player_me.total, score_op: player_op.total };
-                        game.roundHistory.push(verdict);
-                    }
-                    if (typeof game !== "undefined" && typeof game.endGame === "function") await game.endGame();
-else if (typeof ui !== "undefined" && typeof ui.showEndScreen === "function") await ui.showEndScreen(player_op);
-                });
+if (giveupBtnMobile) {
+    giveupBtnMobile.addEventListener("click", async function (e) {
+        tocar("pass", false);
+
+        limpar();
+        if (typeof game !== "undefined" && typeof game.reset === "function") {
+            game.reset();
+        }
+        if (typeof player_me !== "undefined" && typeof player_me.reset === "function") {
+            player_me.reset();
+        }
+        if (typeof player_op !== "undefined" && typeof player_op.reset === "function") {
+            player_op.reset();
+        }
+
+        if (typeof player_me !== "undefined") {
+            player_me.passed = false;
+            if (typeof player_me.setPassed === "function") {
+                player_me.setPassed(false);
+            }
+            let elMe = document.getElementById("passed-" + player_me.tag);
+            if (elMe) elMe.classList.remove("passed");
+        }
+        if (typeof player_op !== "undefined") {
+            player_op.passed = false;
+            if (typeof player_op.setPassed === "function") {
+                player_op.setPassed(false);
+            }
+            let elOp = document.getElementById("passed-" + player_op.tag);
+            if (elOp) elOp.classList.remove("passed");
+        }
+
+if (typeof player_me !== "undefined") {
+    player_me.winning = false;
+    if (typeof player_me.setWinning === "function") {
+        player_me.setWinning(false);
+    }
+    let elMeScore = document.getElementById("score-total-" + player_me.tag);
+    if (elMeScore) elMeScore.classList.remove("score-leader");
+}
+if (typeof player_op !== "undefined") {
+    player_op.winning = false;
+    if (typeof player_op.setWinning === "function") {
+        player_op.setWinning(false);
+    }
+    let elOpScore = document.getElementById("score-total-" + player_op.tag);
+    if (elOpScore) elOpScore.classList.remove("score-leader");
+}
+
+        if (typeof board !== "undefined" && board.updateLeader) board.updateLeader();
+
+        if (typeof player_me !== "undefined") player_me.health = 0;
+        if (typeof game !== "undefined" && game.roundHistory) {
+            var verdict = { winner: null, score_me: player_me.total, score_op: player_op.total };
+            game.roundHistory.push(verdict);
+        }
+
+        if (typeof game !== "undefined" && typeof game.endGame === "function") {
+            await game.endGame();
+        } else if (typeof ui !== "undefined" && typeof ui.showEndScreen === "function") {
+            await ui.showEndScreen(player_op);
+        }
+    });
             }
         }
 
@@ -4051,7 +4155,6 @@ html, body, #click-background {
                 desc.children[0].style.backgroundImage = "";
             else if (card.row === "leader")
                 desc.children[0].style.backgroundImage = iconURL("deck_shield_" + card.faction);
-            // CORRECCIÓN: Si la habilidad coincide con el nombre de un clima, dejamos el contenedor de imagen limpio
             else if (str === "white_frost" || str === "biting_frost" || str === "impenetrable_fog" || str === "torrential_rain" || str === "skellige_storm" || str === "clear_weather")
                 desc.children[0].style.backgroundImage = "";
             else if (str && str !== "")
@@ -5265,13 +5368,11 @@ document.getElementById("board-carousel").style.display = "none";
             this.update();
         }, () => true, false, true);
 
-        // CORRECCIÓN DEFINITIVA: Validamos de forma segura si Carousel.curr existe
         if (Carousel.curr) {
             Carousel.curr.index = index;
             Carousel.curr.update();
         } else {
-            // Si el carrusel está en cola y no se ha activado, dejamos que el sistema 
-            // del juego maneje su propio inicio de manera interna sin colapsar.
+
             console.log("El carrusel está en cola esperando activación.");
         }
     }

@@ -1,5 +1,28 @@
 "use strict"
 
+
+let vibrationEnabled = true;
+
+const _originalNavigatorVibrate = navigator.vibrate ? navigator.vibrate.bind(navigator) : null;
+const _originalWebsite2APKVibrate = (window.Website2APK && window.Website2APK.vibrate)
+    ? window.Website2APK.vibrate.bind(window.Website2APK)
+    : null;
+
+if (_originalNavigatorVibrate) {
+    navigator.vibrate = function(pattern) {
+        if (!vibrationEnabled) return false; 
+        return _originalNavigatorVibrate(pattern);
+    };
+}
+
+if (_originalWebsite2APKVibrate) {
+    window.Website2APK.vibrate = function(pattern) {
+        if (!vibrationEnabled) return false; 
+        return _originalWebsite2APKVibrate(pattern);
+    };
+}
+
+
 class Controller { }
 
 var nilfgaard_wins_draws = false;
@@ -5114,6 +5137,27 @@ document.getElementById("board-carousel").style.display = "none";
 
 
 
+const isMobileDeviceForVibration = /Mobi|Android/i.test(navigator.userAgent);
+
+const toggleBtn = document.getElementById("toggle-vibration");
+
+if (!isMobileDeviceForVibration) {
+    toggleBtn.style.display = "none";
+}
+document.getElementById("toggle-vibration").addEventListener("click", () => {
+    vibrationEnabled = !vibrationEnabled;
+    const icon = document.getElementById("vibration-icon");
+    if (vibrationEnabled) {
+        icon.src = "img/icons/vibration-on.png";
+        icon.alt = "Vibration ON";
+    } else {
+        icon.src = "img/icons/vibration-off.png";
+        icon.alt = "Vibration OFF";
+    }
+});
+
+
+
         document.getElementById("select-deck").addEventListener("click", () => this.selectDeck(), false);
         document.getElementById("select-op-deck").addEventListener("click", () => this.selectOPDeck(), false);
         document.getElementById("download-deck").addEventListener("click", () => this.downloadDeck(), false);
@@ -5130,6 +5174,7 @@ document.getElementById("board-carousel").style.display = "none";
             if (ui && ui.player1Deck) { ui.player1Deck.title = this.me_deck_title; }
             ui.player1DeckTitle = this.me_deck_title;
         };
+
 
         document.getElementById("start-game").addEventListener("click", () => { actualizartituloporid(); this.startNewGame(1); }, false);
         document.getElementById("start-ai-game").addEventListener("click", () => { actualizartituloporid(); this.startNewGame(2); }, false);

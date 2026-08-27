@@ -1440,6 +1440,17 @@ border-radius: 0.5vw;
 	top: 15%;
 }
 
+#toggle-vibration {
+    left: 79%;
+top: 12.2%;
+   }
+
+#toggle-vibration img {
+    width: 27px;   
+    height: 27px;
+}
+
+
 #select-board {
     left: 22%;
 }
@@ -1465,7 +1476,7 @@ border-radius: 0.5vw;
 }
 
 #op-deck-name {
-	left: 72%;
+	left: 72.6%;
 	color: #cccccc;
 	font-style: italic;
 }

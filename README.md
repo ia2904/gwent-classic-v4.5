@@ -13,7 +13,7 @@ This remake is an attempt to implement the cards they designed (with some differ
 
 #### 🎨 Visuals & Customization
 * **Custom Boards:** Designed new custom boards featuring an interactive **Board Selector**.
-* **Polished Graphics:** Changed the initial background image, added a custom Gwent logo, improved card borders, and fixed faction emblem displays.
+* **Interface Updates:** Changed the initial background image, added a custom Gwent logo, improved card borders, and fixed faction emblem displays.
 * **Enhanced FX:** Added custom visual effects for Hero card activations and the *Clear Weather* card effect.
 
 #### 🔊 Audio & Music

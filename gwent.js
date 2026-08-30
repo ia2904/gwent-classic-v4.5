@@ -5112,28 +5112,35 @@ function renderBoardPreview() {
 }
 
 document.getElementById("select-board").addEventListener("click", () => {
-    const carousel = document.getElementById("board-carousel");
+if (typeof tocar === "function") tocar("explaining", false);    
+const carousel = document.getElementById("board-carousel");
     carousel.style.display = carousel.style.display === "none" ? "flex" : "none";
     renderBoardPreview();
 });
 
 document.getElementById("prev-board").addEventListener("click", () => {
+    if (typeof tocar === "function") tocar("card", false);
     currentIndex = (currentIndex - 1 + boards.length) % boards.length;
     renderBoardPreview();
 });
 
 document.getElementById("next-board").addEventListener("click", () => {
+    if (typeof tocar === "function") tocar("card", false);
     currentIndex = (currentIndex + 1) % boards.length;
     renderBoardPreview();
 });
 
 document.getElementById("board-preview").addEventListener("click", () => {
+if (typeof tocar === "function") tocar("explaining", false);
     const b = boards[currentIndex];
     document.querySelector("main").style.backgroundImage = `url(img/Boards/${b.file})`;
 
 document.getElementById("board-carousel").style.display = "none";
 });
 
+document.getElementById("board-preview").addEventListener("mouseover", () => {
+    if (typeof tocar === "function") tocar("card", false);
+});
 
 
 
@@ -5142,19 +5149,29 @@ const isMobileDeviceForVibration = /Mobi|Android/i.test(navigator.userAgent);
 const toggleBtn = document.getElementById("toggle-vibration");
 
 if (!isMobileDeviceForVibration) {
-    toggleBtn.style.display = "none";
+    if (toggleBtn) toggleBtn.style.display = "none";
 }
-document.getElementById("toggle-vibration").addEventListener("click", () => {
-    vibrationEnabled = !vibrationEnabled;
-    const icon = document.getElementById("vibration-icon");
-    if (vibrationEnabled) {
-        icon.src = "img/icons/vibration-on.png";
-        icon.alt = "Vibration ON";
-    } else {
-        icon.src = "img/icons/vibration-off.png";
-        icon.alt = "Vibration OFF";
-    }
-});
+
+if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+        if (typeof tocar === "function") tocar("card", false);
+        
+        vibrationEnabled = !vibrationEnabled;
+        const statusText = document.getElementById("vibration-status");
+        
+        if (statusText) {
+            if (vibrationEnabled) {
+if (typeof tocar === "function") tocar("card", false);
+                statusText.innerText = "ON";
+                statusText.style.color = "#2ecc71"; 
+            } else {
+if (typeof tocar === "function") tocar("discard", false);
+                statusText.innerText = "OFF";
+                statusText.style.color = "#e74c3c"; 
+            }
+        }
+    });
+}
 
 
 
@@ -5162,6 +5179,11 @@ document.getElementById("toggle-vibration").addEventListener("click", () => {
         document.getElementById("select-op-deck").addEventListener("click", () => this.selectOPDeck(), false);
         document.getElementById("download-deck").addEventListener("click", () => this.downloadDeck(), false);
         document.getElementById("add-file").addEventListener("change", () => this.uploadDeck(), false);
+document.getElementById("save-internal-deck").addEventListener("click", () => this.saveDeckInternal(), false);
+       document.getElementById("load-internal-deck").addEventListener("click", () => {
+            if (typeof tocar === "function") tocar("explaining", false);
+            this.loadDeckInternal();
+        }, false);
 
            const actualizartituloporid = () => {
             let elemTituloFaccion = document.getElementById("faction-title");
@@ -5734,7 +5756,177 @@ document.getElementById("toggle-vibration").addEventListener("click", () => {
         this.makeBank(deck.faction, cards);
         this.update();
     }
+    
+
+
+   saveDeckInternal() {
+        let savedDecks = {};
+        try {
+            let raw = localStorage.getItem("gwent_internal_decks");
+            if (raw) savedDecks = JSON.parse(raw);
+        } catch (e) {
+            savedDecks = {};
+        }
+
+        let baseName = (this.faction || "Custom") + " Deck";
+        let counter = 1;
+        let finalName = baseName + " " + counter;
+
+        while (savedDecks[finalName]) {
+            counter++;
+            finalName = baseName + " " + counter;
+        }
+
+        let deckObj = {
+            title: finalName,
+            faction: this.faction,
+            leader: this.leader.index,
+            cards: this.deck.filter(x => x.count > 0).map(x => [x.index, x.count])
+        };
+
+        savedDecks[finalName] = deckObj;
+        localStorage.setItem("gwent_internal_decks", JSON.stringify(savedDecks));
+
+        let alertBox = document.createElement("div");
+        alertBox.style.position = "fixed";
+        alertBox.style.top = "50%";
+        alertBox.style.left = "50%";
+        alertBox.style.transform = "translate(-50%, -50%)";
+        alertBox.style.backgroundColor = "rgba(20, 20, 20, 0.95)";
+        alertBox.style.color = "#d9c39a";
+        alertBox.style.padding = "12px 20px";
+        alertBox.style.border = "2px solid #6d5210";
+        alertBox.style.borderRadius = "5px";
+        alertBox.style.fontFamily = "sans-serif";
+        alertBox.style.fontSize = "13px";
+        alertBox.style.textAlign = "center";
+        alertBox.style.zIndex = "999999";
+        alertBox.style.boxShadow = "0 0 15px #000";
+        alertBox.innerHTML = "<h3>Deck Saved!</h3><p style='margin: 5px 0 0 0; color:#fff;'>Saved as: <b>" + finalName + "</b></p>";
+        
+        document.body.appendChild(alertBox);
+        setTimeout(() => { alertBox.remove(); }, 2500);
+    }
+
+
+      async loadDeckInternal() {
+        let savedDecks = {};
+        try {
+            let raw = localStorage.getItem("gwent_internal_decks");
+            if (raw) savedDecks = JSON.parse(raw);
+        } catch (e) {
+            savedDecks = {};
+        }
+
+        let deckNames = Object.keys(savedDecks);
+       
+        if (deckNames.length === 0) {
+            let alertBox = document.createElement("div");
+            alertBox.style.position = "fixed";
+            alertBox.style.top = "50%";
+            alertBox.style.left = "50%";
+            alertBox.style.transform = "translate(-50%, -50%)";
+            alertBox.style.backgroundColor = "rgba(20, 20, 20, 0.95)";
+            alertBox.style.color = "#d9c39a";
+            alertBox.style.padding = "12px 20px";
+            alertBox.style.border = "2px solid #6d5210";
+            alertBox.style.borderRadius = "5px";
+            alertBox.style.fontFamily = "sans-serif";
+            alertBox.style.fontSize = "13px";
+            alertBox.style.textAlign = "center";
+            alertBox.style.zIndex = "999999";
+            alertBox.style.boxShadow = "0 0 15px #000";
+            alertBox.innerHTML = "<h3>No Decks Found</h3><p style='margin: 5px 0 0 0; color:#fff;'>You haven't saved any custom decks internally yet.</p>";
+            
+            document.body.appendChild(alertBox);
+            setTimeout(() => { alertBox.remove(); }, 3000);
+            return;
+        }
+
+        let menuOverlay = document.createElement("section");
+        menuOverlay.id = "internal-deck-popup";
+        menuOverlay.className = "center";
+
+        let container = document.createElement("div");
+        container.className = "gwent-popup-box";
+
+        let header = document.createElement("h3");
+        header.innerText = "Load Saved Deck";
+        container.appendChild(header);
+
+        let listWrapper = document.createElement("div");
+        listWrapper.className = "gwent-deck-list";
+
+        deckNames.forEach(name => {
+            let row = document.createElement("div");
+            row.className = "gwent-deck-row";
+
+            let label = document.createElement("span");
+            label.className = "gwent-deck-label";
+            label.innerText = name;
+
+  label.addEventListener("mouseover", () => {
+                if (typeof tocar === "function") tocar("card", false);
+            });
+
+
+            label.addEventListener("click", () => {
+if (typeof tocar === "function") tocar("explaining", false);
+                menuOverlay.remove();
+                this.deckFromJSON(savedDecks[name], false);
+            });
+
+            let deleteBtn = document.createElement("button");
+            deleteBtn.className = "hover_un";
+            deleteBtn.innerText = "Delete";
+
+ deleteBtn.addEventListener("mouseover", () => {
+                if (typeof tocar === "function") tocar("card", false);
+            });
+
+            deleteBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                
+ if (typeof tocar === "function") tocar("discard", false);
+
+                delete savedDecks[name];
+                localStorage.setItem("gwent_internal_decks", JSON.stringify(savedDecks));
+                
+                menuOverlay.remove();
+                this.loadDeckInternal();
+            });
+
+            row.appendChild(label);
+            row.appendChild(deleteBtn);
+            listWrapper.appendChild(row);
+        });
+
+        container.appendChild(listWrapper);
+
+        let closeBtn = document.createElement("button");
+        closeBtn.className = "hover_un";
+        closeBtn.innerText = "Close";
+
+closeBtn.addEventListener("mouseover", () => {
+            if (typeof tocar === "function") tocar("card", false);
+        });
+closeBtn.addEventListener("click", () => {
+            if (typeof tocar === "function") tocar("discard", false);
+            menuOverlay.remove();
+        });
+
+        closeBtn.addEventListener("click", () => { menuOverlay.remove(); });
+        container.appendChild(closeBtn);
+
+        menuOverlay.appendChild(container);
+        document.body.appendChild(menuOverlay);
+    }
+
 }
+
+
+
+
 
 class DeckSorter {
     constructor(cards, player, action, title, bottomAllowed = false) {

@@ -35,7 +35,7 @@
 
         .gwent-title {
             font-family: 'GwentCustom', serif;
-            font-size: 6rem;                 
+            font-size: 5.5rem;                 
             letter-spacing: -8px;             
             display: block;                  
             text-align: center;              
@@ -63,16 +63,18 @@
 	<body>
 		<div class = "abs" id = "very_start_bg1"></div>
 		<div class = "abs" id = "very_start_bg2">
-			<div id = "very_start" class = "abs" style = "padding-top:55%">
-				<span class="gwent-title">
-                <span class="letra-grande">G</span>WEN<span class="letra-grande">T</span>
-            </span>
-<br />
-				<font id = "load_text">Loading v4.5...</font>
-				<button class = "start-game_class" id = "button_start" style = "display:none">LET'S PLAY</button>
-<div id = "version_text" style = "font-family: 'GwentCustom', serif; font-size: 1.2rem; color: maroon; text-align: center; margin-top: 10px;">v4.5</div>
-			</div>
-		</div>
+			<div id="game-container">
+            <div id="very_start">
+                <span class="gwent-title">
+                    <span class="letra-grande">G</span>WEN<span class="letra-grande">T</span>
+                </span>
+                <br />
+                <font id="load_text">Loading v4.5...</font>
+                <button class="start-game_class" id="button_start" style="display:none">LET'S PLAY</button>
+                <div id="version_text">v4.5</div>
+            </div>
+        </div>
+    </div>
 		<div id = "dimensions" style = "position:fixed;width:100vw;height:calc(100vw * 1080 / 1920);"></div>
 			<main style = "display:none">
 			<section id = "click-background" class = "noclick"></section>
@@ -304,25 +306,31 @@
             <p id="faction-description"></p>
 
 <a id="toggle-vibration" class="deck-options">
-    <img id="vibration-icon" src="img/icons/vibration-on.png" alt="Vibration ON" />
+    <img id="vibration-icon" src="img/icons/vibration.png" alt="Vibration Toggle" />
+    <span id="vibration-status" style="color: #2ecc71; margin-left: 5px; font-weight: bold;">ON</span>
 </a>
 
 <a id="select-board" class="deck-options">Select Board</a>
 <div id="board-carousel" class="board-carousel" style="display:none;">
-    <button id="prev-board">◀</button>
+    <button id="prev-board" class="hover_un">◀</button>
     <div id="board-preview"></div>
-    <button id="next-board">▶</button>
+    <button id="next-board" class="hover_un">▶</button>
 </div>
 
             <a id="select-deck" class="deck-options">Select Own Deck</a>
+
             <label id="upload-deck" class="deck-options">
                 <input type="file" id="add-file" value="Import" style="display:none;" />
-                Upload Deck
+                Import Deck
             </label>
+
+<a id="save-internal-deck" class="deck-options">Save / </a>
+            <a id="load-internal-deck" class="deck-options">Load Deck</a>
+
             <a id="change-faction" class="deck-options">Change Faction</a>
-            <a id="download-deck" class="deck-options">Download Deck</a>
+            <a id="download-deck" class="deck-options">Export / </a>
             <a id="download-json" style="display:none;"></a>
-            <a id="select-op-deck" class="deck-options">Select Opponent Deck ></a>
+            <a id="select-op-deck" class="deck-options">Select Opponent Deck</a>
             <span id="op-deck-name" class="deck-options">Random deck</span>
             <h2 id="card-bank-title" class="card-contianer-title">Card Collection</h2>
             <h2 id="card-deck-title" class="card-contianer-title">Cards in Deck</h2>

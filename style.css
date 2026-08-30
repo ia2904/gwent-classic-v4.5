@@ -33,36 +33,72 @@ main {
 	background-repeat: no-repeat;
 }
 
+
 .board-carousel {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 10, 10, 0.9);
+    z-index: 9999;
     display: flex;
     align-items: center;
-    gap: 20px;
-    background: rgba(0,0,0,0.8);
-    padding: 70px;
-    border-radius: 8px;
-    z-index: 9999;
+    justify-content: center;
+    gap: 35px;
+    font-family: "Arial Narrow", sans-serif;
+    box-sizing: border-box;
+}
+
+#board-preview {
+    text-align: center;
+    display: inline-block;
+    box-sizing: border-box;
 }
 
 .board-carousel img {
-    width: 400px;
-    height: 240px;
+    width: 450px;
+    height: 280px;
     object-fit: cover;
-    border: 5px solid goldenrod;
-    border-radius: 4px;
+    border: 3px solid #6d5210;
+    box-shadow: 0 0 25px #000;
     cursor: pointer;
+    display: block;
 }
 
 .board-carousel span {
     display: block;
     text-align: center;
-    margin-top: 5px;
-    color: #fff;
-    font-size: 16px;
+    margin-top: 15px;
+    color: goldenrod;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px #000;
 }
+
+.board-carousel button.hover_un {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #6d5210;
+    border-radius: 4px;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.board-carousel button.hover_un:hover {
+    background-color: #6d5210 !important;
+    color: #ffffff !important;
+}
+
 
 a:hover, label:hover, .hover_un:hover {
 	text-decoration:underline;
@@ -82,12 +118,44 @@ div.abs {
 }
 
 #very_start_bg2 {
-	top:0%;
-	width:100%;
-	height:100%;
-	border:none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: calc(100vw * 1080 / 1920);
+    max-height: 100vh;
+    max-width: calc(100vh * 1920 / 1080);
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;     
+}
+
+#load_text {
+    font-family: 'GwentCustom', serif;
+    color: #ffffff;
+    font-size: 2rem;
+    display: block;
+    margin-top: 20px;
+}
+
+#version_text {
+    font-family: 'GwentCustom', serif; 
+    font-size: 1.5rem; 
+    color: maroon; 
+    text-align: center; 
+    margin-top: 10px;
+}
 
 #very_start {
 	width: 100%;
@@ -101,9 +169,8 @@ div.abs {
     justify-content: center;
     text-align: center;
     font-weight: bold;
-    border: none; 
-    
-    transform: translate(-10px, 90px);
+    border: none;     
+    transform: translate(-10px, 72px);
 }
 
 
@@ -1441,42 +1508,138 @@ border-radius: 0.5vw;
 }
 
 #toggle-vibration {
-    left: 79%;
-top: 12.2%;
-   }
+    left: 87%;
+    top: 12.2%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-family: "Arial Narrow", sans-serif;
+    font-size: 13px;
+}
 
 #toggle-vibration img {
-    width: 27px;   
+    width: 24px;   
     height: 27px;
 }
 
-
 #select-board {
-    left: 22%;
+    left: 29.5%;
 }
 
 #select-deck {
-	left: 30%;
+	left: 37%;
 }
 
 #upload-deck {
-	left: 39%;
+	left: 22.1%;
 }
 
 #change-faction {
-	left: 46%;
+	left: 47%;
 }
 
 #download-deck {
-	left: 54%;
+	left: 18.8%;
 }
 
 #select-op-deck {
-	left: 62%;
+	left: 56%;
 }
 
+
+#save-internal-deck {
+   left: 67.5%;
+}
+
+#load-internal-deck {
+   left: 70.5%;
+}
+
+#internal-deck-popup {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 10, 10, .9);
+    z-index: 1000;
+    font-family: "Arial Narrow", sans-serif;
+}
+
+.gwent-popup-box {
+    background-color: rgba(20, 20, 20, 0.85);
+    border: 2px solid #6d5210;
+    border-radius: 5px;
+    padding: 20px;
+    width: 45%;
+    max-width: 440px;
+    box-sizing: border-box;
+    text-align: center;
+    box-shadow: 0 0 20px #000;
+}
+
+.gwent-popup-box h3 {
+    color: goldenrod;
+    margin: 0 0 15px 0;
+}
+
+.gwent-popup-box p {
+    color: #fff;
+    margin: 0 0 20px 0;
+}
+
+.gwent-deck-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-right: 5px;
+}
+
+.gwent-deck-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: rgba(30, 30, 30, 0.5);
+    border: 1px solid #332608;
+}
+
+.gwent-deck-label {
+    color: darkgreen;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: left;
+    font-weight: bold
+}
+
+.gwent-deck-label:hover {
+    color: goldenrod;
+}
+
+.gwent-popup-buttons-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.gwent-deck-row button.hover_un {
+    color: darkred !important;
+font-weight: bold;
+    }
+#internal-deck-popup > .gwent-popup-box > button.hover_un {
+    font-weight: bold !important;
+}
+
+
+
+
+
+
 #op-deck-name {
-	left: 72.6%;
+	left: 56%;
+        top: 16.9%;
 	color: #cccccc;
 	font-style: italic;
 }
@@ -2122,29 +2285,32 @@ top: 12.2%;
 
 #start-game {
 	position: absolute;
-	top: 86%;
+	top: 85.5%;
 	left: 46.65%;
-	width: 6%;
-	height: 3%;
-	font-size: .98vw;
+	// width: 6%;
+	height: 4%;
+	font-size: .99vw;
+border-radius: .1vw;
 }
 
 #start-ai-game {
     position: absolute;
     top: 90%;
     left: 46.2%;
-    width: 7%;
-    height: 3%;
+    // width: 7%;
+    height: 3.5%;
     font-size: .98vw;
+border-radius: .1vw;
 }
 
 #start-pvp-game {
     position: absolute;
     top: 94%;
     left: 45.7%;
-    width: 8%;
-    height: 3%;
+    // width: 8%;
+    height: 3.5%;
     font-size: .98vw;
+border-radius: .1vw;
 }
 
 .start-game_class {
@@ -2163,12 +2329,12 @@ top: 12.2%;
 }
 
 #card-bank-title {
-	top: 7.45%;
+	top: 6%;
 	left: 8.5%;
 }
 
 #card-deck-title {
-	top: 7.8%;
+	top: 6%;
 	left: 84.45%;
 }
 
@@ -2523,18 +2689,15 @@ top: 12.2%;
     background-color: #8e8c6b;
 }
 
-/* Esto forzará el tamaño del botón de inicio */
 #button_start {
     font-size: 18px !important; 
     padding: 6px 15px !important;
     font-family: Arial, sans-serif;
     text-transform: uppercase;
-    margin-top: -10px !important;
+    margin-top: -30px !important;
 }
 
-/* --- EFECTO DE RESPLANDOR (GLOW) AJUSTADO --- */
 
-/* 1. Resplandor y Agrandado SOLO para las Cartas (Colección y Mazo) */
 .card-lg:hover {
     cursor: pointer;
     box-shadow: 0 0 8px 2px rgba(255, 200, 0, 0.8), 0 0 12px 4px rgba(255, 150, 0, 0.4) !important;
@@ -2543,21 +2706,16 @@ top: 12.2%;
       position: relative;
 }
 
-/* 2. Resplandor Dorado INTENSO para botones de música (Nota y Avanzar) */
 #btn-play:hover, #btn-skip:hover {
     cursor: pointer;
     color: #FFB800 !important; 
     
-    /* 1. Contorno negro fino alrededor de cada letra */
     -webkit-text-stroke: 0.5px black;
     
-    /* 2. Filtros de resplandor dorado */
     filter: contrast(1.5) 
             drop-shadow(0 0 5px #FF8A00) 
             drop-shadow(0 0 12px #FFD700) !important;
     
-    /* 3. Sombras: La primera capa es NEGRA para dar contraste */
-    /* La segunda y tercera son el brillo dorado */
     text-shadow: 2px 2px 2px #000, 
                  0 0 10px #FFD700, 
                  0 0 20px #B8860B;
@@ -2567,9 +2725,7 @@ top: 12.2%;
 }
 
 
-/* --- ANIMACIÓN CINEMÁTICA: CLEAR WEATHER (RAYOS DE SOL) --- */
 
-/* Contenedor principal para el efecto del clima */
 .sunlight-overlay-cinema {
     position: fixed !important;
     top: 0 !important;
@@ -2581,7 +2737,6 @@ top: 12.2%;
     overflow: hidden !important;
 }
 
-/* El Sol rayos difuminados */
 .sunlight-beam-wave {
     position: absolute !important;
     top: -80px !important;
@@ -2615,7 +2770,6 @@ top: 12.2%;
     animation: sunDiagonalFlash 2.2s ease-in-out forwards !important;
 }
 
-/* @keyframes: Destello del amanecer con rotación suave para dar vida a los rayos */
 @keyframes sunDiagonalFlash {
     0% {
         opacity: 0;

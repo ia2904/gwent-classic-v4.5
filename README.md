@@ -7,7 +7,8 @@ This remake is an attempt to implement the cards they designed (with some differ
 
 ## Screenshots
 <img width="48%" alt="gameplay 1" src="https://github.com/user-attachments/assets/a8c2a5ce-da49-4748-9cb4-f9862d8f030b" />
-<img width="48%" alt="gameplay 2" src="https://github.com/user-attachments/assets/eb5d731b-e2c9-496f-b457-2172cf7fcc40" />
+<img width="48%" alt="gameplay 2" src="https://github.com/user-attachments/assets/970d913d-c224-4dd3-9259-89e0c5c44cb7" />
+" />
 
 ## 🚀 Improvements
 

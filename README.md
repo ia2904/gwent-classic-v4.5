@@ -1,4 +1,4 @@
-# Gwent-classic-v4.5
+# Gwent Classic V4.5
 
 A browser remake of the original Gwent minigame from The Witcher 3: Wild Hunt. <br/>Click [here](https://ia2904.github.io/gwent-classic-v4.5/) to play.
 

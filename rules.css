@@ -1,6 +1,6 @@
 body {
-    color: #555;
-    background-color: #ccc;
+    color: aliceblue;
+    background-color: black;
 }
 
 .pure-img-responsive {
@@ -55,11 +55,11 @@ The content `<div>` is where all your content goes.
 
 .header {
     margin: 0;
-    color: #333;
+    color: goldenrod;
     text-align: center;
     padding: 2.5em 2em 0;
     border-bottom: 1px solid #444;
-    background-color: #bbb;
+    background-color: maroon;
 }
 
 .header h1 {
@@ -70,7 +70,7 @@ The content `<div>` is where all your content goes.
 
 .header h2 {
     font-weight: 300;
-    color: #444;
+    color: #999;
     padding: 0;
     margin-top: 0;
 }
@@ -78,7 +78,7 @@ The content `<div>` is where all your content goes.
 .content-subhead {
     margin: 50px 0 20px 0;
     font-weight: 300;
-    color: #666;
+    color: goldenrod;
 }
 
 .content h2 {
@@ -115,7 +115,7 @@ appears on the left side of the page.
 All anchors inside the menu should be styled like this.
 */
 #menu a {
-    color: #999;
+    color: aliceblue;
     border: none;
     padding: 0.6em 0 0.6em 0.6em;
 }

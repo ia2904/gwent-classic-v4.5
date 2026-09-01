@@ -1524,11 +1524,11 @@ border-radius: 0.5vw;
 }
 
 #select-board {
-    left: 29.5%;
+    left: 29.6%;
 }
 
 #select-deck {
-	left: 37%;
+	left: 37.3%;
 }
 
 #upload-deck {
@@ -1540,7 +1540,7 @@ border-radius: 0.5vw;
 }
 
 #download-deck {
-	left: 18.2%;
+	left: 19.2%;
 }
 
 #select-op-deck {
@@ -1553,7 +1553,7 @@ border-radius: 0.5vw;
 }
 
 #load-internal-deck {
-   left: 70.5%;
+   left: 70%;
 }
 
 #internal-deck-popup {
@@ -2329,13 +2329,15 @@ border-radius: .1vw;
 }
 
 #card-bank-title {
-	top: 6%;
-	left: 8.5%;
+	top: 17.5%;
+	left: 21%;
+color: #b48c44 !important;
 }
 
 #card-deck-title {
-	top: 6%;
-	left: 84.45%;
+	top: 17.5%;
+	left: 71.5%;
+color: #b48c44 !important;
 }
 
 .card {

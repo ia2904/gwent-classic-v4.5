@@ -3742,7 +3742,7 @@ let cardLeaderMenu = document.getElementById("card-leader");
 
 				let startGameBtn = document.getElementById("start-game");
 				if (startGameBtn) {
-					startGameBtn.style.transform = "translateY(-5.9vw)";
+					startGameBtn.style.transform = "translateY(-5.8vw)";
 				}
 
 				let startAIGameBtn = document.getElementById("start-ai-game");
@@ -3914,6 +3914,37 @@ html, body, #click-background {
 #very_start {
 	transform: translate(-10px, 20px) !important;
 }
+
+#load-internal-deck {
+   left: 70.5%;
+}
+
+#download-deck {
+	left: 18.2%;
+}
+
+
+#card-deck-title,
+#card-bank-title {
+position: absolute !important;
+writing-mode: vertical-rl !important;
+transform: rotate(180deg) !important;
+text-align: center !important;
+white-space: nowrap !important;
+color: #b48c44 !important;
+}
+
+				
+#card-deck-title {
+left: 91.5% !important;
+top: 55% !important;
+}
+			
+#card-bank-title {
+left: 6% !important;
+top: 58% !important;
+}
+
 
 .drop-container {	
 	display: flex !important;
@@ -5157,25 +5188,28 @@ if (!isMobileDeviceForVibration) {
 
 if (toggleBtn) {
     toggleBtn.addEventListener("click", () => {
-        if (typeof tocar === "function") tocar("card", false);
-        
         vibrationEnabled = !vibrationEnabled;
         const statusText = document.getElementById("vibration-status");
         
         if (statusText) {
-            if (vibrationEnabled) {
-if (typeof tocar === "function") tocar("card", false);
+            if (vibrationEnabled) {                
+                if (typeof _originalWebsite2APKVibrate === "function") {
+                    _originalWebsite2APKVibrate(50);
+                } else if (typeof _originalNavigatorVibrate === "function") {
+                    _originalNavigatorVibrate(50);
+                }
+                
+                if (typeof tocar === "function") tocar("card", false);
                 statusText.innerText = "ON";
                 statusText.style.color = "#2ecc71"; 
             } else {
-if (typeof tocar === "function") tocar("discard", false);
+                if (typeof tocar === "function") tocar("discard", false);
                 statusText.innerText = "OFF";
                 statusText.style.color = "#e74c3c"; 
             }
         }
     });
 }
-
 
 
         document.getElementById("select-deck").addEventListener("click", () => this.selectDeck(), false);
@@ -5306,14 +5340,14 @@ document.getElementById("save-internal-deck").addEventListener("click", () => th
     }
 
     // Creates HTML elements for the card previews
-    makePreview(index, num, container_elem, cards) {
+makePreview(index, num, container_elem, cards) {
         let card_data = card_dict[index];
-
+ 
         let elem = document.createElement("div");
         elem.classList.add("card-lg");
         elem = getPreviewElem(elem, card_data, num);
         container_elem.appendChild(elem);
-
+ 
         let bankID = {
             index: index,
             count: num,
@@ -5332,9 +5366,8 @@ document.getElementById("save-internal-deck").addEventListener("click", () => th
         window.addEventListener("keydown", function (e) {
             if (e.keyCode == 13 && carta_selecionada !== null) carta_selecionada();
         });
-
-
-let touchTimeout = null;
+        
+        let touchTimeout = null;
         let touchMoved = false;
 
         elem.addEventListener("touchstart", (e) => {
@@ -5343,7 +5376,6 @@ let touchTimeout = null;
 
             touchTimeout = setTimeout(async () => {
                 if (!touchMoved) {
-                    if (typeof tocar === "function") tocar("explaining", false);
                     let container = new CardContainer();
                     container.cards = [new Card(index, card_data, null)];
                     try {
@@ -5351,7 +5383,7 @@ let touchTimeout = null;
                     } catch (err) { }
                     await ui.viewCardsInContainer(container);
                 }
-            }, 600); 
+            }, 500); 
         }, { passive: true });
 
         elem.addEventListener("touchmove", () => {
@@ -5367,10 +5399,13 @@ let touchTimeout = null;
             if (touchTimeout) clearTimeout(touchTimeout);
         }, { passive: true });
 
-
-        // Right click allows to see more details about the selected card
         elem.addEventListener('contextmenu', async (e) => {
-            e.preventDefault();
+            e.preventDefault(); 
+                    
+            if (typeof isMobile === "function" && isMobile()) {
+                return false;
+            }
+                        
             let container = new CardContainer();
             container.cards = [new Card(index, card_data, null)];
             try {
@@ -5378,7 +5413,7 @@ let touchTimeout = null;
             } catch (err) { }
             await ui.viewCardsInContainer(container);
         }, false);
-
+ 
         return bankID;
     }
 

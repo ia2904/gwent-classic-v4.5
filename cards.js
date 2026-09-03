@@ -6940,7 +6940,7 @@ var ext_ze_cards = {
         "strength": "",
         "ability": "frost",
         "filename": "giant_spider_web",
-        "count": "3",
+        "count": "2",
         "quote": "Zerrikania hosts spiders so large they can trap elephants in their webs."
     },
     "spe_tse_tse_flies": {
@@ -6950,7 +6950,7 @@ var ext_ze_cards = {
         "strength": "",
         "ability": "fog",
         "filename": "tse_tse_flies",
-        "count": "3",
+        "count": "2",
         "quote": "The flies are especially repulsive, laying their eggs in the human body, the resulting larvae maturing within the host's head."
     },
     "spe_dragon_wrath": {
@@ -6960,7 +6960,7 @@ var ext_ze_cards = {
         "strength": "",
         "ability": "rain",
         "filename": "dragon_wrath",
-        "count": "3",
+        "count": "2",
         "quote": "Blackened skies from wisps of smoke, the greenery's vanished in a fiery stroke."
     },
 };

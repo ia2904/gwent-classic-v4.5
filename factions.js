@@ -138,7 +138,7 @@ var factions = {
         weight: (player) => {
             return 20;
         },
-        unavailableSpecials: []
+        unavailableSpecials: ["spe_frost", "spe_rain", "spe_fog", "spe_scorch"]
     },
     toussaint: {
         name: "Toussaint",
@@ -192,7 +192,7 @@ var factions = {
         activeAbility: true,
         abilityUses: 0,
         description: "Game Start: Redraw 3 cards instead of 2. Your turn: Transform a Toussaint Monster into its next form instead of playing a card.",
-        unavailableSpecials: ["spe_frost", "spe_fog","spe_rain"]
+        unavailableSpecials: []
     },
     lyria_rivia: {
         name: "Lyria & Rivia",
@@ -267,7 +267,7 @@ var factions = {
         activeAbility: false,
         abilityUses: 0,
         description: "Restore a unit card of your choice whenever you lose a round.",
-        unavailableSpecials: []
+        unavailableSpecials: ["spe_frost", "spe_rain", "spe_fog"]
     },
     redania: {
         name: "Redania",

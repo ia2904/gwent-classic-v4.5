@@ -132,6 +132,16 @@ var default_cards = {
         "count": "3",
         "quote": "Pillars of flame turn the mightiest to ash. All others tremble in shock and awe."
     },
+"spe_cull": {
+        "name": "Cull",
+        "deck": "special novigrad",
+        "row": "",
+        "strength": "",
+        "ability": "cull",
+        "filename": "cull",
+        "count": "2",
+        "quote": "Not every death’s heroic. Most are just… flimsy necks meeting sharp steel."
+    },
     "spe_rain": {
         "name": "Torrential Rain",
         "deck": "weather",
@@ -2883,6 +2893,16 @@ var ext_ve_cards = {
         "count": "3",
         "quote": "Anyone who comes here will die in terrible agony."
     },
+   "ve_lady_wood_whispess": {
+        "name": "Ladies of the Wood: Whispess",
+        "deck": "velen",
+        "row": "leader",
+        "strength": "",
+        "ability": "lady_wood_whispess",
+        "filename": "lady_wood_whispess",
+        "count": "1",
+        "quote": "I'll be your best - and last."
+    },
     "ve_lady_wood_brewess": {
         "name": "Ladies of the Wood: Brewess",
         "deck": "velen",
@@ -2903,17 +2923,7 @@ var ext_ve_cards = {
         "count": "1",
         "quote": "I sense your pain. I see your fear..."
     },
-    "ve_lady_wood_whispess": {
-        "name": "Ladies of the Wood: Whispess",
-        "deck": "velen",
-        "row": "leader",
-        "strength": "",
-        "ability": "lady_wood_whispess",
-        "filename": "lady_wood_whispess",
-        "count": "1",
-        "quote": "I'll be your best - and last."
-    },
-    "ve_ghost_tree": {
+     "ve_ghost_tree": {
         "name": "The Ghost in the Tree",
         "deck": "velen",
         "row": "leader",
@@ -3319,7 +3329,7 @@ var ext_wh_cards = {
     },
     "wh_wild_hunt_warrior_1": {
         "name": "Wild Hunt Warrior",
-        "id": 2,
+        "id": 1,
         "deck": "wild_hunt",
         "row": "close",
         "strength": "3",
@@ -5454,7 +5464,7 @@ var ext_sy_cards = {
         "strength": "4",
         "ability": "witch_hunt",
         "filename": "inquisitional_pyres",
-        "count": "1",
+        "count": "0",
         "quote": "Fire cleanses."
     },
     "sy_imke": {
@@ -6938,7 +6948,7 @@ var ext_ze_cards = {
         "deck": "weather zerrikania",
         "row": "",
         "strength": "",
-        "ability": "frost",
+        "ability": "spider_web",
         "filename": "giant_spider_web",
         "count": "2",
         "quote": "Zerrikania hosts spiders so large they can trap elephants in their webs."
@@ -6948,7 +6958,7 @@ var ext_ze_cards = {
         "deck": "weather zerrikania",
         "row": "",
         "strength": "",
-        "ability": "fog",
+        "ability": "tse_tse",
         "filename": "tse_tse_flies",
         "count": "2",
         "quote": "The flies are especially repulsive, laying their eggs in the human body, the resulting larvae maturing within the host's head."
@@ -6958,12 +6968,1329 @@ var ext_ze_cards = {
         "deck": "weather zerrikania",
         "row": "",
         "strength": "",
-        "ability": "rain",
+        "ability": "dragon_wrath",
         "filename": "dragon_wrath",
         "count": "2",
         "quote": "Blackened skies from wisps of smoke, the greenery's vanished in a fiery stroke."
     },
 };
+
+var ext_ofir_cards = {
+    // Leader Cards
+"ofir_nibras": {
+        "name": "Nibras, Malliq of Ofir",
+        "deck": "ofir",
+        "row": "leader",
+        "strength": "",
+        "ability": "nibras",
+        "filename": "nibras",
+        "count": "1",
+        "quote": "A majestic ruler of a distant and exotic land, famed for its wealth, scientific discoveries, and powerful army."
+    },    
+"ofir_aamad_wise": {
+        "name": "Aamad, the Wise",
+        "deck": "ofir",
+        "row": "leader",
+        "strength": "",
+        "ability": "ofir_aamad",
+        "filename": "aamad",
+        "count": "1",
+        "quote": "The royal mage to the malliq of Ofir"
+    },
+"ofir_nibras_gale": {
+        "name": "Nibras, the Gale",
+        "deck": "ofir",
+        "row": "leader",
+        "strength": "",
+        "ability": "nibras_gale",
+        "filename": "nibras_gale",
+        "count": "1",
+        "quote": "The Gale that Sweeps the Dunes"
+    },
+    "ofir_aamad": {
+        "name": "Aamad, the Crown Mage",
+        "deck": "ofir",
+        "row": "leader",
+        "strength": "",
+        "ability": "ofir_aamad_crown",
+        "filename": "aamad1",
+        "count": "1",
+        "quote": "Quiet, dog. You killed our prince and you'll pay for that."
+    },
+    "ofir_caravan_guard": {
+        "name": "Caravan Guard",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "4",
+        "ability": "adaptive bond",
+        "filename": "caravan_guard",
+        "count": "2",
+        "target": "ofir_caravan_guard",
+        "quote": "There's a lot of ways you can die in the desert. Not just from thirst."
+    },
+    "ofir_fortuneteller": {
+        "name": "Fortune Teller",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "2",
+        "ability": "clairvoyance",
+        "filename": "fortuneteller",
+        "count": "1",
+        "quote": "The stars whisper to her; she whispers back in prophecy."
+    },
+    "ofir_cavalry": {
+        "name": "Immortal Cavalry",
+        "deck": "ofir",
+        "row": "agile_cs",
+        "strength": "7",
+        "ability": "",
+        "filename": "cavalry",
+        "count": "1",
+        "quote": "Maybe camels aren't as swift as horses… but at least they don't die after two days in the desert."
+    },
+"ofir_cataphract_1": {
+        "name": "Cataphract",
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "6",
+        "ability": "",
+        "filename": "cataphract_1",
+        "count": "1",
+        "quote": "Heavy shock cavalry whose charge can sweep away entire infantry formations in a matter of seconds."
+    },
+"ofir_cataphract_2": {
+        "name": "Cataphract",
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "6",
+        "ability": "",
+        "filename": "cataphract_2",
+        "count": "1",
+        "quote": "Many fools believed that Ofieri armor was made of pure gold, and they paid for it with their lives trying to seize a piece of that supposedly easy gold."
+    },
+"ofir_cataphract_3": {
+        "name": "Cataphract",
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "6",
+        "ability": "",
+        "filename": "cataphract_3",
+        "count": "1",
+        "quote": "The swift onslaught of these riders shatters infantry formations like fragile earthenware."
+    },
+    "ofir_vanguard": {
+        "name": "Caravan Vanguard",
+        "deck": "ofir",
+        "row": "agile_cr",
+        "strength": "3",
+        "ability": "adaptive bond",
+        "filename": "vanguard",
+        "count": "2",
+        "target": "ofir_vanguard",
+        "quote": "It's not easy to find one's way among the shifting dunes…"
+    },
+        "ofir_king_cobra": {
+        "name": "King Cobra",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "3",
+        "ability": "",
+        "filename": "king_cobra",
+        "count": "1",
+        "quote": "As long as I play it'll dance. But when I stop…"
+    },
+     "ofir_merchant": {
+        "name": "Merchant",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "4",
+        "ability": "trade",
+        "filename": "merchant",
+        "count": "1",
+        "quote": "I have that which you desire. As well as that which you have never seen before…"
+    },
+       "ofir_radeyah": {
+        "name": "Radeyah",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "7",
+        "ability": "hero clairvoyance",
+        "filename": "radeyah",
+        "count": "1",
+        "quote": "You can hide a lot behind a beautiful smile."
+    },
+    "ofir_war_chariot": {
+        "name": "War Chariot",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "6",
+        "ability": "adaptive",
+        "filename": "war_chariot",
+        "count": "1",
+        "quote": "The chariot drove into the crowd and its enemies fell to the ground like wheat before the scythe…"
+    },
+    "ofir_traveling_merchant": {
+        "name": "Traveling Merchant",
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "5",
+        "ability": "trade",
+        "filename": "traveling_merchant",
+        "count": "1",
+        "quote": "My wares? Finest under the sun. Just don't ask how I got 'em."
+    },
+     "ofir_sunsetwanderers": {
+        "name": "Sunset Wanderers",
+        "deck": "ofir",
+        "row": "agile_crs",
+        "strength": "5",
+        "ability": "",
+        "filename": "sunsetwanderers",
+        "count": "1",
+        "quote": "It seemed like Dandelion meant to journey with the Witcher, even to the edge of the world."
+    },
+    "ofir_saer_quan": {
+        "name": "Saer Quan",
+        "deck": "ofir",
+        "row": "agile_cs",
+        "strength": "3",
+        "ability": "hero",
+        "filename": "saer_quan",
+        "count": "1",
+        "quote": "Every tiger is dangerous. Especially one that has taken a liking to human flesh…"
+    },
+    "ofir_assassin": {
+        "name": "Maraal, Crown Assassin",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "5",
+        "ability": "adaptive",
+        "filename": "assassin",
+        "count": "1",
+        "quote": "He who knows too much, dies too soon."
+    },    
+     "ofir_war_elephant": {
+        "name": "Ofieri War Elephant",
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "8",
+        "ability": "",
+        "filename": "war_elephant",
+        "count": "1",
+        "quote": "It's kind of like a fiend, but bald and with a nose that hangs to the ground. What? No, you're making things up!"
+    },
+    "ofir_desert_banshee": {
+        "name": "Desert Banshee",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "5",
+        "ability": "adaptive scorch_c",
+        "filename": "desert_banshee",
+        "count": "1",
+        "quote": "You're worried you'll die of thirst in the sands? Relax. You won't make it that long."
+    },
+    "ofir_runewright": {
+        "name": "Runewright",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "7",
+        "ability": "rune_call",
+        "filename": "runewright",
+        "target": "ofir_runestone",
+        "count": "1",
+        "quote": "Great power lies in words. But it's not easy to enchant it into steel."
+    },
+    "ofir_dulla": {
+        "name": "Dulla kh'Amanni",
+        "deck": "ofir",
+        "row": "agile_cr",
+        "strength": "6",
+        "ability": "hero trade",
+        "filename": "dulla",
+        "count": "1",
+        "quote": "My wares are priceless. Luckily for you, I accept contracts as payment."
+    },
+"spe_ofir_sandstorm": {
+        "name": "Sandstorm",
+        "deck": "weather ofir",
+        "row": "",
+        "strength": "",
+        "ability": "sandstorm",
+        "filename": "sandstorm",
+        "count": "3",
+        "quote": "Best case – sand in your teeth. Worst case – buried alive."
+    },
+"ofir_fathaa": {
+        "name": "Old Fathaa",
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "1",
+        "ability": "medic",
+        "filename": "fathaa",
+        "count": "1",
+        "quote": "..."
+    },
+"ofir_djinn1": {
+        "name": "Djinn",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "5",
+        "ability": "wish1",
+        "filename": "djinn1",
+        "count": "1",
+        "quote": "A djinn, good sirs, fulfills but three wishes. Thus freed, it flees to dimensions unknown."
+    },
+"ofir_djinn2": {
+        "name": "Djinn",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "5",
+        "ability": "wish2",
+        "filename": "djinn2",
+        "count": "1",
+        "quote": "They say a djinn can grant any wish. Well, maybe so. But only after it destroys you first."
+    },
+"ofir_djinn3": {
+        "name": "Djinn",
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "5",
+        "ability": "wish3",
+        "filename": "djinn3",
+        "count": "1",
+        "quote": "I lived in a bottle once, but I prefer Ofiri lamps, they're much more comfortable."
+    },
+"spe_ofir_horn": {
+        "name": "Commander's Horn",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "horn",
+        "filename": "ofir_horn",
+        "count": "3",
+        "quote": "Plus one to morale, minus three to hearing."
+    },
+"ofir_desert_serpent": {
+        "name": "Desert Serpent",
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "4",
+        "ability": "morale",
+        "filename": "desert_serpent",
+        "count": "1",
+        "quote": "The shrewdest commander of the Ofieri cavalry. They say he could set up an ambush even in a barren desert."
+    },
+"ofir_ofieri_prince": {
+        "name": "Ofieri Prince",
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "9",
+        "ability": "hero avenger",
+        "filename": "ofieri_prince",
+        "count": "1",
+        "target": "ofir_toad_prince",
+        "quote": "Once, he compared himself to the frog from the fairy tale, the one that must be kissed to become a prince. A fatal mistake..."
+    },
+"ofir_toad_prince": {
+        "name": "Ofieri Toad Prince",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "10",
+        "ability": "hero",
+        "filename": "toad_prince",
+        "count": "0",
+        "quote": "Big, bad, ugly. Squats in the sewers."
+    },
+"ofir_rider_1": {
+        "name": "Ofieri Rider",
+        "id": 1,
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "3",
+        "ability": "muster",
+        "filename": "rider_1",
+        "count": "1",
+        "target": "ofir_rider",
+        "quote": "Even the smallest of our children ride, and our horses outwit most men."
+    },
+    "ofir_rider_2": {
+        "name": "Ofieri Rider",
+        "id": 2,
+        "deck": "ofir",
+        "row": "siege",
+        "strength": "3",
+        "ability": "muster",
+        "filename": "rider_2",
+        "count": "1",
+        "target": "ofir_rider",
+        "quote": "I thought Ofieri rode camels! It's your thick skull that's camel-like, just shoot already!"
+    },
+"ofir_ofieri_mage": {
+        "name": "Aamad",
+        "id": 1,
+        "deck": "ofir",
+        "row": "close",
+        "strength": "5",
+        "ability": "hero muster",
+        "filename": "ofieri_mage",
+        "count": "1",
+        "target": "ofir_aamads_guard",
+        "quote": "A court mage. Eagerly took the lead in the search for the prince... who mysteriously vanished somewhere in Redania."
+    },
+    "ofir_aamads_guard_1": {
+        "name": "Aamad's Guard",
+        "id": 2,
+        "deck": "ofir",
+        "row": "close",
+        "strength": "2",
+        "ability": "bond",
+        "filename": "aamads_guard_1",
+        "count": "1",
+        "target": "ofir_aamads_guard",
+        "quote": "My father taught me that loyalty is above all else. One who cannot keep their word is no better than a wild beast."
+    },
+"ofir_aamads_guard_2": {
+        "name": "Aamad's Guard",
+        "id": 3,
+        "deck": "ofir",
+        "row": "close",
+        "strength": "2",
+        "ability": "bond",
+        "filename": "aamads_guard_2",
+        "count": "2",
+        "target": "ofir_aamads_guard",
+        "quote": "The mage selects his guards personally for executing the ruler's most important assignments."
+    },
+ "ofir_warrior_1": {
+        "name": "Ofieri Warrior",
+        "id": 1,
+        "deck": "ofir",
+        "row": "close",
+        "strength": "4",
+        "ability": "bond",
+        "filename": "warrior_1",
+        "count": "1",
+        "target": "ofir_warrior",
+        "quote": "The backbone of the Ofieri army – lethal, highly-disciplined infantry capable of taking the main blow."
+    },
+"ofir_warrior_2": {
+        "name": "Ofieri Warrior",
+        "id": 2,
+        "deck": "ofir",
+        "row": "close",
+        "strength": "4",
+        "ability": "bond",
+        "filename": "warrior_2",
+        "count": "1",
+        "target": "ofir_warrior",
+        "quote": "With their courage and furious onslaught, they immediately intimidate enemies."
+    },
+"ofir_matta": {
+        "name": "Matta Hu'uri",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "6",
+        "ability": "spy",
+        "filename": "matta",
+        "count": "1",
+        "quote": "Sorceresses use magic to hypnotize. I use dance."
+    },
+ "ofir_envoy_1": {
+        "name": "Ofieri Envoy",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "6",
+        "ability": "ofiri_envoy",
+        "filename": "envoy_1",
+        "count": "1",
+        "quote": "We have come from distant lands, bringing generous gifts from our ruler."
+    },
+"ofir_envoy_2": {
+        "name": "Ofieri Envoy",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "7",
+        "ability": "ofiri_envoy",
+        "filename": "envoy_2",
+        "count": "1",
+        "quote": "Even regular Ofieri envoys are dressed more lavishly than the North's kings."
+    },
+"ofir_envoy_3": {
+        "name": "Ofieri Envoy",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "8",
+        "ability": "ofiri_envoy",
+        "filename": "envoy_3",
+        "count": "1",
+        "quote": "He loves expensive wine, political talk, and stabbing people in the back."
+    },
+"ofir_ifrit_1": {
+        "name": "Ifrit",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "5",
+        "ability": "sandstorm_immunity",
+        "filename": "ifrit_1",
+        "count": "1",
+        "target": "ofir_ifrit",
+        "quote": "If the dunes start moving, pray it’s just the wind."
+    },
+"ofir_ifrit_2": {
+        "name": "Ifrit",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "5",
+        "ability": "sandstorm_immunity",
+        "filename": "ifrit_2",
+        "count": "1",
+        "target": "ofir_ifrit",
+        "quote": "If the dunes start moving, pray it’s just the wind."
+    },
+"ofir_ifrit_3": {
+        "name": "Ifrit",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "5",
+        "ability": "sandstorm_immunity",
+        "filename": "ifrit_3",
+        "count": "1",
+        "target": "ofir_ifrit",
+        "quote": "If the dunes start moving, pray it’s just the wind."
+    },
+   "ofir_archmage_1": {
+        "name": "Archmage",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "4",
+        "ability": "invoke",
+        "filename": "archmage_1",
+        "count": "1",
+        "target": "ofir_ifrit",
+        "quote": "There are many wizards in the world, but only a few possess the knowledge to control magical creatures."
+    },
+"ofir_archmage_2": {
+        "name": "Archmage",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "4",
+        "ability": "invoke",
+        "filename": "archmage_2",
+        "count": "1",
+        "target": "ofir_ifrit",
+        "quote": "In the South, magic and science are one. The sages are both sorcerers and scholars."
+    },
+"spe_ofir_horn": {
+        "name": "Commander's Horn",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "horn",
+        "filename": "ofir_horn",
+        "count": "3",
+        "quote": "Plus one to morale, minus three to hearing."
+    },
+"ofir_chernobog": {
+        "name": "Chernobog runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "chernobog",
+        "filename": "chernobog",
+        "count": "1",
+        "quote": ""
+    },
+"ofir_perun": {
+        "name": "Perun runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "perun",
+        "filename": "perun",
+        "count": "1",
+        "quote": ""
+    },
+"ofir_svarog": {
+        "name": "Svarog runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "svarog",
+        "filename": "svarog",
+        "count": "1",
+        "quote": ""
+    },
+"ofir_triglav": {
+        "name": "Triglav runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "triglav",
+        "filename": "triglav",
+        "count": "1",
+        "quote": "Under the sands of Ofir, we learn that even gods can be stripped of their armor."
+    },
+"ofir_veles": {
+        "name": "Veles runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "veles",
+        "filename": "veles",
+        "count": "1",
+        "quote": "Boost sign intensity and augment magic-heavy builds."
+    },
+"ofir_dazhbog": {
+        "name": "Dazhbog runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "scorch",
+        "filename": "dazhbog",
+        "count": "1",
+        "quote": "Careful. Still hot."
+    },
+"ofir_morana": {
+        "name": "Morana runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "morana",
+        "filename": "morana",
+        "count": "1",
+        "quote": "I grow faint at the very sight of it…"
+    },
+"ofir_devana": {
+        "name": "Devana runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "devana",
+        "filename": "devana",
+        "count": "1",
+        "quote": "My blades're so sharp, they can cut paper!"
+    },
+"ofir_zoria": {
+        "name": "Zoria runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "zoria",
+        "filename": "zoria",
+        "count": "1",
+        "quote": "I'm getting a palpable chill from this runestone… did I do something to hurt its feelings?"
+    },
+"ofir_stribog": {
+        "name": "Stribog runestone",
+        "deck": "special ofir",
+        "row": "",
+        "strength": "",
+        "ability": "stribog",
+        "filename": "stribog",
+        "count": "1",
+        "quote": "Ofieri runemasters can combine these into runewords of incredible power."
+    },
+"ofir_zaira": {
+        "name": "Zaira",
+        "deck": "ofir",
+        "row": "ranged",
+        "strength": "7",
+        "ability": "avenger cull",
+        "filename": "zaira",
+        "count": "1",
+        "target": "ofir_quareen",
+        "quote": "Her health, her beauty, more radiant than ever, she regained, but... she had changed."
+    },
+"ofir_quareen": {
+        "name": "Quareen",
+        "deck": "ofir",
+        "row": "close",
+        "strength": "8",
+        "ability": "",
+        "filename": "quareen",
+        "count": "0",
+        "quote": "The mage who wishes to force a quareen into a deceased form must be exceptionally skilled in illusions."
+    },
+};
+
+var ext_nv_cards = {
+"nv_sigismund": {
+        "name": "Sigismund Dijkstra, the Shrewd",
+        "deck": "novigrad",
+        "row": "leader",
+        "strength": "",
+        "ability": "novigrad_sigismund",
+        "filename": "sigismund",
+        "count": "1",
+        "quote": "Novigrad is a free city. And I intend to keep it that way."
+    },
+    "nv_sigismund2": {
+        "name": "Sigismund Dijkstra, the Politician",
+        "deck": "novigrad",
+        "row": "leader",
+        "strength": "",
+        "ability": "novigrad_sigismund2",
+        "filename": "sigismund2",
+        "count": "1",
+        "quote": "Gwent's a lot like politics, just more honest."
+    },
+    "nv_cyrus_hemmelfart": {
+        "name": "Cyrus Hemmelfart: Hierarch of Novigrad",
+        "deck": "novigrad",
+        "row": "leader",
+        "strength": "",
+        "ability": "cyrus_hemmelfart1",
+        "filename": "cyrus_hemmelfart",
+        "count": "1",
+        "quote": "Beneath all that lust, greed, and vanity, stands an honorable man."
+    },
+"nv_philippa": {
+        "name": "Philippa Eilhart",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "10",
+        "ability": "hero clear",
+        "filename": "philippa",
+        "count": "1",
+        "quote": "Soon the power of kings will wither, and the Lodge shall seize its rightful place."
+    },
+    "nv_dijkstra": {
+        "name": "Sigismund Dijkstra",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "8",
+        "ability": "spy",
+        "filename": "dijkstra",
+        "count": "1",
+        "quote": "Gwent's like politics, just more honest."
+    },
+    "nv_priscilla": {
+        "name": "Priscilla",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "2",
+        "ability": "medic",
+        "filename": "priscilla",
+        "count": "1",
+        "quote": "Picture Dandelion in a dress and you've got the general idea."
+    },
+    "nv_margarita": {
+        "name": "Margarita Laux",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "6",
+        "ability": "clear",
+        "filename": "margarita_laux",
+        "count": "1",
+        "quote": "I care only about what's good for Aretuza and my pupils."
+    },
+    "nv_eibhear_hattori": {
+        "name": "Eibhear Hattori",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "2",
+        "ability": "morale",
+        "filename": "eibhear_hattori",
+        "count": "1",
+        "quote": "Only thing that can rival his swords? His dumplings."
+    },
+    "nv_cleaver": {
+        "name": "Cleaver",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "6",
+        "ability": "hero",
+        "filename": "cleaver",
+        "count": "1",
+        "quote": "Those who try to cheat Cleaver are in for a rude awakening... And a rough landing."
+    },
+    "nv_francis_bedlam": {
+        "name": "Francis Bedlam: King of Beggars",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "6",
+        "ability": "hero morale",
+        "filename": "francis",
+        "count": "1",
+        "quote": "I might just discover I look great without ears… or hands. Apparently the King of Beggars accepts both as partial payment."
+    },
+    "nv_whoreson_jr": {
+        "name": "Whoreson Junior",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "4",
+        "ability": "hero",
+        "filename": "whoresonjr",
+        "count": "1",
+        "quote": "A war with Whoreson will see Novigrad's gutters run red with blood."
+    },
+    "nv_thaler": {
+        "name": "Thaler",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "7",
+        "ability": "spy",
+        "filename": "thaler",
+        "count": "1",
+        "quote": "Fuck off! We aren't all ploughin' philanderers. Some of us have depth..."
+    },
+    "nv_vernon": {
+        "name": "Vernon Roche",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "10",
+        "ability": "hero",
+        "filename": "vernon",
+        "count": "1",
+        "quote": "A partiot... and a real son of a bitch."
+    },
+    "nv_ves": {
+        "name": "Ves",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "7",
+        "ability": "",
+        "filename": "ves",
+        "count": "1",
+        "quote": "Better to live one day as a king than a whole life as a beggar."
+    },
+    "nv_novigrad": {
+        "name": "Novigrad",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "10",
+        "ability": "",
+        "filename": "novigrad",
+        "count": "1",
+        "quote": "Novigrad's taken too kindly to all manner of urchin, shame, really."
+    },
+    "nv_inquisitional_pyres": {
+        "name": "Inquisitional pyres",
+        "deck": "novigrad",
+        "row": "agile_cr",
+        "strength": "3",
+        "ability": "witch_hunt",
+        "filename": "damnation",
+        "count": "0",
+        "quote": "I can't bloody breathe! Won't they burn the wretches someplace else?"
+    },
+    "nv_flaming_rose_footman": {
+        "name": "Flaming Rose Footman",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "5",
+        "ability": "",
+        "filename": "flaming_rose_footman",
+        "count": "1",
+        "quote": "Anyone can join The Order – a knight, a peasant, even a witcher. "
+    },
+    "nv_caleb_menge": {
+        "name": "Caleb Menge",
+        "deck": "novigrad",
+        "row": "agile_cr",
+        "strength": "7",
+        "ability": "hero witch_hunt",
+        "filename": "caleb_menge",
+        "count": "1",
+        "quote": "Deceivers, heretics, witches! They flood our city, corrupt our virtue, and threaten our very way of life!"
+    },
+    "nv_eternal_fire_inquisitor": {
+        "name": "Eternal Fire Inquisitor",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "4",
+        "ability": "witch_hunt",
+        "filename": "eternal_fire_inquisitor",
+        "count": "1",
+        "quote": "The burning light of the Eternal Fire reveals all!"
+    },
+    "nv_kurt": {
+        "name": "Kurt",
+        "deck": "novigrad",
+        "row": "agile_crs",
+        "strength": "6",
+        "ability": "",
+        "filename": "kurt",
+        "count": "1",
+        "quote": "Oy, Kurt, find out what Merigold's hollerin' about, if she needs anything. A hot iron to the tongue, maybe?"
+    },
+    "nv_inquisitor_helveed": {
+        "name": "Grand Inquisitor Helveed",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "6",
+        "ability": "hero scorch",
+        "filename": "inquisitor_helveed",
+        "count": "1",
+        "quote": "When mercy fails, fire prevails."
+    },
+    "nv_eternal_fire_priest_1": {
+        "name": "Eternal Fire Priest",
+        "id": 1,
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "2",
+        "ability": "bond",
+        "filename": "eternal_fire_priest_1",
+        "count": "1",
+        "target": "nv_eternal_fire_priest",
+        "quote": "Closer, my sheep, gather closer. May the Eternal Fire warm your souls!"
+    },
+    "nv_eternal_fire_priest_2": {
+        "name": "Eternal Fire Priest",
+        "id": 2,
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "3",
+        "ability": "bond",
+        "filename": "eternal_fire_priest_2",
+        "count": "1",
+        "target": "nv_eternal_fire_priest",
+        "quote": "Closer, my sheep, gather closer. May the Eternal Fire warm your souls!"
+    },
+    "nv_eternal_fire_priest_3": {
+        "name": "Eternal Fire Priest",
+        "id": 3,
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "4",
+        "ability": "bond",
+        "filename": "eternal_fire_priest_3",
+        "count": "1",
+        "target": "nv_eternal_fire_priest",
+        "quote": "Closer, my sheep, gather closer. May the Eternal Fire warm your souls!"
+    },
+    "nv_roderick_wett": {
+        "name": "Roderick de Wett",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "6",
+        "ability": "hero",
+        "filename": "roderick_wett",
+        "count": "1",
+        "quote": "Count de Wett is exceptionally loathsome and arrogant, but at least he enjoys a little dice poker on the side."
+    },
+    "nv_moreelse": {
+        "name": "Moreelse",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "6",
+        "ability": "witch_hunt",
+        "filename": "moreelse",
+        "count": "1",
+        "quote": "Some witch hunters truly believed the eradication of mages and sorceresses would make the world a better place. Some did not require such justification."
+    },
+    "nv_nathaniel_pastodi": {
+        "name": "Nathaniel Pastodi",
+        "deck": "novigrad",
+        "row": "agile_rs",
+        "strength": "3",
+        "ability": "hero morale",
+        "filename": "nathaniel_pastodi",
+        "count": "1",
+        "quote": "Novigrad – where the impossible becomes possible. A professional torturer turned reverend, for instance."
+    },
+    "nv_cleric_flaming_rose": {
+        "name": "Cleric of the Flaming Rose",
+        "id": 1,
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "4",
+        "ability": "muster",
+        "filename": "cleric_flaming_rose",
+        "count": "1",
+        "target": "sy_eternal_fire_disciple",
+        "quote": "We have two eyes, two ears, but only one tongue, so that we would look and listen twice more than we speak. "
+    },
+    "nv_eternal_fire_disciple": {
+        "name": "Eternal Fire Disciple",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "3",
+        "ability": "muster",
+        "filename": "eternal_fire_disciple",
+        "count": "1",
+        "target": "nv_firesworn_zealot",
+        "quote": "Look into your hearts, dear brethen. Does a contempt for injustice not burn within it?"
+    },
+"nv_firesworn_zealot": {
+        "name": "Firesworn Zealot",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "2",
+        "ability": "",
+        "filename": "firesworn_zealot",
+        "count": "1",
+        "quote": "Great is my faith, and great is my ire!"
+    },
+    "nv_temple_guard": {
+        "name": "Temple Guard",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "5",
+        "ability": "",
+        "filename": "temple_guard",
+        "count": "1",
+        "quote": "Halt! Who goes there?! Firesworn or heretic?"
+    },
+    "nv_field_marshal_duda": {
+        "name": "Duda",
+        "deck": "novigrad",
+        "row": "agile_crs",
+        "strength": "2",
+        "ability": "morale",
+        "filename": "marshal_duda",
+        "count": "1",
+        "quote": "Knows one hundred words – eighty of them curses, the rest, connectors."
+    },
+    "nv_iris": {
+        "name": "Iris von Everec",
+        "deck": "novigrad",
+        "row": "agile_crs",
+        "strength": "0",
+        "ability": "omen",
+        "filename": "iris",
+        "count": "1",
+        "quote": "Love endures beyond the veil."
+    },
+"nv_catanddog": {
+        "name": "Cat and Dog",
+        "deck": "novigrad",
+        "row": "agile_crs",
+        "strength": "0",
+        "ability": "spy",
+        "filename": "catanddog",
+        "count": "1",
+        "quote": "..."
+    },
+    "nv_bomb_heaver": {
+        "name": "Bomb Heaver",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "3",
+        "ability": "scorch_c",
+        "filename": "bomb_heaver",
+        "count": "1",
+        "quote": "Watch your heads!"
+    },
+    "nv_corinne": {
+        "name": "Corinne",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "3",
+        "ability": "clairvoyance",
+        "filename": "corinne",
+        "count": "1",
+        "quote": "Know when a legend turns into prophecy? When it gains believers."
+    },
+    "nv_adriano_mink": {
+        "name": "Adriano the Mink",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "6",
+        "ability": "",
+        "filename": "adriano_mink",
+        "count": "1",
+        "quote": "Right here, beautiful. Have a sit on daddy's lap."
+    },
+ "nv_renegade_mage": {
+        "name": "Renegade Mage",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "4",
+        "ability": "cull",
+        "filename": "renegade_mage",
+        "count": "1",
+        "quote": "I really hope that's boot leather I smell burning..."
+    },
+ "nv_cantarella": {
+        "name": "Cantarella",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "1",
+        "ability": "ambush",
+        "filename": "cantarella",
+        "count": "1",
+        "quote": "Men require constant alluring. Mystique and refinement do the job quite well."
+    },
+ "nv_hubert_rejk": {
+        "name": "Hubert Rejk",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "5",
+        "ability": "avenger",
+        "filename": "hubert_rejk",
+        "count": "1",
+        "target": "nv_katakan",
+        "quote": "The coroner is a calm, peaceful person. He even treats corpses with the utmost delicacy."
+    },
+"nv_katakan": {
+        "name": "Katakan",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "7",
+        "ability": "",
+        "filename": "katakan",
+        "count": "0",
+        "quote": "Novigrad requires rejuvenation – a rebirth!"
+    },
+  "nv_saul_navarette": {
+        "name": "Saul de Navarette",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "4",
+        "ability": "",
+        "filename": "saul_navarette",
+        "count": "1",
+        "quote": "A connoisseur with bottomless pockets and a soul black as tar."
+    },
+ "nv_gudrun_bjornsdottir": {
+        "name": "Gudrun Bjornsdottir",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "4",
+        "ability": "hero",
+        "filename": "gudrun_bjornsdottir",
+        "count": "1",
+        "quote": "She found her freedom among blue waters and salty wind."
+    },
+    "nv_imke": {
+        "name": "Imke",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "6",
+        "ability": "spy",
+        "filename": "imke",
+        "count": "1",
+        "quote": "No sooner had she caught Gudrun's attention than sought to exploit it."
+    },
+    "nv_dudu_biberveldt": {
+        "name": "Dudu Biberveldt",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "1",
+        "ability": "spy",
+        "filename": "dudu_biberveldt",
+        "count": "1",
+        "quote": "A mimic, among the many other names for his sort: changelings, doublings, vexlings… or dopplers."
+    },
+    "nv_aphotecary": {
+        "name": "Blindeye Apothecary",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "2",
+        "ability": "medic",
+        "filename": "apothecary",
+        "count": "1",
+        "quote": "After her husband died in a tragic carriage accident, she threw herself completely into her work."
+    },
+    "nv_madame_luiza": {
+        "name": "Madame Luiza",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "6",
+        "ability": "morale",
+        "filename": "madame_luiza",
+        "count": "1",
+        "quote": "We've bedded more men than all Redania's army barracks combined."
+    },
+    "nv_caesar_bilzen": {
+        "name": "Caesar Bilzen",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "5",
+        "ability": "comrade",
+        "filename": "caesar_bilzen",
+        "count": "1",
+        "quote": "Avid angler, meticulous collector, and a real piece of work."
+    },
+    "nv_rico_meiersdorf": {
+        "name": "Rico Meiersdorf",
+        "deck": "novigrad",
+        "row": "agile_cr",
+        "strength": "1",
+        "ability": "morale",
+        "filename": "rico_meiersdorf",
+        "count": "1",
+        "quote": "I never did much like bees."
+    },
+    "nv_marquise_serenity": {
+        "name": "Madam Marquise Serenity",
+        "deck": "novigrad",
+        "row": "agile_cr",
+        "strength": "3",
+        "ability": "invoke",
+        "filename": "marquise",
+        "count": "1",
+        "target": "nv_passiflora",
+        "quote": "If you're looking for something different, perhaps a round of Gwent?"
+    },
+  "nv_passiflora_1": {
+        "name": "Sly Seductress",
+        "deck": "novigrad",
+        "row": "agile_crs",
+        "strength": "4",
+        "ability": "ambush",
+        "filename": "sly_seductress",
+        "count": "1",
+        "quote": "The sweeter her words, the more bitter your losses."
+    },
+    "nv_passiflora_2": {
+        "name": "Passiflora Peaches",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "4",
+        "ability": "spy",
+        "filename": "passiflora_peaches",
+        "count": "1",
+        "quote": "They'll mess with your head, break your heart and empty your purse."
+    },
+    "nv_passiflora_3": {
+        "name": "One night at the Passiflora",
+        "deck": "novigrad",
+        "row": "ranged",
+        "strength": "4",
+        "ability": "horn",
+        "filename": "passiflora",
+        "count": "1",
+        "quote": "More pilgrims come here than to the Temple of the Eternal Fire..."
+    },
+    "nv_ferko": {
+        "name": "Ferko the Sculptor",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "1",
+        "ability": "scorch",
+        "filename": "ferko",
+        "count": "1",
+        "quote": "Some call it base thuggery. But me, I consider it the highest art form."
+    },
+    "nv_igor_hook": {
+        "name": "Igor the Hook",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "6",
+        "ability": "",
+        "filename": "igor_hook",
+        "count": "1",
+        "quote": "In the left corner, a bloodthirsty shaelmaar, and in the right co--oh bollocks... Fight's over, hold your bets!"
+    },
+    "nv_sausage_maker": {
+        "name": "Sausage Maker",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "6",
+        "ability": "morale",
+        "filename": "sausage_maker",
+        "count": "1",
+        "quote": "Body disposal and sausage makin', that's what I do."
+    },
+    "nv_zoltan": {
+        "name": "Zoltan Chivay",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "5",
+        "ability": "comrade",
+        "filename": "zoltan",
+        "count": "1",
+        "quote": "Life without old mates and booze is like a woman without a rump."
+    },
+    "nv_sarah": {
+        "name": "Sarah",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "7",
+        "ability": "spy",
+        "filename": "sarah",
+        "count": "1",
+        "quote": "Little Sarah wants to play!"
+    },
+    "nv_djinn": {
+        "name": "Djinn",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "6",
+        "ability": "wish1",
+        "filename": "djinn",
+        "count": "1",
+        "quote": "A djinn, good sirs, fulfills but three wishes. Thus freed, it flees to dimensions unknown."
+    },
+   "nv_kelpie": {
+        "name": "Kelpie",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "0",
+        "ability": "avenger",
+        "filename": "kelpie",
+        "count": "1",
+        "target": "ntr_ciri",
+        "quote": "In the north 'Kelpie' was a sea monster..."
+    },
+    "nv_witch_hunter": {
+        "name": "Witch Hunter",
+        "deck": "novigrad",
+        "row": "agile_cs",
+        "strength": "1",
+        "ability": "witch_hunt",
+        "filename": "witch_hunter",
+        "count": "1",
+        "quote": "Long coats, wide-brimmed hats, and crooked grins – witch hunters are hard to miss."
+    },
+    "nv_kalkstein": {
+        "name": "Adalbertus Kalkstein",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "4",
+        "ability": "morale",
+        "filename": "kalkstein",
+        "count": "1",
+        "quote": "Before Kalkstein departed this world, he left us with some rather unflattering words about our gracious king..."
+    },
+    "nv_deserter_1": {
+        "name": "Deserter",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "4",
+        "ability": "muster",
+        "filename": "deserter_1",
+        "count": "1",
+        "target": "nv_deserter",
+        "quote": "It is interesting that every second deserter is a volunteer."
+    },
+    "nv_deserter_2": {
+        "name": "Deserter",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "3",
+        "ability": "muster",
+        "filename": "deserter_2",
+        "count": "1",
+        "target": "nv_deserter",
+        "quote": "It is interesting that every second deserter is a volunteer."
+    },
+    "nv_deserter_3": {
+        "name": "Deserter",
+        "deck": "novigrad",
+        "row": "close",
+        "strength": "3",
+        "ability": "muster",
+        "filename": "deserter_3",
+        "count": "1",
+        "target": "nv_deserter",
+        "quote": "It is interesting that every second deserter is a volunteer."
+    },
+    "nv_salma": {
+        "name": "Salma",
+        "deck": "novigrad",
+        "row": "siege",
+        "strength": "4",
+        "ability": "",
+        "filename": "salma",
+        "count": "1",
+        "quote": "I'm not one to lie. Nor do I kill without reason."
+    },
+};
+
 
 /*
  * Selecting cards to use
@@ -6984,3 +8311,5 @@ card_dict = Object.assign({}, card_dict, ext_wu_cards);
 card_dict = Object.assign({}, card_dict, ext_lr_cards);
 card_dict = Object.assign({}, card_dict, ext_sy_cards);
 card_dict = Object.assign({}, card_dict, ext_ze_cards);
+card_dict = Object.assign({}, card_dict, ext_ofir_cards);
+card_dict = Object.assign({}, card_dict, ext_nv_cards);

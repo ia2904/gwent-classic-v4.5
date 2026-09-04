@@ -22,7 +22,7 @@ var factions = {
         abilityUses: 0,
         unavailableSpecials: []
     },
-       monsters: {
+    monsters: {
         name: "Monsters",
         factionAbility: player => { 
             game.gameStart.push(() => { player.capabilities["endTurnRetake"] = 1; return true; });
@@ -76,6 +76,7 @@ var factions = {
         abilityUses: 0,
         unavailableSpecials: []
     },
+
 
     scoiatael: {
         name: "Scoia'tael",
@@ -375,18 +376,28 @@ tocar("game_buy", false);
             return 0;
         },
         unavailableSpecials: []
-    },             
-wild_hunt: {
+    },
+             wild_hunt: {
         name: "Wild Hunt",
                 factionAbilityAction: async player => {
-            if (player.deck.cards.length == 0)
+            if (!player || !player.deck || player.deck.cards.length == 0)
                 return;
+            
             let openedDoors = player.getAllRows().map(r => r.special).reduce((a, c) => a.concat(c.cards.filter(c => c.key === "spe_dimensional_door" && c.faceUp)), []);
             if (openedDoors.length > 0) {
                 for (var i = 0; i < openedDoors.length; i++) {
                     if (player.deck.cards.length > 0) {
                         let door = openedDoors[i];
-                        let card = player.deck.cards.shift();
+                        let card = null;
+                        
+                        try {
+                            card = player.deck.cards.shift();
+                        } catch (deckErr) {
+                            console.warn("Extracción de última carta controlada.");
+                        }
+                        
+                        if (!card) continue;
+                        
                         ui.showPreviewVisuals(card);
                         await sleep(2000);
                         let play = false;
@@ -394,38 +405,45 @@ wild_hunt: {
                             if (card.getPlayableRows().filter(r => r === door.currentLocation.row).length > 0) {
                                 play = true;
                             } else {
-                                ui.helper.showMessage("Card drawn cannot be played on a row with an opened door.", 2);
+                                if (typeof ui.helper !== "undefined" && ui.helper.showMessage) {
+                                    ui.helper.showMessage("Card drawn cannot be played on a row with an opened door.", 2);
+                                }
                             }
                         } else {
                             if (!(player.controller instanceof ControllerAI)) {
                                 play = await ui.popup("Play [E]", (p) => p.choice = true, "Discard [Q]", (p) => p.choice = false, "Play the card?", "Do you want to play this special card or put it back in the deck?");
                             } else {
-                                if (player.controller.getWeights([card]).weight > 0)
+                                if (player.controller.getWeights && player.controller.getWeights([card]).weight > 0)
                                     play = true;
-                            }
+                            }  
                         }
-                        ui.preview.classList.add("hide");
+                        
+                        if (typeof ui.preview !== "undefined" && ui.preview.classList) {
+                            ui.preview.classList.add("hide");
+                        }
                         ui.previewCard = null;
+                        
                         if (play) {
                             if (!(player.controller instanceof ControllerAI)) {
                                 let choiceDone = false;
                                 player.selectCardDestination(card, player.deck, async () => {
                                     choiceDone = true;
-                                    ui.enablePlayer(true);
+                                    if (typeof ui.enablePlayer === "function") ui.enablePlayer(true);
                                 });
                                 await sleepUntil(() => choiceDone, 100);
                             } else {
                                 let filaDestino = player.getAllRows().find(r => r.special.cards.includes(door));
                                 if (card.name === "Decoy" || !filaDestino) {
-                                    player.deck.removeCard(card);
                                     player.deck.addCard(card);
                                 } else if (card.key === "spe_scorch" || card.name === "Scorch") {
-                                    player.deck.removeCard(card);
-                                    await player.getAIController().playCardDefault(card, player.deck);
+                                    if (typeof player.getAIController === "function" && player.getAIController().playCardDefault) {
+                                        await player.getAIController().playCardDefault(card, player.deck);
+                                    } else if (player.controller.playCardDefault) {
+                                        await player.controller.playCardDefault(card, player.deck);
+                                    }
                                     await sleep(600);
-                                    board.updateScores();
+                                    if (typeof board !== "undefined" && board.updateScores) board.updateScores();
                                 } else {
-                                    player.deck.removeCard(card);
                                     if (card.row === "weather") {
                                         let contenedorClima = (typeof weather !== "undefined") ? weather : filaDestino.special;
                                         contenedorClima.addCard(card);
@@ -436,17 +454,15 @@ wild_hunt: {
                                             contenedorClima.addCardElement(card);
                                         }
                                         if (typeof card.placed === "object" && card.placed.length > 0) {
-                                            for (let x of card.placed) {
-                                                await x(card, contenedorClima);
-                                            }
+                                            for (let x of card.placed) { await x(card, contenedorClima); }
                                         } else if (typeof board.updateWeather === "function") {
                                             await board.updateWeather();
                                         }
                                     } else if (!card.isUnit() && !card.hero) {
                                         if (typeof player.playCard === "function") {
                                             await player.playCard(card, filaDestino);
-                                        } else {
-                                            await player.getAIController().playCardDefault(card, player.deck);
+                                        } else if (player.controller.playCardDefault) {
+                                            await player.controller.playCardDefault(card, player.deck); 
                                         }
                                     } else {
                                         filaDestino.addCard(card);
@@ -457,24 +473,21 @@ wild_hunt: {
                                             filaDestino.addCardElement(card);
                                         }
                                         if (typeof card.placed === "object" && card.placed.length > 0) {
-                                            for (let x of card.placed) {
-                                                await x(card, filaDestino);
-                                            }
-                                        }
+                                            for (let x of card.placed) { await x(card, filaDestino); }
+                                        } 
                                     }
                                     await sleep(400);
-                                    board.updateScores();
+                                    if (typeof board !== "undefined" && board.updateScores) board.updateScores();
                                     if (typeof game.resize === "function") game.resize();
-                                }
+                                }              
                             }
                         } else {
-                            player.deck.cards.push(card);
-                        }
+                            player.deck.addCard(card);
+                        } 
                     }
-                }
-            }
+                }         
+            }        
         },
-
         factionAbility: player => {
             game.gameStart.push(async () => {
                 player.getAllRows().forEach(r => {
@@ -514,8 +527,7 @@ wild_hunt: {
                 
                 return false;
             });
-            // On player's turn end, try to run the faction ability
-            game.turnEnd.push(async () => {
+                game.turnEnd.push(async () => {
                 if(game.currPlayer === player)
                     await factions["wild_hunt"].factionAbilityAction(player);
             });
@@ -528,4 +540,80 @@ wild_hunt: {
         },
         unavailableSpecials: ["spe_horn","spe_fog","spe_rain","spe_frost"]
     },
+	novigrad: {
+		name: "Free City of Novigrad",
+		factionAbility: player => {
+			// Passive ability: After drawing opening hand, may redraw 1 extra card
+			// This is handled in initialRedraw function
+		},
+		activeAbility: false,
+		abilityUses: 0,
+		description: "After drawing your opening hand, you may redraw 1 extra card."
+	},
+    		ofir: {
+		name: "Ofir",
+		factionAbility: async player => {
+			// Search deck for weather cards
+			const weatherCards = player.deck.findCards(c => c.faction === "weather");
+			
+			if (weatherCards.length === 0) {
+				await ui.notification("ofir", 1200);
+				return; // No weather cards in deck
+			}
+			
+			await ui.notification("ofir", 1200);
+			
+			if (player.controller instanceof ControllerAI) {
+				// AI: Choose best weather card based on weight
+				let bestCard = null;
+				let bestWeight = -1;
+				for (let card of weatherCards) {
+					const weight = player.controller.weightWeather(card);
+					if (weight > bestWeight) {
+						bestWeight = weight;
+						bestCard = card;
+					}
+				}
+				if (bestCard) {
+					await bestCard.autoplay(player.deck);
+				}
+			} else {
+				// Player: Let them choose from weather cards
+				player.endTurnAfterAbilityUse = false;
+				await ui.queueCarousel(player.deck, 1, async (container, index) => {
+					const selectedCard = container.cards[index];
+					if (selectedCard && selectedCard.faction === "weather") {
+					
+						player.endTurnAfterAbilityUse = true;
+						
+						
+						await selectedCard.autoplay(player.deck);
+						
+						
+						if (typeof board !== "undefined" && board.updateScore) {
+							board.updateScore();
+						}
+					} else {
+						player.endTurnAfterAbilityUse = true;
+					}
+				}, c => c.faction === "weather", false, true, "Choose a weather card to play");
+			}
+		},
+		activeAbility: true,
+		abilityUses: 1,
+		description: "Once per game, you may search your deck for a weather card and play it.",
+		weight: (player) => {
+			const weatherCards = player.deck.findCards(c => c.faction === "weather");
+			if (weatherCards.length === 0) return 0;
+			
+			let bestWeight = -1;
+			for (let card of weatherCards) {
+				const weight = player.controller.weightWeather(card);
+				if (weight > bestWeight) {
+					bestWeight = weight;
+				}
+			}
+			return Math.max(0, bestWeight);
+		}, unavailableSpecials: ["spe_scorch", "spe_horn", "spe_frost", "spe_rain", "spe_fog"]
+	}
 }

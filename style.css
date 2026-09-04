@@ -34,6 +34,9 @@ main {
 }
 
 
+
+
+
 .board-carousel {
     position: fixed;
     top: 0;
@@ -100,6 +103,9 @@ main {
 }
 
 
+
+
+
 a:hover, label:hover, .hover_un:hover {
 	text-decoration:underline;
 }
@@ -138,7 +144,7 @@ div.abs {
     display: flex;
     flex-direction: column;
     justify-content: center; 
-    align-items: center;     
+    align-items: center;        
 }
 
 #load_text {
@@ -151,8 +157,8 @@ div.abs {
 
 #version_text {
     font-family: 'GwentCustom', serif; 
-    font-size: 1.5rem; 
-    color: maroon; 
+    font-size: 1.6rem; 
+    color: #5A00A3; 
     text-align: center; 
     margin-top: 10px;
 }
@@ -169,7 +175,7 @@ div.abs {
     justify-content: center;
     text-align: center;
     font-weight: bold;
-    border: none;     
+    border: none;      
     transform: translate(-10px, 72px);
 }
 
@@ -230,7 +236,7 @@ html {
 	font-size: 3vw;
 	color: #FFB800;
  -webkit-text-stroke: 0.1px black;
-	text-shadow: 2px 2px 5px #4c390a;
+	text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
 	z-index: 86;
 }
 
@@ -484,6 +490,23 @@ html {
 #notif-velen::after {
     content: "Velen faction ability triggered: \A Player draws a card.";
 }
+
+#notif-ofir {
+	background-image:url("img/icons/notif_ofir.png")
+}
+
+#notif-ofir::after {
+	content:"Ofir faction ability used: \A Weather card played from deck."
+}
+
+#notif-novigrad-sigismund {
+	background-image:url("img/icons/notif_novigrad.png")
+}
+
+#notif-novigrad-sigismund::after {
+	content:"Novigrad leader ability used: \A Dijkstra prevented the death of a friendly unit."
+}
+
 
 .card-preview {
 	position: relative;
@@ -1227,7 +1250,7 @@ border-radius: 0.5vw;
 }
 
 .pulse {
-	left: 59%;
+	left: 60%;
 	width: 20%;
 	height: 4%;
 	font-size: 1.3vw;
@@ -1250,6 +1273,7 @@ border-radius: 0.5vw;
 	text-shadow: 0 0 1.5vw #FFD700;
 	background-color: rgba(40, 40, 40, .9);
 }
+
 
 .field {
 	width: 100%;
@@ -1339,6 +1363,21 @@ border-radius: 0.5vw;
 	background-image: url(img/icons/overlay_fog.png);
 }
 
+.sandstorm {
+	background-image:url("img/icons/overlay_sandstorm.png")
+}
+
+.spider_web {
+	background-image: url(img/icons/overlay_spider_web.png);
+}
+
+.tse_tse {
+	background-image: url(img/icons/overlay_tse_tse.png);
+}
+
+.dragon_wrath {
+	background-image: url(img/icons/overlay_dragon_wrath.png);
+}
 
 
 #hand-row {
@@ -1509,6 +1548,7 @@ border-radius: 0.5vw;
 	top: 15%;
 }
 
+
 #toggle-vibration {
     left: 87%;
     top: 12.2%;
@@ -1633,9 +1673,6 @@ font-weight: bold;
 #internal-deck-popup > .gwent-popup-box > button.hover_un {
     font-weight: bold !important;
 }
-
-
-
 
 
 
@@ -2290,9 +2327,9 @@ font-weight: bold;
 	top: 85.5%;
 	left: 46.65%;
 	// width: 6%;
-	height: 4%;
+	height: 3.9%;
 	font-size: .99vw;
-border-radius: .1vw;
+border-radius: .5vw;
 }
 
 #start-ai-game {
@@ -2302,7 +2339,7 @@ border-radius: .1vw;
     // width: 7%;
     height: 3.5%;
     font-size: .98vw;
-border-radius: .1vw;
+border-radius: .5vw;
 }
 
 #start-pvp-game {
@@ -2312,7 +2349,7 @@ border-radius: .1vw;
     // width: 8%;
     height: 3.5%;
     font-size: .98vw;
-border-radius: .1vw;
+border-radius: .5vw;
 }
 
 .start-game_class {
@@ -2699,19 +2736,19 @@ color: #b48c44 !important;
     font-family: Arial, sans-serif;
     text-transform: uppercase;
     margin-top: -30px !important;
+    border-radius: .5vw;
 }
 
 
 .card-lg:hover {
-    cursor: pointer;
-    box-shadow: 0 0 8px 2px rgba(255, 200, 0, 0.8), 0 0 12px 4px rgba(255, 150, 0, 0.4) !important;
-   transform: scale(1.04); 
+      box-shadow: 0 0 8px 2px rgba(255, 200, 0, 0.8), 0 0 12px 4px rgba(255, 150, 0, 0.4) !important;
+    transform: scale(1.04); 
     transition: all 0.10s ease-out;
-      position: relative;
+    position: relative;
 }
 
 #btn-play:hover, #btn-skip:hover {
-    cursor: pointer;
+    
     color: #FFB800 !important; 
     
     -webkit-text-stroke: 0.5px black;
@@ -2720,6 +2757,7 @@ color: #b48c44 !important;
             drop-shadow(0 0 5px #FF8A00) 
             drop-shadow(0 0 12px #FFD700) !important;
     
+
     text-shadow: 2px 2px 2px #000, 
                  0 0 10px #FFD700, 
                  0 0 20px #B8860B;
@@ -2771,7 +2809,7 @@ color: #b48c44 !important;
         radial-gradient(circle at 60px 60px, rgba(255, 204, 0, 0.65) 0%, rgba(255, 174, 0, 0.3) 25%, rgba(255, 223, 0, 0) 75%),
         conic-gradient(from 125deg at 60px 60px, 
             transparent 0%, 
-            rgba(255, 220, 100, 0.22) 8%,   
+            rgba(255, 220, 100, 0.22) 8%,  
             transparent 16%, 
             transparent 30%,
             rgba(255, 195, 0, 0.25) 38%,    

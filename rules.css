@@ -55,11 +55,11 @@ The content `<div>` is where all your content goes.
 
 .header {
     margin: 0;
-    color: goldenrod;
+    color: gold;
     text-align: center;
     padding: 2.5em 2em 0;
     border-bottom: 1px solid #444;
-    background-color: maroon;
+    background-color: #26236b;
 }
 
 .header h1 {
@@ -70,7 +70,7 @@ The content `<div>` is where all your content goes.
 
 .header h2 {
     font-weight: 300;
-    color: #999;
+    color: aliceblue;
     padding: 0;
     margin-top: 0;
 }
@@ -78,7 +78,7 @@ The content `<div>` is where all your content goes.
 .content-subhead {
     margin: 50px 0 20px 0;
     font-weight: 300;
-    color: goldenrod;
+    color: gold;
 }
 
 .content h2 {
@@ -108,7 +108,7 @@ appears on the left side of the page.
     left: 0;
     bottom: 0;
     z-index: 1000; /* so the menu or its navicon stays above all content */
-    background: #191818;
+    background: black;
     overflow-y: auto;
 }
 /*
@@ -126,7 +126,7 @@ Remove all background/borders, since we are applying them to #menu.
 #menu .pure-menu,
 #menu .pure-menu ul {
     border: none;
-    background: transparent;
+    background: #D29300;
 }
 
 /*
@@ -149,7 +149,7 @@ This styles the selected menu item `<li>`.
 */
 #menu .pure-menu-selected,
 #menu .pure-menu-heading {
-    background: #5a2323;
+    background: #1c1d54;
 }
 /*
 This styles a link within a selected menu item `<li>`.
@@ -223,7 +223,7 @@ small screens.
 }
 
 .menu-other-page {
-    background-color: #553c2e;
+    background-color: maroon;
 }
 
 

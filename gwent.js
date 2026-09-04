@@ -352,7 +352,7 @@ class ControllerAI {
         return cards;
     }
 
-    // Tells the Player that this object controls to play a card
+        // Tells the Player that this object controls to play a card
     async playCard(c, max, data) {
         if (c.key === "spe_horn")
             await this.horn(c);
@@ -362,6 +362,27 @@ class ControllerAI {
             await this.decoy(c, max, data);
         else if (c.faction === "special" && c.abilities.includes("scorch"))
             await this.scorch(c, max, data);
+        else if (c.faction === "special" && c.abilities.includes("cull")) 
+            await this.cull(c, max, data);
+        else if (c.faction === "special" && c.abilities.includes("veles"))
+            await this.veles(c);
+        else if (c.faction === "special" && c.abilities.includes("chernobog"))
+            await this.chernobog(c);
+        else if (c.faction === "special" && c.abilities.includes("perun"))
+            await this.perun(c);
+        else if (c.faction === "special" && c.abilities.includes("svarog"))
+            await this.svarog(c);
+        else if (c.faction === "special" && c.abilities.includes("morana"))
+            await this.morana(c);
+        else if (c.faction === "special" && c.abilities.includes("zoria"))
+            await this.zoria(c);
+        else if (c.faction === "special" && c.abilities.includes("stribog"))
+            await this.stribog(c);
+        else if (c.faction === "special" && c.abilities.includes("devana"))
+            await this.devana(c);
+        else if (c.faction === "special" && c.abilities.includes("triglav"))
+            await this.triglav(c);
+        else if (c.key === "ofir_merchant" && c.abilities.includes("trade")) return await this.player.playCard(c);
         else if (c.faction === "special" && c.abilities.includes("cintra_slaughter"))
             await this.slaughterCintra(c);
         else if (c.faction === "special" && c.abilities.includes("seize"))
@@ -382,13 +403,14 @@ class ControllerAI {
             await this.player.playCardToRow(c, this.bestAgileRowChange(c).row);
         else if (c.faction === "special" && c.abilities.includes("bank"))
             await this.bank(c);
-        else if (c.faction === "special" && c.abilities.includes("skellige_fleet"))
+        else if (c.faction === "special" && c.skelligeFleet)
             await this.skelligeFleet(c);
-        else if (c.faction === "special" && c.abilities.includes("royal_decree"))
+        else if (c.faction === "special" && c.royalDecree)
             await this.royalDecree(c);
         else
             await this.player.playCard(c);
     }
+
 
     // Plays any card with a default behaviour
     async playCardDefault(card,src=null) {
@@ -514,6 +536,10 @@ class ControllerAI {
         await this.player.playScorch(card);
     }
 
+async cull(card, max, data) {
+		await this.playCull(card);
+	}
+
     // Tells the controlled Player to play the Scorch card
     async slaughterCintra(card) {
         await this.player.playSlaughterCintra(card);
@@ -603,6 +629,41 @@ class ControllerAI {
     // Plays the Royal Decree special card
     async royalDecree(card) {
         await this.player.playRoyalDecree(card);
+    }
+    async veles(card) {
+        await this.player.playVeles(card);
+    }
+
+    async chernobog(card) {
+        await this.player.playChernobog(card);
+    }
+
+    async perun(card) {
+        await this.player.playPerun(card);
+    }
+
+    async svarog(card) {
+        await this.player.playSvarog(card);
+    }
+
+    async morana(card) {
+        await this.player.playMorana(card);
+    }
+
+    async zoria(card) {
+        await this.player.playZoria(card);
+    }
+
+    async stribog(card) {
+        await this.player.playStribog(card);
+    }
+
+    async devana(card) {
+        await this.player.playDevana(card);
+    }
+
+    async triglav(card) {
+        await this.player.playTriglav(card);
     }
 
     bestWitchHuntRow(card) {
@@ -913,6 +974,36 @@ class ControllerAI {
                 let total_me = power_me * max.me_noshield.length;
                 return power_me > power_op ? 0 : power_me < power_op ? total_op : Math.max(0, total_op - total_me);
             }
+            if (abi.includes("cull")) {
+                if (game.scorchCancelled) return Math.max(0, card.power);
+                
+                const opponent = this.player.opponent();
+                const myAllUnits = this.player.getAllRowCards().filter(c => c.isUnit() && !c.hero);
+                const opponentAllUnits = opponent.getAllRowCards().filter(c => c.isUnit() && !c.hero);
+                
+                if (myAllUnits.length === 0 && opponentAllUnits.length === 0) return 0;
+                
+                const allUnits = [...myAllUnits, ...opponentAllUnits];
+                const minPower = Math.min(...allUnits.map(c => c.power), Infinity);
+                if (minPower === Infinity) return 0;
+                
+                const myMinPowerUnits = myAllUnits.filter(c => c.power === minPower);
+                const opponentMinPowerUnits = opponentAllUnits.filter(c => c.power === minPower);
+                
+                const myLoss = myMinPowerUnits.reduce((sum, c) => sum + c.power, 0);
+                const opponentLoss = opponentMinPowerUnits.reduce((sum, c) => sum + c.power, 0);
+                
+                if (myMinPowerUnits.length > 0 && opponentMinPowerUnits.length === 0) {
+                    return 0; 
+                }
+                
+                if (myMinPowerUnits.length > 0 && opponentMinPowerUnits.length > 0) {
+                    if (myLoss * 2 >= opponentLoss) return 0;
+                    return Math.max(0, opponentLoss - myLoss);
+                }
+                
+                return opponentLoss;
+            }
             if (abi.includes("decoy")) {
                 return game.decoyCancelled ? 0 : data.spy.length ? 50 : data.medic.length ? 15 : data.scorch.length ? 10 : max.me.length ? 1 : 0;
             }
@@ -920,9 +1011,9 @@ class ControllerAI {
                 let rows = this.player.getAllRows();
                 return Math.max(...rows.map(r => this.weightMardroemeRow(card, r)));
             }
-            if (["cintra_slaughter", "seize", "lock", "shield", "knockback", "shield_c", "shield_r", "shield_s", "bank", "skellige_fleet","immortal","royal_decree","summon_one_of","curse"].includes(abi.at(-1))) {
-                return ability_dict[abi.at(-1)].weight(card);
-            }
+                    if (["cintra_slaughter", "seize", "lock", "shield", "knockback", "shield_c", "shield_r", "shield_s", "bank", "omen", "ofiri_envoy", "skellige_fleet","immortal","royal_decree","summon_one_of","curse", "veles", "chernobog", "perun", "svarog", "morana", "zoria", "stribog", "devana", "triglav"].includes(abi.at(-1))) {
+            return ability_dict[abi.at(-1)].weight(card, this, max);
+        }
             if (abi.includes("witch_hunt")) {
                 if (game.scorchCancelled)
                     return card.power;
@@ -1107,6 +1198,7 @@ class Player {
         this.mulliganCount = 2;
         this.winning = false;
         this.factionAbilityUses = 0;
+ this.cyrusHemmelfartUsed = false;
         this.effects = {
             "witchers": {},
             "whorshippers": 0,
@@ -1156,12 +1248,12 @@ class Player {
         return board.opponent(this);
     }
 
-    // Updates the player's total score and notifies the gamee
-    updateTotal(n) {
+        updateTotal(n) {
         this.total += n;
         document.getElementById("score-total-" + this.tag).children[0].innerHTML = this.total;
         board.updateLeader();
-    }
+            }
+
 
     // Puts the player in the winning state
     setWinning(isWinning) {
@@ -1222,6 +1314,10 @@ class Player {
             await this.playCardAction(card, async () => await ability_dict["scorch"].activated(card));
     }
 
+async playCull(card) {
+		if (!game.scorchCancelled) await this.playCardAction(card, async () => await ability_dict["cull"].activated(card));
+	}
+
     // Plays a Slaughter of Cintra card
     async playSlaughterCintra(card) {
         await this.playCardAction(card, async () => await ability_dict["cintra_slaughter"].activated(card));
@@ -1264,6 +1360,42 @@ class Player {
     async playRoyalDecree(card) {
         await this.playCardAction(card, async () => await ability_dict["royal_decree"].activated(card));
     }
+    async playVeles(card) {
+        await this.playCardAction(card, async () => await ability_dict["veles"].activated(card));
+    }
+
+    async playChernobog(card) {
+        await this.playCardAction(card, async () => await ability_dict["chernobog"].activated(card));
+    }
+
+    async playPerun(card) {
+        await this.playCardAction(card, async () => await ability_dict["perun"].activated(card));
+    }
+
+    async playSvarog(card) {
+        await this.playCardAction(card, async () => await ability_dict["svarog"].activated(card));
+    }
+
+    async playMorana(card) {
+        await this.playCardAction(card, async () => await ability_dict["morana"].activated(card));
+    }
+
+    async playZoria(card) {
+        await this.playCardAction(card, async () => await ability_dict["zoria"].activated(card));
+    }
+
+    async playStribog(card) {
+        await this.playCardAction(card, async () => await ability_dict["stribog"].activated(card));
+    }
+
+    async playDevana(card) {
+        await this.playCardAction(card, async () => await ability_dict["devana"].activated(card));
+    }
+
+    async playTriglav(card) {
+        await this.playCardAction(card, async () => await ability_dict["triglav"].activated(card));
+    }
+
 
     // Plays a card to a specific row
     async playCardToRow(card, row, endTurn=true) {
@@ -1324,7 +1456,7 @@ class Player {
 
     // Use a leader's Activate ability, then disable the leader
     // Option to not end turn and disable leader - useful when we want to trigger the leader ability in other circumstances
-    async activateLeader(endTurn=true,disableLeader=true) {
+   async activateLeader(endTurn=true,disableLeader=true) {
         try {
             Carousel.curr.cancel();
         } catch (err) { }
@@ -1448,13 +1580,12 @@ class Player {
 
         replaceLeader(newLeader) {
         this.leader = newLeader;
-        
+                
         if (this.elem_leader && this.elem_leader.children && this.elem_leader.children[0]) {
             let contenedorFisico = this.elem_leader.children[0];
             
-           
             contenedorFisico.innerHTML = "";
-            
+                        
             if (this.leader && this.leader.elem) {
                 contenedorFisico.appendChild(this.leader.elem);
             }
@@ -1678,7 +1809,8 @@ class CardContainer {
         return index;
     }
 
-   
+    // Removes the HTML element associated with the card from this CardContainer
+  
     removeCardElement(card, index) {
         if (this.elem && card && card.elem) {
             if (this.elem.contains(card.elem)) {
@@ -1771,9 +1903,9 @@ class Grave extends CardContainer {
         super.removeCardElement(card, index);
     }
 
-    // Offsets the card element in the deck
+            // Offsets the card element in the deck
     setCardOffset(card, n) {
-        card.elem.style.left = -0.03 * n + "vw";
+        if (card && card.elem && card.elem.style) card.elem.style.left = -0.03 * n + "vw";
     }
 }
 
@@ -1880,13 +2012,31 @@ class Deck extends CardContainer {
         elem.classList.add("deck-card");
         elem.style.backgroundImage = iconURL("deck_back_" + this.faction, "jpg");
         this.setCardOffset(elem, this.cards.length - 1);
-        this.elem.insertBefore(elem, this.counter);
+              
+        try {
+            if (this.counter && this.counter.parentNode === this.elem) {
+                this.elem.insertBefore(elem, this.counter);
+            } else {
+                this.elem.appendChild(elem);
+            }
+        } catch (err) {
+            if (this.elem) {
+                this.elem.appendChild(elem);
+            }
+        }
     }
 
-    // Override
+
+        // Override
     removeCardElement() {
-        this.elem.removeChild(this.elem.children[this.cards.length]).style.left = "";
+        if (this.elem && this.elem.children && this.elem.children[this.cards.length]) {
+            const childToRemove = this.elem.children[this.cards.length];
+            if (childToRemove instanceof Node) {
+                this.elem.removeChild(childToRemove).style.left = "";
+            }
+        }
     }
+
 
     // Offsets the card element in the deck
     setCardOffset(elem, n) {
@@ -1922,17 +2072,16 @@ class HandAI extends CardContainer {
     resize() {
         this.counter.innerHTML = this.cards.length;
     }
-
- 
+   
     draw(dest = null) {
         if (!this.cards || this.cards.length === 0) {
             console.warn("Se interceptó y previno un colapso en HandAI vacía durante la simulación.");
             return null;
         }
-        
+                
         let card = this.cards.pop();
         this.resize();
-        
+                
         if (dest && card) {
             card.currentLocation = dest;
             if (typeof dest.addCard === "function") {
@@ -2171,24 +2320,37 @@ class Row extends CardContainer {
     }
 
     // Activates weather effect and visuals
-    addOverlay(overlay) {
-        var som = overlay == "fog" || overlay == "rain" ? overlay : overlay == "frost" ? "cold" : "";
-        if (som != "") tocar(som, false);
-        this.effects.weather = true;
-        this.effects.weather_type = overlay;
-        this.elem_parent.getElementsByClassName("row-weather")[0].classList.add(overlay);
-        this.updateScore();
-const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
-if (canVibrate) navigator.vibrate([250, 100, 50]);
+     addOverlay(overlay) {
+    var som = (overlay == "fog" || overlay == "rain" || overlay == "tse_tse" || overlay == "dragon_wrath") ? overlay 
+             : (overlay == "frost" || overlay == "spider_web") ? "cold" 
+             : overlay == "sandstorm" ? "sandstorm" : "";
+    if (som != "") tocar(som, false);
+
+    let rowWeather = this.elem_parent.getElementsByClassName("row-weather")[0];
+
+    if (this.effects.weather_type) {
+        rowWeather.classList.remove(this.effects.weather_type);
     }
 
-    // Deactivates weather effect and visuals
+    this.effects.weather = true;
+    this.effects.weather_type = overlay;
+    rowWeather.classList.add(overlay);
+
+    this.updateScore();
+
+    const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+    if (canVibrate) navigator.vibrate([250, 100, 50]);
+}
+
+
     removeOverlay(overlay) {
         this.effects.weather = false;
         this.effects.weather_type = "";
         this.elem_parent.getElementsByClassName("row-weather")[0].classList.remove(overlay);
         this.updateScore();
     }
+
+
 
     // Override
     resize() {
@@ -2207,12 +2369,22 @@ if (canVibrate) navigator.vibrate([250, 100, 50]);
         this.elem_parent.getElementsByClassName("row-score")[0].innerHTML = this.total;
     }
 
-    // Calculates and set the card's current power
-    cardScore(card) {
+        cardScore(card) {
+        const previousPower = card.power;
         let total = this.calcCardScore(card);
+        
+        if (card.abilities.includes("adaptive") && this.effects.weather && !card.hero && previousPower !== total) {
+            const adaptiveBaseStrength = this.halfWeather ? Math.max(Math.min(2, card.basePower), Math.floor(card.basePower / 2)) : Math.min(2, card.basePower);
+            
+            if (total >= adaptiveBaseStrength && (previousPower < adaptiveBaseStrength || previousPower === card.basePower)) {
+                card.animate("adaptive"); 
+            }
+        }
+        
         card.setPower(total);
         return total;
     }
+
 
     // Calculates the current power of a card affected by row affects
     calcCardScore(card) {
@@ -2231,13 +2403,15 @@ if (canVibrate) navigator.vibrate([250, 100, 50]);
                 total = maxBase.power;
             }
         }
-        if (this.effects.weather)
-            if (!(card.abilities.includes("fog_summoning") && this.effects.weather_type === "fog")) {
+                if (this.effects.weather)
+             if (!(card.abilities.includes("fog_summoning") && this.effects.weather_type === "fog") && !(card.abilities.includes("sandstorm_immunity") && this.effects.weather_type === "sandstorm")) {
+                let weatherLimit = card.abilities.includes("adaptive") ? 2 : 1;                
                 if (this.halfWeather)
-                    total = Math.max(Math.min(1, total), Math.floor(total / 2)); // 2 special cases, if intially 1, we want to keep one, not 0 (floor(0.5)). If 0, we want to keep 0, not 1
+                    total = Math.max(Math.min(weatherLimit, total), Math.floor(total / 2)); 
                 else
-                    total = Math.min(1, total);
+                    total = Math.min(weatherLimit, total); 
             }
+     
         // Bond
         if (card.abilities.includes("bond")) {
             let bond = this.effects.bond[card.target];
@@ -2391,11 +2565,41 @@ class Weather extends CardContainer {
                 name: "frost",
                 count: 0,
                 rows: []
+            },
+            sandstorm: {
+                name: "sandstorm",
+                count: 0,
+                rows: []
+            },
+            spider_web: {
+                name: "spider_web",
+                count: 0,
+                rows: []
+            },
+            tse_tse: {
+                name: "tse_tse",
+                count: 0,
+                rows: []
+            },
+            dragon_wrath: {
+                name: "dragon_wrath",
+                count: 0,
+                rows: []
             }
         }
         let i = 0;
-        for (let key of Object.keys(this.types))
-            this.types[key].rows = [board.row[i], board.row[5 - i++]];
+        for (let key of Object.keys(this.types)) {
+            if (key === "sandstorm" || key === "spider_web" || key === "tse_tse" || key === "dragon_wrath") {
+                continue;
+            } else {
+                this.types[key].rows = [board.row[i], board.row[5 - i++]];
+            }
+        }
+        
+        this.types["sandstorm"].rows = [board.row[1], board.row[2], board.row[3], board.row[4]];
+        this.types["spider_web"].rows = [board.row[2], board.row[3]];
+        this.types["tse_tse"].rows = [board.row[1], board.row[4]];
+        this.types["dragon_wrath"].rows = [board.row[0], board.row[5]];
 
         this.elem.addEventListener("click", () => ui.selectRow(this), false);
     }
@@ -2412,35 +2616,44 @@ class Weather extends CardContainer {
                 await x(card, this);
         }
         if (card.key === "spe_clear") {
-            let cineOverlay = document.createElement("div");
-            cineOverlay.className = "sunlight-overlay-cinema";
-
-            let solarBeam = document.createElement("div");
-            solarBeam.className = "sunlight-beam-wave";
-
-            cineOverlay.appendChild(solarBeam);
-            document.body.appendChild(cineOverlay);
-
-            setTimeout(() => {
-                if (cineOverlay) cineOverlay.remove();
-            }, 2000);
-
-            tocar("clear", false);
             await sleep(500);
             this.clearWeather();
         } else {
             this.changeWeather(card, x => ++this.types[x].count === 1, (r, t) => r.addOverlay(t.name));
-            for (let i = this.cards.length - 2; i >= 0; --i) {
-                if (card.abilities.at(-1) === this.cards[i].abilities.at(-1)) {
-                    await sleep(750);
-                    await board.toGrave(card, this);
-                    break;
+        for (let i = this.cards.length - 2; i >= 0; --i) {
+            let prevCard = this.cards[i];
+
+            for (let ability of card.abilities) {
+                if (ability in this.types) {
+                    let newRows = this.types[ability].rows;
+
+                    for (let prevAbility of prevCard.abilities) {
+                        if (prevAbility in this.types) {
+                            let prevRows = this.types[prevAbility].rows;
+
+                            if (newRows.some(r => prevRows.includes(r))) {
+                                for (let r of newRows) {
+                                    if (prevRows.includes(r)) {
+                                        r.removeOverlay(this.types[prevAbility].name);
+                                    }
+                                }
+
+                                let remainingRows = prevRows.filter(r => !newRows.includes(r));
+                                if (remainingRows.length === 0) {
+                                    await sleep(750);
+                                    await board.toGrave(prevCard, this);
+                                }
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
-        await sleep(750);
     }
 
+    await sleep(750);
+}
 
     // Override
     removeCard(card, withEffects = true) {
@@ -2511,37 +2724,50 @@ class Board {
         await this.moveTo(card, "deck", source);
     }
 
-        // Sends and translates a card from the source to the Grave of the card's holder
-    async toGrave(card, source, turnEnd=false) {
+           async toGrave(card, source, turnEnd=false) {
         let destroy = true;
         let protectors = null;
         if (card.isUnit() && source instanceof Row) {
 
-            // Checking Protection abilities such as Comrade
-            protectors = card.holder.getAllRowCards().filter(c => c.abilities.includes("comrade") && c.protects);
-            if (protectors.length > 0) {
-                let choice = false;
-                if (!(card.holder.controller instanceof ControllerAI)) {
-                    choice = await ui.popup("Save it [E]", () => true, "Let it die [Q]", () => false, "Do you want to save this unit?", "Comrade ability can prevent the destruction of the following card: " + card.name + " (strength: " + card.power + "). Do you want to save it?");
-                    if (choice) {
-                        destroy = false;
-                        protectors[0].protects = false;
-                    }
+                if (card && card.holder && 
+                card.holder.leader && card.holder.leader.abilities && 
+                card.holder.leader.abilities.includes("novigrad_sigismund") &&
+                !card.holder.sigismundDeathPreventionUsed &&
+                !card.hero) {
+                
+                card.holder.sigismundDeathPreventionUsed = true;
+                await ui.notification("novigrad-sigismund", 1200);
+                await card.animate("shield");
+                destroy = false;
+            }
 
-                } else {
-                    // AI saves the unit only if its value is > 5
-                    if (card.power > 5) {
-                        protectors[0].protects = false;
-                        destroy = false;
+            // Checking Protection abilities such as Comrade
+            if (destroy) {
+                protectors = card.holder.getAllRowCards().filter(c => c.abilities.includes("comrade") && c.protects);
+                if (protectors.length > 0) {
+                    let choice = false;
+                    if (!(card.holder.controller instanceof ControllerAI)) {
+                        choice = await ui.popup("Save it [E]", () => true, "Let it die [Q]", () => false, "Do you want to save this unit?", "Comrade ability can prevent the destruction of the following card: " + card.name + " (strength: " + card.power + "). Do you want to save it?");
+                        if (choice) {
+                            destroy = false;
+                            protectors[0].protects = false;
+                        }
+                    } else {
+                        if (card.power > 5) {
+                            protectors[0].protects = false;
+                            destroy = false;
+                        }
                     }
                 }
             }
+            
             // For Wild Hunt faction: Imlerith protects navigators
-            if (card.abilities.includes("door_o") && card.holder.leader.key === "wh_imlerith_general") {
+            if (destroy && card.abilities.includes("door_o") && card.holder.leader.key === "wh_imlerith_general") {
                 destroy = false;
             }
         }
-        if (destroy) {            
+        
+        if (destroy) {
             if (card && typeof card.resetPower === "function") {
                 card.resetPower();
             } else if (card && card.basePower !== undefined) {
@@ -2557,11 +2783,13 @@ class Board {
                 }
             }
         } else {
-            card.animate("comrade");
-            if (protectors.length > 0)
+            if (protectors && protectors.length > 0) {
+                card.animate("comrade");
                 await protectors[0].animate("comrade");
+            }
         }
     }
+
 
 
     // Sends and translates a card from the source to the Hand of the card's holder
@@ -2623,29 +2851,40 @@ class Board {
         await row.addCard(card);
     }
 
-    // Returns the Card associated with the row name that the card would be sent to
-    getRow(card, row_name, player) {
+       getRow(card, row_name, player) {
         player = player ? player : card ? card.holder : player_me;
         let isMe = player === player_me;
-        let isSpy = (card.abilities.includes("spy") || card.abilities.includes("emissary") || card.abilities.includes("ambush"));
+        let isSpy = (card.abilities.includes("spy") || card.abilities.includes("emissary") || card.abilities.includes("ambush") || card.abilities.includes("ofiri_envoy"));
+        
         switch (row_name) {
             case "weather":
                 return weather;
                 break;
             case "close":
+            case "agile":      
+            case "agile_cr":   
+            case "agile_cs":   
+            case "agile_crs":  
                 return this.row[isMe ^ isSpy ? 3 : 2];
+                break;
             case "ranged":
                 return this.row[isMe ^ isSpy ? 4 : 1];
+                break;
             case "siege":
                 return this.row[isMe ^ isSpy ? 5 : 0];
+                break;
             case "grave":
                 return player.grave;
+                break;
             case "deck":
                 return player.deck;
+                break;
             case "hand":
                 return player.hand;
+                break;
             default:
                 console.error(card.name + " sent to incorrect row \"" + row_name + "\" by " + card.holder.name);
+                return this.row[isMe ^ isSpy ? 3 : 2]; 
         }
     }
 
@@ -2800,46 +3039,55 @@ tocar("coin", false);
     }
 
     // Allows the player to swap out up to two cards from their iniitial hand
-    async initialRedraw() {
+        async initialRedraw() {
+        // Handle Novigrad faction ability: allows 1 extra redraw
+        const novigradRedraws = {
+            me: player_me.deck.faction === "novigrad" ? 1 : 0,
+            op: player_op.deck.faction === "novigrad" ? 1 : 0
+        };
+
+        const myCount = player_me.mulliganCount + novigradRedraws.me;
+        const opCount = player_op.mulliganCount + novigradRedraws.op;
+		
         if (player_op.controller instanceof ControllerAI) {
             if (player_op.leader.key === "sc_francesca_daisy") {
-                let cards = player_op.controller.discardOrder(player_op.leader, player_op.hand, true).splice(0, player_op.mulliganCount);
+                let cards = player_op.controller.discardOrder(player_op.leader, player_op.hand, true).splice(0, opCount);
                 cards.forEach(c => {
                     board.toDeck(c, player_op.hand);
                 });
             } else {
-                for (let i = 0; i < player_op.mulliganCount; i++)
+                for (let i = 0; i < opCount; i++)
                     player_op.controller.redraw();
             }
         }
         if (player_me.controller instanceof ControllerAI) {
             if (player_me.leader.key === "sc_francesca_daisy") {
-                let cards = player_me.controller.discardOrder(player_me.leader, player_me.hand, true).splice(0, player_me.mulliganCount);
+                let cards = player_me.controller.discardOrder(player_me.leader, player_me.hand, true).splice(0, myCount);
                 cards.forEach(c => {
                     board.toDeck(c, player_me.hand);
                 });
             } else {
-                for (let i = 0; i < player_me.mulliganCount; i++)
+                for (let i = 0; i < myCount; i++)
                     player_me.controller.redraw();
             }
         } else {
             // player vs player - both have a redraw - player 1 first
             if (this.mode === 3) {
                 if (player_me.leader.key === "sc_francesca_daisy") {
-                    await ui.queueCarousel(player_me.hand, player_me.mulliganCount, async (c, i) => await board.toDeck(c.cards[i], c), c => true, true, false, "Player 1 - Choose " + player_me.mulliganCount +" cards to put back to deck.");
+                    await ui.queueCarousel(player_me.hand, myCount, async (c, i) => await board.toDeck(c.cards[i], c), c => true, true, false, "Player 1 - Choose " + myCount +" cards to put back to deck.");
                 } else {
-                    await ui.queueCarousel(player_me.hand, player_me.mulliganCount, async (c, i) => await player_me.deck.swap(c, c.removeCard(i)), c => true, true, true, "Player 1 - Choose up to " + player_me.mulliganCount +" cards to redraw.");
+                    await ui.queueCarousel(player_me.hand, myCount, async (c, i) => await player_me.deck.swap(c, c.removeCard(i)), c => true, true, true, "Player 1 - Choose up to " + myCount +" cards to redraw.");
                 }
                 if (player_op.leader.key === "sc_francesca_daisy") {
-                    await ui.queueCarousel(player_op.hand, player_op.mulliganCount, async (c, i) => await board.toDeck(c.cards[i], c), c => true, true, false, "Player 2 - Choose " + player_op.mulliganCount +" cards to put back to deck.");
+                    await ui.queueCarousel(player_op.hand, opCount, async (c, i) => await board.toDeck(c.cards[i], c), c => true, true, false, "Player 2 - Choose " + opCount +" cards to put back to deck.");
                 } else {
-                    await ui.queueCarousel(player_op.hand, player_op.mulliganCount, async (c, i) => await player_op.deck.swap(c, c.removeCard(i)), c => true, true, true, "Player 2 - Choose up to " + player_op.mulliganCount +" cards to redraw.");
+                    await ui.queueCarousel(player_op.hand, opCount, async (c, i) => await player_op.deck.swap(c, c.removeCard(i)), c => true, true, true, "Player 2 - Choose up to " + opCount +" cards to redraw.");
                 }
             } else {
                 if (player_me.leader.key === "sc_francesca_daisy") {
-                    await ui.queueCarousel(player_me.hand, player_me.mulliganCount, async (c, i) => await board.toDeck(c.cards[i], c), c => true, true, false, "Choose " + player_me.mulliganCount +" cards to put back to deck.");
+                    await ui.queueCarousel(player_me.hand, myCount, async (c, i) => await board.toDeck(c.cards[i], c), c => true, true, false, "Choose " + myCount +" cards to put back to deck.");
                 } else {
-                    await ui.queueCarousel(player_me.hand, player_me.mulliganCount, async (c, i) => await player_me.deck.swap(c, c.removeCard(i)), c => true, true, true, "Choose up to " + player_me.mulliganCount +" cards to redraw.");
+                    await ui.queueCarousel(player_me.hand, myCount, async (c, i) => await player_me.deck.swap(c, c.removeCard(i)), c => true, true, true, "Choose up to " + myCount +" cards to redraw.");
                 }
             }
             ui.enablePlayer(false);
@@ -2847,11 +3095,9 @@ tocar("coin", false);
         game.startRound();
     }
 
-    // Initiates a new round of the game
-    async startRound(verdict = false) {
+        async startRound(verdict = false) {
         this.roundCount++;
         if (verdict && verdict.winner) {
-            //Last round winner starts the round, verdict.winner can be null if draw
             this.currPlayer = verdict.winner.opponent();
         } else {
             this.currPlayer = (this.roundCount % 2 === 0) ? this.firstPlayer : this.firstPlayer.opponent();
@@ -2880,6 +3126,7 @@ tocar("coin", false);
 
         this.startTurn();
     }
+
 
     // Starts a new turn. Enables client interraction in client's turn.
     async startTurn() {
@@ -2958,14 +3205,25 @@ if (!noEffects)
             this.over = true;
 
         weather.clearWeather();
-        // In case some cards stay on the board, we want to reset their power
-        board.row.forEach(row => {
+               board.row.forEach(row => {
+            if (row) {
+                if (row.effects) {
+                    row.effects.weather = false;
+                    row.effects.weather_type = "";
+                }
+                row.weather = false;
+                row.weather_type = "";
+                
+                if (typeof row.removeOverlay === "function") {
+                    row.removeOverlay("frost");
+                }
+            }
+            
             row.clear();
             row.cards.forEach(c => {
                 c.power = c.basePower;
             });
         });
-// Validación de seguridad para la API de vibración
 		const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
 
         if (dif > 0) {
@@ -3120,18 +3378,23 @@ class Card {
             }
             for (let x of this.abilities) {
                 let ab = ability_dict[x];
+if (!ab) continue;
                 if ("placed" in ab) this.placed.push(ab.placed);
                 if ("removed" in ab) this.removed.push(ab.removed);
                 if ("activated" in ab) this.activated.push(ab.activated);
             }
         }
 
-        if (this.row === "leader")
+               if (this.row === "leader")
             this.desc_name = "Leader Ability";
         else if (this.abilities.length > 0) {
-            this.desc_name = ability_dict[this.abilities[this.abilities.length - 1]].name;
-            if (this.abilities.length > 1)
-                this.desc_name += " / " + ability_dict[this.abilities[this.abilities.length - 2]].name;
+            let ab1 = ability_dict[this.abilities[this.abilities.length - 1]];
+            this.desc_name = ab1 ? ab1.name : this.abilities[this.abilities.length - 1];
+            
+            if (this.abilities.length > 1) {
+                let ab2 = ability_dict[this.abilities[this.abilities.length - 2]];
+                if (ab2) this.desc_name += " / " + ab2.name;
+            }
         } else if (this.row === "agile" || this.row === "agile_cr")
             this.desc_name = "Agile Close / Ranged";
         else if (this.row === "agile_cs")
@@ -3145,18 +3408,23 @@ class Card {
         else
             this.desc_name = "";
 
-        this.desc = this.row.includes("agile") ? "<p><b>Agile:</b> " + ability_dict[this.row].description + "</p>" : "";
+        this.desc = (this.row && this.row.includes("agile") && ability_dict[this.row]) ? "<p><b>Agile:</b> " + ability_dict[this.row].description + "</p>" : "";
         for (let i = this.abilities.length - 1; i >= 0; --i) {
-            let abi_name = (ability_dict[this.abilities[i]].name ? ability_dict[this.abilities[i]].name : "Leader Ability");
+            let ab = ability_dict[this.abilities[i]];
+            let abi_name = ab ? (ab.name ? ab.name : "Leader Ability") : this.abilities[i];
             let faction_abi_desc = "description_" + this.faction;
-            if (ability_dict[this.abilities[i]][faction_abi_desc]) {
-                // If there is a faction specific description/behaviour
-                this.desc += "<p><b>" + abi_name + " (" + factions[this.faction].name + "):</b> " + ability_dict[this.abilities[i]][faction_abi_desc] + "</p>";
-            } else {
-                this.desc += "<p><b>" + abi_name + ":</b> " + ability_dict[this.abilities[i]].description + "</p>";
-            }
             
+            if (ab) {
+                if (ab[faction_abi_desc]) {
+                    this.desc += "<p><b>" + abi_name + " (" + (factions[this.faction] ? factions[this.faction].name : this.faction) + "):</b> " + ab[faction_abi_desc] + "</p>";
+                } else {
+                    this.desc += "<p><b>" + abi_name + ":</b> " + (ab.description || "") + "</p>";
+                }
+            } else {
+                this.desc += "<p><b>" + abi_name + ":</b> Habilidad no definida en abilities.js</p>";
+            }
         }
+
         // If Summon Avenger or Invoke card, give information about the card being summoned
         if (this.abilities.includes("avenger") && this.target) {
             let target = card_dict[this.target];
@@ -3234,43 +3502,69 @@ class Card {
         await board.toRow(this, source);
     }
 
-    // Animates an ability effect
-    async animate(name, bFade = true, bExpand = true) {
+            async animate(name, bFade = true, bExpand = true) {
         if (!may_pass1 && playingOnline) await sleep(600);
+        
         var guia = {
             "medic": "med",
             "muster": "ally",
             "morale": "moral",
             "bond": "moral"
-        }
+        };
         var temSom = new Array();
         for (var x in guia) temSom[temSom.length] = x;
-        var literais = ["scorch", "spy", "horn", "shield", "lock", "seize", "knockback", "resilience", "curse", "immortal", "aerondight", "ambush", "necrophage", "comrade", "emissary", "invoke","monster_toussaint"];
-        var som = literais.indexOf(name) > -1 ? literais[literais.indexOf(name)] : temSom.indexOf(name) > -1 ? guia[name] : "";
+        
+        var literais = ["scorch", "cull", "spy", "horn", "shield", "lock", "seize", "knockback", "resilience", "curse", "immortal", "aerondight", "ambush", "necrophage", "clairvoyance", "omen", "comrade", "emissary", "ofiri_envoy", "clear", "trade", "invoke", "monster_toussaint", "rune_call"];
+        
+        var som;
+        if (name === "morale" || name === "bond") {
+            som = "moral";
+        } else {
+            som = literais.indexOf(name) > -1 ? literais[literais.indexOf(name)] : temSom.indexOf(name) > -1 ? guia[name] : "";
+        }
+        
         if (som != "") tocar(som, false);
+
+        if (name === "scorch" && (this.abilities.includes("scorch") || this.abilities.includes("scorch_c") || this.abilities.includes("scorch_r") || this.abilities.includes("scorch_s") || this.key === "spe_scorch")) {
+            return;
+        }
+        if (name === "cull" && (this.abilities.includes("cull") || this.key === "spe_cull")) {
+            return;
+        }
+
         if (name === "scorch") {
             return await this.scorch(name);
         }
-if (name === "hero") {
-			return await this.animateHeroEffect(name);
-		}
+        if (name === "cull") {
+            return await this.scorch(name);
+        }
+        if (name === "hero") {
+            return await this.animateHeroEffect(name);
+        }
+
         let anim = this.elem.children[this.elem.children.length - 1];
+        if (!anim) return;
+
         anim.style.backgroundImage = iconURL("anim_" + name);
         await sleep(50);
 
-        if (bFade) fadeIn(anim, 300);
-        if (bExpand) anim.style.backgroundSize = "100% auto";
-        await sleep(300);
+        let speed = (name === "shield" || name === "omen" || name === "clairvoyance" || name === "wish") ? 450 : 300;
 
-        if (bExpand) anim.style.backgroundSize = "80% auto";
+        if (bFade) fadeIn(anim, speed);
+        if (bExpand) anim.style.backgroundSize = "110% auto";
+        await sleep(speed);
+
+        if (bExpand) anim.style.backgroundSize = "90% auto";
         await sleep(1000);
 
-        if (bFade) fadeOut(anim, 300);
-        if (bExpand) anim.style.backgroundSize = "40% auto";
-        await sleep(300);
+        if (bFade) fadeOut(anim, speed);
+        if (bExpand) anim.style.backgroundSize = "50% auto";
+        await sleep(speed);
 
         anim.style.backgroundImage = "";
     }
+
+
 
     // Animates the scorch effect
     async scorch(name) {
@@ -3310,10 +3604,11 @@ if (name === "hero") {
         return !this.hero && (this.row === "close" || this.row === "ranged" || this.row === "siege" || this.row.includes("agile"));
     }
 
-    // Returns true if card is sent to a Row's special slot
+      // Returns true if card is sent to a Row's special slot
     isSpecial() {
-        return ["spe_horn", "spe_mardroeme", "spe_sign_quen", "spe_sign_yrden", "spe_toussaint_wine", "spe_lyria_rivia_morale", "spe_wyvern_shield", "spe_mantlet", "spe_garrison", "spe_watchman", "spe_dimeritium_shackles", "spe_curse"].includes(this.key);
+        return ["spe_horn", "spe_mardroeme", "spe_sign_quen", "spe_sign_yrden", "spe_toussaint_wine", "spe_lyria_rivia_morale", "spe_wyvern_shield", "spe_mantlet", "spe_garrison", "spe_watchman", "spe_dimeritium_shackles", "spe_curse", "spe_ofir_horn"].includes(this.key);
     }
+
 
     // Compares by type then power then name
     static compare(a, b) {
@@ -3344,6 +3639,7 @@ if (name === "hero") {
         } else if (this.isSpecial()) {
             return this.getAllRows();
         }
+
         return [board.getRow(this, this.row, this.holder)];
     }
 
@@ -3383,7 +3679,6 @@ if (name === "hero") {
             num.classList.add("center");
             power.appendChild(num);
             
-            // --- TRADUCTOR DE ABREVIATURAS PARA TUS IMÁGENES PNG ---
             let rowName = card.row;
             if (card.row.includes("agile")) {
                 if (card.row === "agile_close_ranged" || card.row === "agile_cr") {
@@ -3528,6 +3823,7 @@ class UI {
         this.underRearrangement = false;
         this.underCardPowerEdit = false;
         this.arrangementMoves = 0;
+        
         if (!isMobile()) {
             document.getElementById("pass-button").addEventListener("mousedown", function (e) {
                 if (e.button == 0) {
@@ -3541,13 +3837,14 @@ class UI {
             document.getElementById("pass-button").addEventListener("mouseout", () => {
                 if (may_pass2 == "mouse") passBreak();
             }, false);
-
-let giveupBtn = document.getElementById("giveup-button");
+            
+            
+        let giveupBtn = document.getElementById("giveup-button");
 if (giveupBtn) {
     giveupBtn.onclick = async () => {
         if (typeof ui !== "undefined" && ui.isBlocked && ui.isBlocked()) return;
         tocar("pass", false);
-       
+
         limpar();
         if (typeof game !== "undefined" && typeof game.reset === "function") {
             game.reset();
@@ -3574,6 +3871,18 @@ if (giveupBtn) {
             }
             let elOp = document.getElementById("passed-" + player_op.tag);
             if (elOp) elOp.classList.remove("passed");
+        }
+
+        if (typeof player_me !== "undefined" && player_me.aamadBonus && player_me.aamadBonus > 0) {
+            player_me.total -= player_me.aamadBonus;
+            player_me.aamadBonus = 0;
+        }
+        if (typeof player_op !== "undefined" && player_op.aamadBonus && player_op.aamadBonus > 0) {
+            player_op.total -= player_op.aamadBonus;
+            player_op.aamadBonus = 0;
+        }
+        if (typeof board !== "undefined" && board.updateLeader) {
+            board.updateLeader();
         }
 
 if (typeof player_me !== "undefined") {
@@ -3613,9 +3922,7 @@ if (typeof player_op !== "undefined") {
                 switch (e.keyCode) {
                     case 81:
                         e.preventDefault();
-                        try {
-                            ui.cancel();
-                        } catch (err) { }
+                        try { ui.cancel(); } catch (err) { }
                         break;
                     case 32:
                         if (may_pass3) passStart("keyboard");
@@ -3629,14 +3936,15 @@ if (typeof player_op !== "undefined") {
                 }
             });
         } else {
-document.getElementById("pass-button").addEventListener("click", function (e) {
-            if (game.isPvP()) {
-                game.currPlayer.passRound();
-            } else {
-                player_me.passRound();
-            }
-        });
-let giveupBtnMobile = document.getElementById("giveup-button");
+            document.getElementById("pass-button").addEventListener("click", function (e) {
+                if (game.isPvP()) {
+                    game.currPlayer.passRound();
+                } else {
+                    player_me.passRound();
+                }
+            });
+            
+           let giveupBtnMobile = document.getElementById("giveup-button");
 if (giveupBtnMobile) {
     giveupBtnMobile.addEventListener("click", async function (e) {
         tocar("pass", false);
@@ -3667,6 +3975,18 @@ if (giveupBtnMobile) {
             }
             let elOp = document.getElementById("passed-" + player_op.tag);
             if (elOp) elOp.classList.remove("passed");
+        }
+
+        if (typeof player_me !== "undefined" && player_me.aamadBonus && player_me.aamadBonus > 0) {
+            player_me.total -= player_me.aamadBonus;
+            player_me.aamadBonus = 0;
+        }
+        if (typeof player_op !== "undefined" && player_op.aamadBonus && player_op.aamadBonus > 0) {
+            player_op.total -= player_op.aamadBonus;
+            player_op.aamadBonus = 0;
+        }
+        if (typeof board !== "undefined" && board.updateLeader) {
+            board.updateLeader();
         }
 
 if (typeof player_me !== "undefined") {
@@ -3702,20 +4022,18 @@ if (typeof player_op !== "undefined") {
     });
             }
         }
-
+        
         document.getElementById("click-background").addEventListener("click", () => ui.cancel(), false);
         this.toggleMusic_elem = document.getElementById("toggle-music");
         this.toggleMusic_elem.classList.add("fade");
-
         document.getElementById("arrangementWindow-button").addEventListener("click", () => {
             this.updateArrangementCounter(0);
             this.underRearrangement = false;
             game.currPlayer.endTurn();
-
         }, false);
 
         this.helper = new HelperBox();
-	if (isMobile && typeof isMobile === "function" && isMobile()) {
+if (isMobile && typeof isMobile === "function" && isMobile()) {
 
 
 			let deckCustomElement = document.getElementById("deck-customization");
@@ -3825,6 +4143,8 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 				boardElement.style.backgroundSize = "100% 100%";
 				boardElement.style.backgroundRepeat = "no-repeat";
 			}
+
+
 			let estiloQuotesMovel = document.createElement("style");
 			estiloQuotesMovel.innerHTML = `
 				.card-array .card-large-quote {
@@ -3866,6 +4186,7 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
                                 #carousel {
 					top: -30px !important;
 				}
+
                                 #carousel .card-large-quote {
 					top: 82% !important;
 				}
@@ -3874,11 +4195,11 @@ let startPvPGameBtn = document.getElementById("start-pvp-game");
 				}
 				.card-preview .card-description {
 					top: 32.5vw !important;
-                                transform: scale(0.95) !important;
+transform: scale(0.95) !important;
 				}
 				#carousel .card-description {
 					top: 74% !important;
-                                font-size: 11px !important;
+font-size: 11px !important;
 					line-height: 0.83 !important;
 					transform: scale(0.82) !important;
 					transform-origin: top center !important;
@@ -3976,7 +4297,9 @@ top: 58% !important;
 	margin-bottom: 1px !important;
 }
 
-			`;
+			
+
+`;
 			document.head.appendChild(estiloQuotesMovel);
 			
 			if (typeof actualizarPosicionMusicaMovel === "function") {
@@ -4015,7 +4338,8 @@ top: 58% !important;
    
     // Called when the player selects a selectable card
     async selectCard(card) {
-        let row = this.lastRow;
+        
+let row = this.lastRow;
         let pCard = this.previewCard;
         if (this.underRearrangement) {
             this.showPreviewVisuals(card);
@@ -4094,7 +4418,37 @@ top: 58% !important;
             if (game.scorchCancelled)
                 return;
             await ability_dict["scorch"].activated(card);
-        } else if (card.faction === "special" && card.abilities.includes("cintra_slaughter")) {
+} else if (card.faction === "special" && card.abilities.includes("cull")) {
+			this.hidePreview();
+			if (!game.scorchCancelled) await ability_dict["cull"].activated(card);
+        } else if (card.faction === "special" && card.abilities.includes("veles")) {
+            this.hidePreview();
+            await ability_dict["veles"].activated(card);
+        } else if (card.faction === "special" && card.abilities.includes("chernobog")) {
+            this.hidePreview();
+            await ability_dict["chernobog"].activated(card);
+        } else if (card.faction === "special" && card.abilities.includes("perun")) {
+            this.hidePreview();
+            await ability_dict["perun"].activated(card);
+        } else if (card.faction === "special" && card.abilities.includes("svarog")) {
+            this.hidePreview();
+            await ability_dict["svarog"].activated(card);
+        } else if (card.faction === "special" && card.abilities.includes("morana")) {
+            this.hidePreview();
+            await ability_dict["morana"].activated(card);
+        } else if (card.faction === "special" && card.abilities.includes("zoria")) {
+            this.hidePreview();
+            await ability_dict["zoria"].activated(card);
+        } else if (card.faction === "special" && card.abilities.includes("stribog")) {
+            this.hidePreview();
+            await ability_dict["stribog"].activated(card);
+        } else if (card.faction === "special" && card.abilities.includes("devana")) {
+            this.hidePreview();
+            await ability_dict["devana"].activated(card);
+        } else if (card.faction === "special" && card.abilities.includes("triglav")) {
+            this.hidePreview();
+            await ability_dict["triglav"].activated(card);
+} else if (card.faction === "special" && card.abilities.includes("cintra_slaughter")) {
             this.hidePreview();
             await ability_dict["cintra_slaughter"].activated(card);
         } else if (card.faction === "special" && card.abilities.includes("seize")) {
@@ -4212,7 +4566,8 @@ top: 58% !important;
                 desc.children[0].style.backgroundImage = "";
             else if (card.row === "leader")
                 desc.children[0].style.backgroundImage = iconURL("deck_shield_" + card.faction);
-            else if (str === "white_frost" || str === "biting_frost" || str === "impenetrable_fog" || str === "torrential_rain" || str === "skellige_storm" || str === "clear_weather")
+            
+            else if (str === "white_frost" || str === "biting_frost" || str === "impenetrable_fog" || str === "torrential_rain" || str === "skellige_storm" || str === "clear_weather" || str === "spider_web" || str === "tse_tse" || str === "dragon_wrath")
                 desc.children[0].style.backgroundImage = "";
             else if (str && str !== "")
                 desc.children[0].style.backgroundImage = iconURL("card_ability_" + str);
@@ -4237,7 +4592,7 @@ if (name === "op-leader" || name === "op-white-flame" || name === "toussaint-dec
 navigator.vibrate([200, 100, 200]); 
 			}
 
-else if (name === "monsters" || name === "skellige-me" || name === "skellige-op" || name === "north" || name === "scoiatael" || name === "toussaint" || name === "lyria_rivia" || name === "zerrikania" || name === "witcher_universe" || name === "redania" || name === "velen") {
+else if (name === "monsters" || name === "skellige-me" || name === "skellige-op" || name === "north" || name === "scoiatael" || name === "toussaint" || name === "lyria_rivia" || name === "zerrikania" || name === "witcher_universe" || name === "redania" || name === "velen" || name === "ofir") {
 navigator.vibrate([150, 80, 150]); 
 			}
 			
@@ -4273,6 +4628,8 @@ navigator.vibrate(50);
             "notif-meve_white_queen": "Lyria & Rivia leader allows both players to restore 2 units when using the medic ability.",
             "notif-north-scorch-cancelled": "Northern Realms Leader ability used - Scorch ability cancelled for the rest of the round.",
             "notif-zerrikania": "Zerrikania ability used - Unit restored from discard pile.",
+"notif-ofir": "Ofir faction ability used - Weather card played from deck.",
+"notif-novigrad-sigismund": "Sigismund Dijkstra prevented the death of a friendly unit.",
             "notif-redania": "Redania used its faction ability and skipped a turn",
             "notif-velen": "Velen ability triggered: Player will draw a card"
         }
@@ -4427,11 +4784,59 @@ navigator.vibrate(50);
             }
             return;
         }
+        if (card.faction === "special" && card.abilities.includes("cull")) {
+			// Cull affects all rows - highlight all rows as selectable
+			for (let r of board.row) {
+				if (r.isShielded() || game.scorchCancelled) {
+					r.elem.classList.add("noclick");
+					r.special.elem.classList.add("noclick");
+				} else {
+					r.elem.classList.add("row-selectable");
+					r.special.elem.classList.add("row-selectable");
+					alteraClicavel(r, true);
+				}
+			}
+			return;
+		}
         // Affects only own side of board
-        if (card.faction === "special" && (card.abilities.includes("cintra_slaughter") || card.abilities.includes("bank") || card.abilities.includes("skellige_fleet") || card.abilities.includes("royal_decree"))) {
+        if (card.faction === "special" && (card.abilities.includes("cintra_slaughter") || card.abilities.includes("bank") || card.abilities.includes("skellige_fleet") || card.abilities.includes("royal_decree") || card.abilities.includes("veles"))) {
             for (let i = 0; i < 6; i++) {
                 let r = board.row[i];
                 if ((!game.isPvP() && i > 2) || (game.isPvP() && ((card.holder.tag === player_me.tag && i > 2) || (card.holder.tag === player_op.tag && i < 3)))) {
+                    r.elem.classList.add("row-selectable");
+                    r.special.elem.classList.add("row-selectable");
+                    alteraClicavel(r, true);
+                }
+            }
+            return;
+        }
+
+     // Affects only own side of board (close row)
+        if (card.faction === "special" && (card.abilities.includes("chernobog"))) {
+           let rows = [3];
+            if (game.isPvP() && card.holder.tag === player_op.tag) {
+                rows = [2];
+            }
+           for (let i of rows) { 
+                let r = board.row[i];
+                if (r) {
+                    r.elem.classList.add("row-selectable");
+                    r.special.elem.classList.add("row-selectable");
+                    alteraClicavel(r, true);
+                }
+            }
+            return;
+        }
+
+// Affects only own side of board (ranged row)
+        if (card.faction === "special" && (card.abilities.includes("perun"))) {
+           let rows = [4];
+            if (game.isPvP() && card.holder.tag === player_op.tag) {
+                rows = [1];
+            }
+           for (let i of rows) { 
+                let r = board.row[i];
+                if (r) {
                     r.elem.classList.add("row-selectable");
                     r.special.elem.classList.add("row-selectable");
                     alteraClicavel(r, true);
@@ -4456,8 +4861,58 @@ navigator.vibrate(50);
             }
             return;
         }
+// Affects enemy side of the board       
+        if (card.faction === "special" && card.abilities.includes("triglav")) {
+            let rows = [0, 1, 2];
+            if (game.isPvP() && card.holder.tag === player_op.tag) {
+                rows = [3, 4, 5];
+            }
+            for (let i of rows) { 
+                let r = board.row[i];
+                if (!r.isShielded()) {
+                    r.elem.classList.add("row-selectable");
+                    r.special.elem.classList.add("row-selectable");
+                    alteraClicavel(r, true);
+                }
+            }
+            return;
+        }
+// Affects enemy side of the board
+// Affects only opponent ranged row       
+        if (card.faction === "special" && card.abilities.includes("stribog") || card.abilities.includes("devana")) {
+            let rows = [1];
+            if (game.isPvP() && card.holder.tag === player_op.tag) {
+                rows = [4];
+            }
+            for (let i of rows) { 
+                let r = board.row[i];
+                if (!r.isShielded()) {
+                    r.elem.classList.add("row-selectable");
+                    r.special.elem.classList.add("row-selectable");
+                    alteraClicavel(r, true);
+                }
+            }
+            return;
+        }
+// Affects enemy side of the board
+// Affects only opponent siege row       
+        if (card.faction === "special" && card.abilities.includes("svarog")) {
+            let rows = [0];
+            if (game.isPvP() && card.holder.tag === player_op.tag) {
+                rows = [5];
+            }
+            for (let i of rows) { 
+                let r = board.row[i];
+                if (!r.isShielded()) {
+                    r.elem.classList.add("row-selectable");
+                    r.special.elem.classList.add("row-selectable");
+                    alteraClicavel(r, true);
+                }
+            }
+            return;
+        }
         // Affects only opponent melee row
-        if (card.faction === "special" && card.abilities.includes("seize")) {
+        if (card.faction === "special" && card.abilities.includes("seize") || card.abilities.includes("zoria") || card.abilities.includes("morana")) {
             let r = board.row[2];
             if (game.isPvP() && card.holder.tag === player_op.tag) {
                 r = board.row[3];
@@ -4469,6 +4924,8 @@ navigator.vibrate(50);
             }
             return;
         }
+
+
         //Affects only own rows that are available
         if (card.isSpecial()) {
             for (let i = 0; i < 6; i++) {
@@ -4513,6 +4970,7 @@ navigator.vibrate(50);
                         r.special.elem.classList.add("row-selectable");
                         fileira_clicavel = null;
                     }
+
                 }
 
             }
@@ -5234,7 +5692,6 @@ document.getElementById("save-internal-deck").addEventListener("click", () => th
             ui.player1DeckTitle = this.me_deck_title;
         };
 
-
         document.getElementById("start-game").addEventListener("click", () => { actualizartituloporid(); this.startNewGame(1); }, false);
         document.getElementById("start-ai-game").addEventListener("click", () => { actualizartituloporid(); this.startNewGame(2); }, false);
         document.getElementById("start-pvp-game").addEventListener("click", () => { actualizartituloporid(); this.startNewGame(3); }, false);
@@ -5309,7 +5766,8 @@ document.getElementById("save-internal-deck").addEventListener("click", () => th
         })).filter(
             p => (([faction, "neutral", "weather", "special"].includes(p.card.deck) ||
                 (["weather", "special"].includes(p.card.deck.split(" ")[0]) && p.card.deck.split(" ").includes(faction))) &&
-                p.card.row !== "leader" && !factions[faction].unavailableSpecials.includes(p.index)));
+               p.card.row !== "leader" && (!factions[faction] || !factions[faction].unavailableSpecials || !factions[faction].unavailableSpecials.includes(p.index))));
+
 
         cards.sort(function (id1, id2) {
             let a = card_dict[id1.index],
@@ -5513,7 +5971,7 @@ makePreview(index, num, container_elem, cards) {
             Carousel.curr.index = index;
             Carousel.curr.update();
         } else {
-
+            
             console.log("El carrusel está en cola esperando activación.");
         }
     }
@@ -5702,7 +6160,7 @@ makePreview(index, num, container_elem, cards) {
     }
 
     // Called by the client to downlaod the current deck as a JSON file
-   downloadDeck() {
+    downloadDeck() {
         let json = this.deckToJSON();
         
         if (typeof isMobile === "function" && isMobile()) {
@@ -5830,10 +6288,10 @@ makePreview(index, num, container_elem, cards) {
         this.makeBank(deck.faction, cards);
         this.update();
     }
-    
 
 
-   saveDeckInternal() {
+
+saveDeckInternal() {
         let savedDecks = {};
         try {
             let raw = localStorage.getItem("gwent_internal_decks");
@@ -5879,7 +6337,7 @@ makePreview(index, num, container_elem, cards) {
         alertBox.innerHTML = "<h3>Deck Saved!</h3><p style='margin: 5px 0 0 0; color:#fff;'>Saved as: <b>" + finalName + "</b></p>";
         
         document.body.appendChild(alertBox);
-        setTimeout(() => { alertBox.remove(); }, 2500);
+        setTimeout(() => { alertBox.remove(); }, 1200);
     }
 
 
@@ -5913,7 +6371,7 @@ makePreview(index, num, container_elem, cards) {
             alertBox.innerHTML = "<h3>No Decks Found</h3><p style='margin: 5px 0 0 0; color:#fff;'>You haven't saved any custom decks internally yet.</p>";
             
             document.body.appendChild(alertBox);
-            setTimeout(() => { alertBox.remove(); }, 3000);
+            setTimeout(() => { alertBox.remove(); }, 1200);
             return;
         }
 
@@ -5997,8 +6455,6 @@ closeBtn.addEventListener("click", () => {
     }
 
 }
-
-
 
 
 
@@ -6112,7 +6568,7 @@ class DeckSorter {
                function dragStart(e) {
             if (e.target) {
                 DeckSorter.curr.target_id = e.target.id;
-                DeckSorter.curr.selectedCard = e.target; // Guardamos para el modo táctil
+                DeckSorter.curr.selectedCard = e.target; 
                 setTimeout(() => {
                     
                     e.target.style.opacity = "0.4";
@@ -6136,6 +6592,7 @@ class DeckSorter {
             box.addEventListener('dragleave', dragLeave);
             box.addEventListener('drop', drop);
 
+            
             box.addEventListener('click', function(e) {
                 let targetBox = e.currentTarget;
                 if (DeckSorter.curr.selectedCard && targetBox.querySelectorAll('.drop-item').length == 0 && targetBox.classList.contains("drop-box")) {
@@ -6151,13 +6608,13 @@ class DeckSorter {
                 }
             });
         });
-
+       
         window.addEventListener('click', function(e) {
             let targetCard = e.target.closest('.drop-item');
             if (targetCard) {
                 DeckSorter.curr.target_id = targetCard.id;
                 DeckSorter.curr.selectedCard = targetCard;
-                
+                                
                 document.querySelectorAll('.drop-item').forEach(el => el.style.opacity = "1");
                 targetCard.style.opacity = "0.5";
             }
@@ -6300,7 +6757,7 @@ async function translateTo(card, container_source, container_dest) {
     let source = !container_source ? card.elem : getSourceElem(card, container_source, container_dest);
     let dest = getDestinationElem(card, container_source, container_dest);
  if (!source) {
-        console.warn("¡Aviso! Se interceptó un contenedor de origen inválido en la animación.");
+        console.warn("¡Aviso! Se interceptó un contenedor de origen inválido en la animación.");        
         return; 
     }
     if (!isInDocument(elem))
@@ -6319,6 +6776,8 @@ async function translateTo(card, container_source, container_dest) {
     if (container_source instanceof Row && container_dest === player_me.hand)
         y *= 7 / 8;
     await translate(elem, x, y);
+
+
 
     // Returns true if the element is visible in the viewport
     function isInDocument(elem) {
@@ -6425,12 +6884,36 @@ async function fade(fadeIn, elem, dur, delay) {
 
 // Get Image paths   
 function iconURL(name, ext = "png") {
-if (!name || name === "card_ability_" || name === "card_ability_undefined") {
-        return "";    }
-if (name === "card_ability_agile_cr") {
-        return imgURL("icons/card_ability_agile", ext); }    
-return imgURL("icons/" + name, ext);
+    if (!name || name === "card_ability_" || name === "card_ability_undefined") {
+        return "";
+    }
+    
+    if (name === "card_ability_cull") {
+        name = "card_ability_cull"; // 
+    }
+
+    if (name === "card_ability_sandstorm") {
+        name = "overlay_sandstorm";
+    }
+if (name === "card_ability_spider_web") {
+        name = "overlay_spider_web";
+    }
+
+    if (name === "card_ability_tse_tse") {
+        name = "overlay_tse_tse";
+    }
+
+    if (name === "card_ability_dragon_wrath") {
+        name = "overlay_dragon_wrath";
+    }
+    
+    if (name === "card_ability_agile_cr") {
+        return imgURL("icons/card_ability_agile", ext);
+    }    
+    
+    return imgURL("icons/" + name, ext);
 }
+
 
 function largeURL(name, ext = "jpg") {
     return imgURL("lg/" + name, ext)
@@ -6552,6 +7035,7 @@ function getPreviewElem(elem, card, nb = 0) {
         row.style.backgroundImage = iconURL("card_row_" + card.targetRows);
     }
 
+       
     if (c_abilities.length > 0 || (card.row && card.row.includes("agile"))) {
         let abi = document.createElement("div");
         abi.classList.add("card-large-ability");
@@ -6569,6 +7053,7 @@ function getPreviewElem(elem, card, nb = 0) {
                 str = "shield";
             abi.style.backgroundImage = iconURL("card_ability_" + str);
         } 
+        
         if ((c_abilities.length === 0 || !abi.style.backgroundImage) && card.row && card.row.includes("agile") && !faction.startsWith("weather")) {
             abi.style.backgroundImage = iconURL("card_ability_agile");
         }
@@ -6576,6 +7061,7 @@ function getPreviewElem(elem, card, nb = 0) {
                // In case of double abilities
         if (c_abilities.length > 1) {
             let str = c_abilities[c_abilities.length - 2];
+            
             
             if (str && str !== "hero") {
                 let abi2 = document.createElement("div");
@@ -6770,9 +7256,7 @@ async function cartaNaLinha(id, carta) {
 				else if (linha == 3 || linha == 4) tocar("common1", false);
 			} else tocar("menu_buy", false);
 		} else {
-			
 			tocar("hero", false);
-			
 			
 			if (carta && typeof carta.animate === "function") {
 				await carta.animate("hero");
@@ -6867,11 +7351,11 @@ musicToggle.style.gap = "15px";
 }
 
 (function() {
-    if (typeof window !== "undefined") {       
+    if (typeof window !== "undefined") {
         if (window.chrome && window.chrome.webview) {
             window.chrome.webview.postMessage({ type: "SET_TEXT_ZOOM", value: 100 });
         }
-     
+        
         let estiloBlindaje = document.createElement("style");
         estiloBlindaje.innerHTML = `
             * {

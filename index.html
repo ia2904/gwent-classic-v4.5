@@ -1,14 +1,15 @@
 <!doctype html>
 <html lang = "en-US">
 	<head>
-		<title>Gwent 4.5</title>
+		<title>Gwent 5.0</title>
 		<meta charset = "utf-8" />
-		<meta name = "author" content = "Arun Sundaram, Reynolds Costa & Iván Mtz" />
+		<meta name = "author" content = "Arun Sundaram, Reynolds Costa, Sylver & Iván Mtz" />
 		<meta name = "description" content = "Play the original Gwent minigame from The Witcher 3 in your browser! Includes cards from Hearts of Stone and Blood & Wine!" />
 		<meta name = "keywords" content = "arun, sundaram, reynolds, costa, randompianist, programmer, gwent, tw3, witcher, card, game, gamedev, play" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 		<link rel = "icon" type = "image/x-icon" href = "img/favicon.ico" />
-		<link rel = "stylesheet" type = "text/css" href = "style.css" />
+<link rel = "stylesheet" type = "text/css" href = "style.css" />
+
 <script type="text/javascript">
     (function() {
         if (window.PhoneGap || window.cordova || navigator.userAgent.indexOf('Android') > -1) {
@@ -24,10 +25,10 @@
             document.head.appendChild(chasisEstilo);
         });
     })();
-</script>	
+</script>
 <style type = "text/css">        
 @font-face {
-            font-family: 'GwentCustom';          
+            font-family: 'GwentCustom';           
             src: url('fonts/gwent.ttf') format('truetype'); 
             font-weight: normal;
             font-style: normal;
@@ -69,9 +70,9 @@
                     <span class="letra-grande">G</span>WEN<span class="letra-grande">T</span>
                 </span>
                 <br />
-                <font id="load_text">Loading v4.5...</font>
+                <font id="load_text">Loading v5.0...</font>
                 <button class="start-game_class" id="button_start" style="display:none">LET'S PLAY</button>
-                <div id="version_text">v4.5</div>
+                <div id="version_text">v5.0</div>
             </div>
         </div>
     </div>
@@ -317,6 +318,8 @@
     <button id="next-board" class="hover_un">▶</button>
 </div>
 
+
+
             <a id="select-deck" class="deck-options">Select Own Deck</a>
 
             <label id="upload-deck" class="deck-options">
@@ -356,9 +359,9 @@
             <button id="start-ai-game" class="start-game_class">Start AI game</button>
             <button id="start-pvp-game" class="start-game_class">Start PvP game</button>
         </section>
-		<div id="toggle-music" class="center music-customization" style="display flex; gap: 8px; align-items: center;">
-    <span id="btn-play" style="cursor:pointer; font-size: 0.8em;">♫</span>
-    <span id="btn-skip" style="cursor:pointer; font-size: 0.6em;">⏭</span>
+		<div id="toggle-music" class="center music-customization" style="display:none; cursor:default !important; display: flex; gap: 8px; align-items: center;">
+    <span id="btn-play" style="font-size: 0.8em;">♫</span>
+    <span id="btn-skip" style="font-size: 0.6em;">⏭</span>
 </div>
 		<script type = "text/javascript" src = "cards.js"></script>
 		<script type = "text/javascript" src = "decks.js"></script>
@@ -376,6 +379,7 @@
     ];
     var audio = document.getElementById('bgMusicLocal');
 
+   
     var currentTrackIndex = -1;
 
     function saltar() {
@@ -388,8 +392,7 @@
         }
 
         var nuevoIndex = currentTrackIndex;
-
-
+       
         while (nuevoIndex === currentTrackIndex) {
             nuevoIndex = Math.floor(Math.random() * playlist.length);
         }

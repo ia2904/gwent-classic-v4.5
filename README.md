@@ -5,7 +5,7 @@ A browser remake of the original Gwent minigame from The Witcher 3: Wild Hunt. <
 Some factions adapt [Novigrad Tavern's](https://www.ebay.com/usr/novigrad_tavern) card designs (with some differences) but with a much deeper balance redesign. Card abilities have been tweaked to offer more complexity, and two brand-new factions have been added: Ofir and Novigrad.
 
 ## Screenshots
-<img width="31%" alt="gameplay 1" src="https://github.com/user-attachments/assets/bd3b0bc4-967f-43d1-ae0f-c5f8c13facdc" />
+<img width="31%" alt="gameplay 1" src="https://github.com/user-attachments/assets/e5fa4ae3-f549-4eba-9549-e6803ac9e335" />
 <img width="31%" alt="gameplay 2" src="https://github.com/user-attachments/assets/5f92f31a-58d3-43f0-8060-a8f7f3edfd74" />
 <img width="31%" alt="gameplay 3" src="https://github.com/user-attachments/assets/95d034e8-d598-4828-adad-b9055eb1d993" />
 
